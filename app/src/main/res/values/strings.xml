@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">音乐</string>
+    <string name="song_title">歌曲</string>
+    <string name="album_title">专辑</string>
+    <string name="artist_title">歌手</string>
+    <string name="folder_title">文件夹</string>
+    <string name="favorite_title">我的最爱</string>
+    <string name="songlist_title">自建歌单</string>
+    <string name="setting_title">设置</string>
+    <string name="about_title">关于</string>
+    <string name="menu">菜单</string>
+    <string name="loading_desc">疯狂加载中</string>
+    <string name="play_all_desc">播放全部（%d）</string>
+    <string name="no_play_desc">听你所想~</string>
+    <string name="search">搜索</string>
+</resources>
