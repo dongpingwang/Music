@@ -15,8 +15,6 @@ class SongQuery : ISongQuery {
         private const val TAG = "SongQuery"
     }
 
-    private val albumArtQuery by lazy { AlbumArtQuery() }
-
     @SuppressLint("Range")
     override fun getAllSongs(): Result<List<Song>> = LogTrace.measureTimeMillis("SongQuery#getAllSongs()") {
         kotlin.runCatching {
@@ -46,7 +44,7 @@ class SongQuery : ISongQuery {
                     }
                     val data = cursor.getString(cursor.getColumnIndex(Media.DATA)) // 全路径
                     val displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME)) // 文件的名称
-                    val duration = cursor.getInt(cursor.getColumnIndex(Media.DURATION)) // 时长
+                    val duration = cursor.getLong(cursor.getColumnIndex(Media.DURATION)) // 时长
                     val size = cursor.getInt(cursor.getColumnIndex(Media.SIZE)) // 文件大小
                     val song = Song(
                         id = id,
@@ -62,7 +60,6 @@ class SongQuery : ISongQuery {
                         duration = duration,
                         size = size,
                     )
-                    song.bitmap = albumArtQuery.getAlbumArt(id, albumId)
                     Log.d(TAG, "song from cursor: $song")
                     result.add(song)
                 }

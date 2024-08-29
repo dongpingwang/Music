@@ -3,6 +3,7 @@ package com.hjkl.music
 import android.app.Application
 import com.hjkl.comm.AppUtil
 import com.hjkl.comm.LogTrace
+import com.hjkl.music.data.AppConfig
 import com.hjkl.player.PlayerProxy
 
 class MusicApplication : Application() {
@@ -12,6 +13,7 @@ class MusicApplication : Application() {
         LogTrace.measureTimeMillis("MusicApplication#onCreate()") {
             AppUtil.init(this)
             PlayerProxy.init()
+            AppConfig.init()
         }
     }
 

@@ -25,12 +25,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,11 +40,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import asSuccess
 import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.theme.MusicTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,27 +75,26 @@ fun TopAppBar(
 }
 
 
-
-@Composable
-fun ToLoading() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentSize()
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(80.dp),
-            color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-        Text(
-            text = stringResource(id = R.string.loading_desc),
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
+//@Composable
+//fun ToLoading() {
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .wrapContentSize()
+//    ) {
+//        CircularProgressIndicator(
+//            modifier = Modifier
+//                .align(Alignment.Center)
+//                .size(80.dp),
+//            color = MaterialTheme.colorScheme.secondary,
+//            trackColor = MaterialTheme.colorScheme.surfaceVariant
+//        )
+//        Text(
+//            text = stringResource(id = R.string.loading_desc),
+//            modifier = Modifier.align(Alignment.Center)
+//        )
+//    }
+//}
 
 @Composable
 fun ToError() {
@@ -115,92 +115,91 @@ fun BottomMiniPlayer(
     onClick: () -> Unit,
     onTogglePlay: () -> Unit
 ) {
-
+    val curSong = uiState.asSuccess().curSong
+    val isPlaying = uiState.asSuccess().isPlaying
+    val hasPlayingContent: Boolean = curSong != null
+    var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var sheetExpend = remember { false }
 
-    BottomAppBar(modifier = Modifier
-        .clickable {
-            onClick()
-        }
-        .drawBehind { }) {
-        val curSong: Song?
-        val isPlaying: Boolean
-        if (uiState is SongUiState.Success) {
-            curSong = uiState.curSong
-            isPlaying = uiState.isPlaying
-        } else {
-            curSong = null
-            isPlaying = false
-        }
-        if (curSong?.bitmap != null) {
-            Image(
-                bitmap = curSong.bitmap!!.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .size(40.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
+    Box {
+        BottomAppBar(modifier = Modifier.clickable {
+            if (hasPlayingContent) {
+                onClick()
+            }
+        }) {
 
-            )
-        } else {
-            Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.music_note_40px),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .size(40.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(Color.LightGray)
-            )
-        }
-        val desc = if (curSong != null) {
-            "${curSong.title} - ${curSong.artist}"
-        } else {
-            stringResource(id = R.string.no_play_desc)
-        }
-        Text(
-            text = desc,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(1F)
-                .padding(horizontal = 10.dp, vertical = 16.dp)
-        )
-        IconButton(
-            onClick = { onTogglePlay() }
+            if (curSong?.bitmap != null) {
+                Image(
+                    bitmap = curSong.bitmap!!.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .size(40.dp)
+                        .clip(MaterialTheme.shapes.extraSmall)
 
-        ) {
-            val playIcon = if (isPlaying) {
-                ImageVector.vectorResource(id = R.drawable.pause_circle_24px)
+                )
             } else {
-                ImageVector.vectorResource(id = R.drawable.play_circle_24px)
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.music_note_40px),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .size(40.dp)
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .background(Color.LightGray)
+                )
             }
-            Icon(
-                imageVector = playIcon,
-                contentDescription = null,
-            )
-        }
-
-        IconButton(
-            onClick = {
-                Log.d("wdp0","sheetExpend = true")
-                sheetExpend = true
+            val desc = if (curSong != null) {
+                "${curSong.title} - ${curSong.artist}"
+            } else {
+                stringResource(id = R.string.no_play_desc)
             }
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.queue_music_24px),
-                contentDescription = null,
+            Text(
+                text = desc,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(horizontal = 10.dp, vertical = 16.dp)
             )
-        }
+            IconButton(
+                onClick = {
+                    if (hasPlayingContent) {
+                        onTogglePlay()
+                    }
+                }
 
-        Log.d("wdp0","sheetExpend: $sheetExpend")
-        if (sheetExpend) {
+            ) {
+                val playIcon = if (isPlaying) {
+                    ImageVector.vectorResource(id = R.drawable.pause_circle_24px)
+                } else {
+                    ImageVector.vectorResource(id = R.drawable.play_circle_24px)
+                }
+                Icon(
+                    imageVector = playIcon,
+                    contentDescription = null,
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    if (hasPlayingContent) {
+                        showBottomSheet = true
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.queue_music_24px),
+                    contentDescription = null,
+                )
+            }
+        }
+        if (showBottomSheet && hasPlayingContent) {
             ModalBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 sheetState = sheetState,
-                onDismissRequest = { sheetExpend = false },
+                onDismissRequest = { showBottomSheet = false },
             ) {
                 Text(
                     text = "Page: $",
@@ -209,6 +208,7 @@ fun BottomMiniPlayer(
             }
         }
     }
+
 
 }
 

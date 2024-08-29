@@ -1,4 +1,4 @@
-package com.hjkl.player
+package com.hjkl.player.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -20,9 +20,10 @@ class MusicService: Service() {
 
          fun start() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                AppUtil.getContext().startForegroundService(Intent(AppUtil.getContext(),MusicService::class.java))
+                AppUtil.getContext().startForegroundService(Intent(AppUtil.getContext(),
+                    MusicService::class.java))
             }else {
-                AppUtil.getContext().startService(Intent(AppUtil.getContext(),MusicService::class.java))
+                AppUtil.getContext().startService(Intent(AppUtil.getContext(), MusicService::class.java))
             }
         }
     }

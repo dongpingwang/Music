@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
+    // implementation (libs.mmkv)
+    implementation (libs.serialize)
 
 
     implementation(project(":comm"))

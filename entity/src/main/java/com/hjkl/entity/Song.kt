@@ -13,7 +13,7 @@ data class Song(
     val genreId: Int?,
     val data: String,
     val displayName: String,
-    val duration: Int,
+    val duration: Long,
     val size: Int,
     var bitmap: Bitmap? = null // 专辑封面
 ) {

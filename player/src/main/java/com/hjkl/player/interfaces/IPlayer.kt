@@ -1,8 +1,19 @@
-package com.hjkl.player
+package com.hjkl.player.interfaces
 
 import com.hjkl.entity.Song
+import com.hjkl.player.constant.PlayMode
 
 interface IPlayer {
+
+    /**
+     * 初始化
+     */
+    fun init()
+
+    /**
+     * 释放
+     */
+    fun destroy()
 
     /**
      * 播放歌曲，从第一首开始播放
@@ -48,7 +59,7 @@ interface IPlayer {
     /**
      * 上一首
      */
-    fun pre()
+    fun prev()
 
     /**
      * 判断是否在播放中
@@ -59,7 +70,7 @@ interface IPlayer {
      * 设置进度
      */
 
-    fun seekTo(progress: Long)
+    fun seekTo(positionMs: Long)
 
     /**
      * 获取歌曲时长
@@ -70,6 +81,16 @@ interface IPlayer {
      * 获取当前进度
      */
     fun getPosition(): Long
+
+    /**
+     * 设置播放模式
+     */
+    fun setPlayMode(playMode: PlayMode)
+
+    /**
+     * 获取播放模式
+     */
+    fun getPlayMode(): PlayMode
 
     /**
      * 当前歌曲变化监听
@@ -84,4 +105,18 @@ interface IPlayer {
     fun registerIsPlayingChangedListener(listener: (Boolean) -> Unit): Boolean
 
     fun unregisterIsPlayingChangedListener(listener: (Boolean) -> Unit): Boolean
+
+    /**
+     * 播放进度变化监听
+     */
+    fun registerProgressChangedListener(listener: (Long) -> Unit): Boolean
+
+    fun unregisterProgressChangedListener(listener: (Long) -> Unit): Boolean
+
+    /**
+     * 播放模式变化监听
+     */
+    fun registerPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean
+
+    fun unregisterPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean
 }

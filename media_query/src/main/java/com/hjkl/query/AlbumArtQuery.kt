@@ -9,6 +9,7 @@ import com.hjkl.comm.AppUtil
 import com.hjkl.comm.LogTrace
 import java.io.FileDescriptor
 
+@Deprecated("有些机型获取不到专辑图片")
 class AlbumArtQuery : IAlbumArtQuery {
     companion object {
         private const val TAG = "AlbumArtQuery"

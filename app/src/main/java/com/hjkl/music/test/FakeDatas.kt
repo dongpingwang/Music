@@ -1,6 +1,6 @@
 package com.hjkl.music.test
 
-import SongUiState
+import SongViewModel
 import com.hjkl.entity.Song
 
 object FakeDatas {
@@ -20,11 +20,5 @@ object FakeDatas {
     )
 
     val songs = listOf(song, song, song)
-    val songUiState =
-        SongUiState.Success(
-            songs = songs,
-            curPage = 0,
-            curSong = null,
-            isPlaying = false,
-        )
+    val songUiState = SongViewModel.NULL_SUCCESS
 }

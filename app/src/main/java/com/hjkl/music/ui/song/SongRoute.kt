@@ -18,7 +18,13 @@ fun SongRoute(
         openDrawer = openDrawer,
         onPlayAll = { songViewModel.playAll() },
         onItemClick = { songViewModel.playIndex(it) },
-        onTogglePlay = { songViewModel.togglePlay() }
+        onPlayToggle = { songViewModel.togglePlay() },
+        onSeekBarValueChange = { isUserSeeking, progressRatio ->
+            songViewModel.userInputSeekBar(isUserSeeking, progressRatio)
+        },
+        onPlaySwitchMode = { songViewModel.switchMode(it) },
+        onPlayPrev = { songViewModel.playPrev() },
+        onPlayNext = { songViewModel.playNext() }
     )
 }
 
