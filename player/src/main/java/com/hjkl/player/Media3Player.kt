@@ -57,6 +57,7 @@ class Media3Player : IPlayer, Listener {
     override fun playSong(songs: List<Song>, startIndex: Int) {
         playlistManager.setPlaylist(songs)
         player().setMediaItems(songs.toMediaItem(), startIndex, 0L)
+        player().playWhenReady = true
         player().prepare()
     }
 
@@ -82,13 +83,14 @@ class Media3Player : IPlayer, Listener {
 
     @OptIn(UnstableApi::class)
     override fun next() {
-        player().next()
+        player().seekToNextMediaItem()
+        player().playWhenReady = true
     }
 
     @OptIn(UnstableApi::class)
     override fun prev() {
-        player().contentPosition
-        player().previous()
+        player().seekToPreviousMediaItem()
+        player().playWhenReady = true
     }
 
     override fun isPlaying(): Boolean {
