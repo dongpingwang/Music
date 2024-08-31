@@ -13,3 +13,6 @@
 
 ## compose
 - https://developer.android.google.cn/develop/ui/compose/documentation?hl=fi
+
+## 启动页面
+- https://developer.android.google.cn/develop/ui/views/launch/splash-screen?hl=zh-cn

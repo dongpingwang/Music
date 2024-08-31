@@ -1,9 +1,9 @@
 package com.hjkl.music
 
 import android.app.Application
-import android.util.Log
 import com.hjkl.comm.AppUtil
 import com.hjkl.comm.LogTrace
+import com.hjkl.comm.d
 import com.hjkl.music.data.AppConfig
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
@@ -13,9 +13,6 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class MusicApplication : Application() {
-    companion object {
-        private const val TAG = "MusicApplication"
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -28,7 +25,7 @@ class MusicApplication : Application() {
                 AppConfig.init()
                 PlayerProxy.init(this@MusicApplication, object : PlayerProxy.PlayerCallBack {
                     override fun onPlayerReady(player: IPlayer) {
-                        Log.d(TAG, "onPlayerReady")
+                        "onPlayerReady".d()
                         restorePlayerState(player)
                     }
                 })
@@ -37,9 +34,9 @@ class MusicApplication : Application() {
     }
 
     private fun restorePlayerState(player: IPlayer) {
-        Log.d(TAG, "restorePlayerState")
+        "restorePlayerState".d()
         val playMode = AppConfig.playMode.toPlayMode()
-        Log.d(TAG, "恢复上次的播放模式: $playMode")
+        "恢复上次的播放模式: $playMode".d()
         player.setPlayMode(playMode)
     }
 

@@ -1,8 +1,8 @@
 import SongViewModel.Companion.NULL_SUCCESS
-import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hjkl.comm.d
 import com.hjkl.comm.onBatchEach
 import com.hjkl.entity.Song
 import com.hjkl.music.data.AppConfig
@@ -70,7 +70,6 @@ private data class SongViewModelState(
 
 class SongViewModel : ViewModel() {
     companion object {
-        private const val TAG = "SongViewModel"
         val NULL_SUCCESS by lazy {
             SongUiState.Success(
                 isLoading = false,
@@ -124,7 +123,7 @@ class SongViewModel : ViewModel() {
     }
 
     init {
-        Log.d(TAG, "init")
+        "init".d()
         fetchAllSongs(false)
         player.registerPlaySongChangedListener(playSongChangedListener)
         player.registerIsPlayingChangedListener(isPlayingChangedListener)
@@ -135,7 +134,7 @@ class SongViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        Log.d(TAG, "onCleared")
+        "onCleared".d()
         player.unregisterPlaySongChangedListener(playSongChangedListener)
         player.unregisterIsPlayingChangedListener(isPlayingChangedListener)
         player.unregisterProgressChangedListener(progressChangedListener)
@@ -149,13 +148,13 @@ class SongViewModel : ViewModel() {
      * 3.MediaMetadataRetriever解析比较耗时，eg：20ms/歌曲，每解析50个歌曲进行分批刷新
      */
     private fun fetchAllSongs(fromUser: Boolean) {
-        Log.d(TAG, "fetchAllSongs: fromUser=$fromUser")
+        "fetchAllSongs: fromUser=$fromUser".d()
         viewModelScope.launch(Dispatchers.IO) {
             viewModelState.update { it.copy(isLoading = true) }
-            Log.d(TAG, "start fetch data from database")
+            "start fetch data from database".d()
             getAllSongsUseCase.getAllSongs()
                 .onSuccess { songs ->
-                    Log.d(TAG, "finish fetch data from database")
+                    "finish fetch data from database".d()
                     if (!fromUser) {
                         viewModelState.update {
                             it.copy(
@@ -164,7 +163,7 @@ class SongViewModel : ViewModel() {
                             )
                         }
                     }
-                    Log.d(TAG, "start extract data from mmr")
+                    "start extract data from mmr".d()
                     songs.onBatchEach(50) { index, item, isBatchFinish ->
                         if (item.bitmap == null) {
                             val albumArtBitmap = AlbumArtUtil.extractAlbumArtBitmap(item.data)
@@ -181,7 +180,7 @@ class SongViewModel : ViewModel() {
                             }
                         }
                     }
-                    Log.d(TAG, "finish extract data from mmr")
+                    "finish extract data from mmr".d()
                 }.onFailure { throwable ->
                     viewModelState.update { it.copy(errorMsg = throwable.message) }
                 }
@@ -209,7 +208,7 @@ class SongViewModel : ViewModel() {
                 player.play()
             }
         } ?: kotlin.run {
-            Log.d(TAG, "CurrentSong is null")
+            "CurrentSong is null".d()
         }
     }
 
@@ -226,7 +225,7 @@ class SongViewModel : ViewModel() {
         viewModelState.value.curSong?.let {
             player.prev()
         } ?: kotlin.run {
-            Log.d(TAG, "CurrentSong is null")
+            "CurrentSong is null".d()
         }
     }
 
@@ -234,7 +233,7 @@ class SongViewModel : ViewModel() {
         viewModelState.value.curSong?.let {
             player.next()
         } ?: kotlin.run {
-            Log.d(TAG, "CurrentSong is null")
+            "CurrentSong is null".d()
         }
     }
 
@@ -257,7 +256,7 @@ class SongViewModel : ViewModel() {
                 player.play()
             }
         } ?: kotlin.run {
-            Log.d(TAG, "CurrentSong is null")
+            "CurrentSong is null".d()
         }
     }
 }
