@@ -2,7 +2,8 @@ package com.hjkl.music.ui.song
 
 import SongUiState
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.util.Log
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -18,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hjkl.comm.d
 import com.hjkl.entity.Song
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.BottomMiniPlayer
@@ -51,17 +54,20 @@ fun SongScreen(
     onPlayPrev: () -> Unit,
     onPlayNext: () -> Unit
 ) {
-    Log.d(TAG, "SongScreen() call: $uiState")
-
+    "SongScreen() call: $uiState".d()
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState()
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState= rememberStandardBottomSheetState(skipHiddenState = false))
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         topBar = { TopAppBar(openDrawer = openDrawer) },
         sheetContent = {
             PlayerPage(
                 uiState = uiState,
-                onBackClick = {},
+                onBackClick = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.hide()
+                    }
+                },
                 onValueChange = onSeekBarValueChange,
                 onPlaySwitchMode = onPlaySwitchMode,
                 onPlayPrev = onPlayPrev,
@@ -73,6 +79,7 @@ fun SongScreen(
         sheetPeekHeight = 0.dp,
         sheetMaxWidth = Dp.Infinity,
         sheetShape = BottomSheetDefaults.HiddenShape,
+        modifier = Modifier.animateContentSize(animationSpec = spring())
     ) { innerPadding ->
         when (uiState) {
 
