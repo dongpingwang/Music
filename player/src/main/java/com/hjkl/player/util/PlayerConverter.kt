@@ -1,12 +1,22 @@
 package com.hjkl.player.util
 
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import com.hjkl.entity.Song
 import com.hjkl.player.constant.PlayMode
 
 fun Song.toMediaItem(): MediaItem {
     return MediaItem.Builder()
         .setMediaId(id.toString())
+        .setMediaMetadata(
+            MediaMetadata.Builder()
+                .setTitle(title)
+                .setArtist(artist)
+                //.setArtworkData(originBitmapBytes)
+                .setGenre(genre)
+                .setAlbumTitle(album)
+                .build()
+        )
         .setUri(data)
         .build()
 }

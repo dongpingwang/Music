@@ -8,7 +8,7 @@ import com.hjkl.comm.LogTrace
 
 object AlbumArtUtil {
 
-    fun extractAlbumArtBitmap(filePath: String): Bitmap? = LogTrace.measureTimeMillis("AlbumArtUtil#getAlbumArtBitmap()//$filePath") {
+    fun extractAlbumArtBitmap(filePath: String): Pair<ByteArray?,Bitmap?>? = LogTrace.measureTimeMillis("AlbumArtUtil#getAlbumArtBitmap()//$filePath") {
         val metadataRetriever = MediaMetadataRetriever()
         try {
             metadataRetriever.setDataSource(filePath)
@@ -19,7 +19,7 @@ object AlbumArtUtil {
             val result = BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.size)
             metadataRetriever.release()
             metadataRetriever.close()
-            return@measureTimeMillis result
+            return@measureTimeMillis Pair(embeddedPicture, result)
         } catch (e: Exception) {
             e.printStackTrace()
         }

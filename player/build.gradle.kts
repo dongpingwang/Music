@@ -39,10 +39,13 @@ dependencies {
     implementation(libs.material)
     implementation(project(":comm"))
     implementation(project(":entity"))
+    implementation(libs.androidx.media3.session)
+    implementation("androidx.media3:media3-exoplayer:1.4.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation("androidx.media3:media3-exoplayer:1.4.0")
+
 
 }

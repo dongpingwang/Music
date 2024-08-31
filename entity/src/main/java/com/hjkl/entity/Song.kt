@@ -18,7 +18,10 @@ data class Song(
     var bitmap: Bitmap? = null // 专辑封面
 ) {
 
-   fun shortLog(): String {
+    fun shortLog(): String {
         return "$id - $title - $data"
     }
+
+    // 专辑封面原始数据
+    var originBitmapBytes: ByteArray? = null
 }

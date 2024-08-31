@@ -1,9 +1,9 @@
-package com.hjkl.player
+package com.hjkl.player.media3
 
 
 import android.util.Log
 import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.common.Player
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ class ProgressTracker {
     }
 
     private val progressChangedListeners = mutableListOf<(Long) -> Unit>()
-    private var player: ExoPlayer? = null
+    private var player: Player? = null
     private var currentMediaItem: MediaItem? = null
     private var progressJob: Job? = null
     private var coroutine = CoroutineScope(CoroutineName(TAG))
@@ -31,7 +31,7 @@ class ProgressTracker {
         return progressChangedListeners.remove(listener)
     }
 
-    fun setPlayer(player: ExoPlayer) {
+    fun setPlayer(player: Player) {
         this.player = player
     }
 

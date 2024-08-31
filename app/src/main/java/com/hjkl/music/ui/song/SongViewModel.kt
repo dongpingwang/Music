@@ -8,10 +8,9 @@ import com.hjkl.entity.Song
 import com.hjkl.music.data.AppConfig
 import com.hjkl.music.data.GetAllSongsUseCase
 import com.hjkl.player.constant.PlayMode
-import com.hjkl.player.PlayerProxy
 import com.hjkl.player.interfaces.IPlayer
+import com.hjkl.player.media3.PlayerProxy
 import com.hjkl.player.util.getValue
-import com.hjkl.player.util.toPlayMode
 import com.hjkl.query.SongQuery
 import com.hjkl.query.util.AlbumArtUtil
 import kotlinx.coroutines.Dispatchers
@@ -86,9 +85,8 @@ class SongViewModel : ViewModel() {
     }
 
     private val getAllSongsUseCase: GetAllSongsUseCase = GetAllSongsUseCase(SongQuery())
-
-
     private val viewModelState = MutableStateFlow(SongViewModelState())
+    private val player:IPlayer = PlayerProxy
 
     // 是否正在调节进度条
     private var isUserSeeking = false
@@ -98,16 +96,41 @@ class SongViewModel : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
 
 
+    private val playSongChangedListener = object : (Song?) -> Unit {
+        override fun invoke(song: Song?) {
+            viewModelState.update { it.copy(curSong = song) }
+        }
+    }
+
+    private val isPlayingChangedListener = object : (Boolean) -> Unit {
+        override fun invoke(isPlaying: Boolean) {
+            viewModelState.update { it.copy(isPlaying = isPlaying) }
+        }
+    }
+
+    private val progressChangedListener = object : (Long) -> Unit {
+        override fun invoke(postion: Long) {
+            if (!isUserSeeking) {
+                viewModelState.update { it.copy(progressInMs = postion) }
+            }
+        }
+    }
+
+    private val playModeChangedListener = object : (PlayMode) -> Unit {
+        override fun invoke(playMode: PlayMode) {
+            viewModelState.update { it.copy(playMode = playMode) }
+            AppConfig.playMode = playMode.getValue()
+        }
+    }
+
     init {
         Log.d(TAG, "init")
         fetchAllSongs(false)
-    }
+        player.registerPlaySongChangedListener(playSongChangedListener)
+        player.registerIsPlayingChangedListener(isPlayingChangedListener)
+        player.registerProgressChangedListener(progressChangedListener)
+        player.registerPlayModeChangedListener(playModeChangedListener)
 
-    private fun restorePlayerState(player:IPlayer) {
-        Log.d(TAG, "restorePlayerState")
-        val playMode = AppConfig.playMode.toPlayMode()
-        Log.d(TAG, "恢复上次的播放模式: $playMode")
-        player.setPlayMode(playMode)
     }
 
     override fun onCleared() {
@@ -144,7 +167,9 @@ class SongViewModel : ViewModel() {
                     Log.d(TAG, "start extract data from mmr")
                     songs.onBatchEach(50) { index, item, isBatchFinish ->
                         if (item.bitmap == null) {
-                            item.bitmap = AlbumArtUtil.extractAlbumArtBitmap(item.data)
+                            val albumArtBitmap = AlbumArtUtil.extractAlbumArtBitmap(item.data)
+                            item.bitmap = albumArtBitmap?.second
+                            item.originBitmapBytes = albumArtBitmap?.first
                         }
                         if (isBatchFinish) {
                             viewModelState.update {
@@ -235,41 +260,4 @@ class SongViewModel : ViewModel() {
             Log.d(TAG, "CurrentSong is null")
         }
     }
-
-    private val playSongChangedListener = object : (Song?) -> Unit {
-        override fun invoke(song: Song?) {
-            viewModelState.update { it.copy(curSong = song) }
-        }
-    }
-
-    private val isPlayingChangedListener = object : (Boolean) -> Unit {
-        override fun invoke(isPlaying: Boolean) {
-            viewModelState.update { it.copy(isPlaying = isPlaying) }
-        }
-    }
-
-    private val progressChangedListener = object : (Long) -> Unit {
-        override fun invoke(postion: Long) {
-            if (!isUserSeeking) {
-                viewModelState.update { it.copy(progressInMs = postion) }
-            }
-        }
-    }
-
-    private val playModeChangedListener = object : (PlayMode) -> Unit {
-        override fun invoke(playMode: PlayMode) {
-            viewModelState.update { it.copy(playMode = playMode) }
-            AppConfig.playMode = playMode.getValue()
-        }
-    }
-
-    private val player = PlayerProxy.player().apply {
-        registerPlaySongChangedListener(playSongChangedListener)
-        registerIsPlayingChangedListener(isPlayingChangedListener)
-        registerProgressChangedListener(progressChangedListener)
-        registerPlayModeChangedListener(playModeChangedListener)
-        restorePlayerState(this)
-    }
-
-
 }
