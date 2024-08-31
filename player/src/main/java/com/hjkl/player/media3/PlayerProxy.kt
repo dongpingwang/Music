@@ -2,19 +2,16 @@ package com.hjkl.player.media3
 
 import android.content.ComponentName
 import android.content.Context
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.hjkl.comm.LogTrace
+import com.hjkl.comm.d
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.service.PlaybackService
 
-
 object PlayerProxy : Media3Player() {
-
-    private const val TAG = "PlayerProxy"
 
     private var mediaController: MediaController? = null
     private var isReady = false
@@ -25,11 +22,11 @@ object PlayerProxy : Media3Player() {
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture.addListener({
             mediaController = controllerFuture.get()
-            Log.d(TAG, "获取到MediaController")
+            "获取到MediaController".d()
             setPlayer(mediaController as Player)
-            Log.d(TAG, "注入Media3Player")
+            "注入Media3Player".d()
             init()
-            Log.d(TAG, "初始化Media3Player")
+            "初始化Media3Player".d()
             isReady = true
             listener.onPlayerReady(this)
             playerReadyListeners.onEach { it.onPlayerReady(this) }
@@ -41,10 +38,12 @@ object PlayerProxy : Media3Player() {
     }
 
     fun registerPlayerReadyListener(listener: PlayerReadyListener):Boolean {
+        "registerPlayerReadyListener: $listener".d()
         return playerReadyListeners.contains(listener) || playerReadyListeners.add(listener)
     }
 
     fun unregisterPlayerReadyListener(listener: PlayerReadyListener):Boolean {
+        "unregisterPlayerReadyListener: $listener".d()
         return playerReadyListeners.remove(listener)
     }
 

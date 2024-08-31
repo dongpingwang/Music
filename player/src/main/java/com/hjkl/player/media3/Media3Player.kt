@@ -1,7 +1,5 @@
 package com.hjkl.player.media3
 
-import android.util.Log
-import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -9,7 +7,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.Player.Listener
 import androidx.media3.common.Player.REPEAT_MODE_ALL
 import androidx.media3.common.Player.REPEAT_MODE_ONE
-import androidx.media3.common.util.UnstableApi
+import com.hjkl.comm.d
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
 import com.hjkl.player.constant.PlayMode
@@ -19,10 +17,6 @@ import com.hjkl.player.util.toMediaItem
 
 
 open class Media3Player : IPlayer {
-
-    companion object {
-        const val TAG = "Media3Player"
-    }
 
     private val playlistManager by lazy { PlaylistManager() }
     private val playSongChangedListeners = mutableListOf<(Song?) -> Unit>()
@@ -41,6 +35,7 @@ open class Media3Player : IPlayer {
     }
 
     override fun init() {
+        "init".d()
         player.addListener(playerListener)
         player.setAudioAttributes(AudioAttributes.DEFAULT,  /* handleAudioFocus= */true)
         player.playWhenReady = true
@@ -48,6 +43,7 @@ open class Media3Player : IPlayer {
     }
 
     override fun destroy() {
+        "destroy".d()
         player.removeListener(playerListener)
         player.release()
     }
@@ -57,6 +53,7 @@ open class Media3Player : IPlayer {
     }
 
     override fun playSong(songs: List<Song>, startIndex: Int) {
+        "playSong: songs.size=${songs.size} startIndex=$startIndex".d()
         playlistManager.setPlaylist(songs)
         player.setMediaItems(songs.toMediaItem(), startIndex, 0L)
         player.playWhenReady = true
@@ -72,27 +69,45 @@ open class Media3Player : IPlayer {
     }
 
     override fun play() {
+        "play".d()
         player.play()
     }
 
     override fun pause() {
+        "pause".d()
         player.pause()
     }
 
     override fun stop() {
+        "stop".d()
         player.stop()
     }
 
-
     override fun next() {
-        player.seekToNextMediaItem()
-        player.playWhenReady = true
+        "next".d()
+        if (player.hasNextMediaItem()) {
+            player.seekToNextMediaItem()
+            player.playWhenReady = true
+        } else {
+            "hasn't NextMediaItem, playSongs".d()
+            val playlist = ArrayList<Song>().apply {addAll(getPlaylist())  }
+            playSong(playlist)
+        }
     }
 
-    @OptIn(UnstableApi::class)
     override fun prev() {
-        player.seekToPreviousMediaItem()
-        player.playWhenReady = true
+        "prev".d()
+        if (player.hasPreviousMediaItem()) {
+            player.seekToPreviousMediaItem()
+            player.playWhenReady = true
+
+        } else {
+            "hasn't PreviousMediaItem, playSongs".d()
+            val playlist = ArrayList<Song>().apply {addAll(getPlaylist())  }
+            if (playlist.isNotEmpty()) {
+                playSong(playlist, playlist.size - 1)
+            }
+        }
     }
 
     override fun isPlaying(): Boolean {
@@ -100,6 +115,7 @@ open class Media3Player : IPlayer {
     }
 
     override fun seekTo(positionMs: Long) {
+        "seekTo: $positionMs".d()
         player.seekTo(positionMs)
     }
 
@@ -112,6 +128,7 @@ open class Media3Player : IPlayer {
     }
 
     override fun setPlayMode(playMode: PlayMode) {
+        "setPlayMode: $playMode".d()
         when (playMode) {
             PlayMode.LIST -> {
                 player.shuffleModeEnabled = false
@@ -138,34 +155,42 @@ open class Media3Player : IPlayer {
     }
 
     override fun registerPlaySongChangedListener(listener: (Song?) -> Unit): Boolean {
+        "registerPlaySongChangedListener: $listener".d()
         return playSongChangedListeners.contains(listener) || playSongChangedListeners.add(listener)
     }
 
     override fun unregisterPlaySongChangedListener(listener: (Song?) -> Unit): Boolean {
+        "unregisterPlaySongChangedListener: $listener".d()
         return playSongChangedListeners.remove(listener)
     }
 
     override fun registerIsPlayingChangedListener(listener: (Boolean) -> Unit): Boolean {
+        "registerIsPlayingChangedListener: $listener".d()
         return isPlayingChangedListeners.contains(listener) || isPlayingChangedListeners.add(listener)
     }
 
     override fun unregisterIsPlayingChangedListener(listener: (Boolean) -> Unit): Boolean {
+        "unregisterIsPlayingChangedListener: $listener".d()
         return isPlayingChangedListeners.remove(listener)
     }
 
     override fun registerProgressChangedListener(listener: (Long) -> Unit): Boolean {
+        "registerProgressChangedListener: $listener".d()
         return progressTracker.registerProgressChangedListener(listener)
     }
 
     override fun unregisterProgressChangedListener(listener: (Long) -> Unit): Boolean {
+        "unregisterProgressChangedListener: $listener".d()
         return progressTracker.unregisterProgressChangedListener(listener)
     }
 
     override fun registerPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean {
+        "registerPlayModeChangedListener: $listener".d()
         return playModeChangedListeners.contains(listener) || playModeChangedListeners.add(listener)
     }
 
     override fun unregisterPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean {
+        "unregisterPlayModeChangedListener: $listener".d()
         return playModeChangedListeners.remove(listener)
     }
 
@@ -174,7 +199,7 @@ open class Media3Player : IPlayer {
             super.onMediaItemTransition(mediaItem, reason)
             curSong = playlistManager.getPlaylist().findSong(mediaItem)
             progressTracker.onPlaySongChanged(mediaItem)
-            Log.d(TAG, "onMediaItemTransition: mediaItem.id=${mediaItem?.mediaId} reason=$reason song=${curSong?.shortLog()}")
+            "onMediaItemTransition: mediaItem.id=${mediaItem?.mediaId} reason=$reason song=${curSong?.shortLog()}".d()
 
             playSongChangedListeners.onEach {
                 it(curSong)
@@ -183,12 +208,12 @@ open class Media3Player : IPlayer {
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             super.onPlaybackStateChanged(playbackState)
-            Log.d(TAG, "onPlaybackStateChanged: playbackState=$playbackState")
+            "onPlaybackStateChanged: playbackState=$playbackState".d()
         }
 
         override fun onIsPlayingChanged(_isPlaying: Boolean) {
             super.onIsPlayingChanged(_isPlaying)
-            Log.d(TAG, "onIsPlayingChanged: isPlaying=$_isPlaying")
+            "onIsPlayingChanged: isPlaying=$_isPlaying".d()
             isPlaying = _isPlaying
             progressTracker.onIsPlayingChanged(_isPlaying)
             isPlayingChangedListeners.onEach { it(_isPlaying) }
@@ -196,7 +221,7 @@ open class Media3Player : IPlayer {
 
         override fun onPlayerError(error: PlaybackException) {
             super.onPlayerError(error)
-            Log.d(TAG, "onPlayerError: error=$error")
+            "onPlayerError: error=$error".d()
         }
 
         override fun onEvents(player: Player, events: Player.Events) {
@@ -206,7 +231,7 @@ open class Media3Player : IPlayer {
 
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
-            Log.d(TAG, "onRepeatModeChanged: repeatMode=$repeatMode")
+            "onRepeatModeChanged: repeatMode=$repeatMode".d()
             when (repeatMode) {
                 REPEAT_MODE_ALL, REPEAT_MODE_ONE -> {
                     val _playMode = if (repeatMode == REPEAT_MODE_ALL) PlayMode.LIST else PlayMode.REPEAT_ONE
@@ -221,7 +246,7 @@ open class Media3Player : IPlayer {
 
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
             super.onShuffleModeEnabledChanged(shuffleModeEnabled)
-            Log.d(TAG, "onShuffleModeEnabledChanged: shuffleModeEnabled=$shuffleModeEnabled")
+            "onShuffleModeEnabledChanged: shuffleModeEnabled=$shuffleModeEnabled".d()
             if (shuffleModeEnabled) {
                 val _playMode = PlayMode.SHUFFLE
                 playMode = _playMode
