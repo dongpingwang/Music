@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -27,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,7 @@ fun PlayerPage(
     onPlayNext: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        val pagerState = rememberPagerState(initialPage = 1, pageCount = { 3 })
+        val pagerState = rememberPagerState(initialPage = 1) { 3 }
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
@@ -78,7 +79,7 @@ fun PlayerPage(
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
-                .padding(top = 16.dp)
+                .padding(top = 32.dp, start = 16.dp, end = 32.dp)
         ) {
             IconButton(onClick = { onBackClick() }) {
                 Icon(
@@ -96,7 +97,7 @@ fun PlayerPage(
                             .padding(2.dp)
                             .clip(CircleShape)
                             .background(color)
-                            .size(16.dp),
+                            .size(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
 
@@ -123,32 +124,32 @@ private fun PlaySongInfoPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 64.dp, start = 16.dp, end = 16.dp)
+            .padding(top = 80.dp, start = 32.dp, end = 32.dp)
     ) {
         val bitmap = uiState.asSuccess().curSong?.bitmap
         val title = uiState.asSuccess().curSong?.title ?: "未知歌曲"
         val artist = uiState.asSuccess().curSong?.artist ?: "未知歌手"
-        if (bitmap == null) {
-            Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.music_note_40px),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-                    .clip(CircleShape)
-                    .background(color = Color.LightGray)
-                    .size(360.dp),
-            )
-        } else {
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-                    .clip(CircleShape)
-                    .size(360.dp),
-            )
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .size(360.dp)
+                .background(color = Color.LightGray)
+        ) {
+            if (bitmap == null) {
+                Image(
+                    painter = painterResource(id = R.drawable.music_note_40px),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         Text(text = title, modifier = Modifier.padding(top = 16.dp))
@@ -170,7 +171,9 @@ private fun PlaySongInfoPage(
             onValueChangeFinished = { onValueChange(false, progressRatioUI) },
             modifier = Modifier.padding()
         )
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)) {
             Text(text = uiState.asSuccess().progressInMs.parseMillisTimeToMmSs())
             Text(
                 text = (uiState.asSuccess().curSong?.duration ?: 0L).parseMillisTimeToMmSs(),
@@ -182,7 +185,7 @@ private fun PlaySongInfoPage(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
         ) {
             val playModeRes = when (uiState.asSuccess().playMode) {
                 PlayMode.LIST -> R.drawable.repeat_24px
@@ -190,8 +193,11 @@ private fun PlaySongInfoPage(
                 PlayMode.SHUFFLE -> R.drawable.shuffle_24px
                 else -> R.drawable.repeat_24px
             }
-            val playStateRes = if (uiState.asSuccess().isPlaying) R.drawable.pause_24px else R.drawable.play_arrow_24px
-            IconButton(onClick = { onPlaySwitchMode(uiState.asSuccess().playMode) }) {
+            val playStateRes =
+                if (uiState.asSuccess().isPlaying) R.drawable.pause_24px else R.drawable.play_arrow_24px
+            IconButton(
+                onClick = { onPlaySwitchMode(uiState.asSuccess().playMode) }
+            ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = playModeRes),
                     contentDescription = null
@@ -231,7 +237,9 @@ private fun PlaySongInfoPage(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(120.dp))
+        Spacer(
+            modifier = Modifier.padding(bottom = 64.dp)
+        )
     }
 }
 
@@ -242,7 +250,7 @@ private fun PlayerPagePreview() {
         uiState = FakeDatas.songUiState,
         onBackClick = {},
         onValueChange = { isUserSeeking, progressRatio -> },
-        onPlaySwitchMode = {playMode ->  },
+        onPlaySwitchMode = { playMode -> },
         onPlayPrev = {},
         onPlayToggle = {},
         onPlayNext = {}
