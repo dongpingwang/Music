@@ -85,7 +85,7 @@ class SongViewModel : ViewModel() {
 
     private val getAllSongsUseCase: GetAllSongsUseCase = GetAllSongsUseCase(SongQuery())
     private val viewModelState = MutableStateFlow(SongViewModelState())
-    private val player:IPlayer = PlayerProxy
+    private val player = PlayerProxy
 
     // 是否正在调节进度条
     private var isUserSeeking = false
@@ -122,6 +122,13 @@ class SongViewModel : ViewModel() {
         }
     }
 
+    private val playerReadyListener = object :PlayerProxy.PlayerReadyListener{
+        override fun onPlayerReady(player: IPlayer) {
+            "播放器准备好了，获取最新的播放器状态".d()
+            getLatestPlayerState()
+        }
+    }
+
     init {
         "init".d()
         fetchAllSongs(false)
@@ -129,7 +136,29 @@ class SongViewModel : ViewModel() {
         player.registerIsPlayingChangedListener(isPlayingChangedListener)
         player.registerProgressChangedListener(progressChangedListener)
         player.registerPlayModeChangedListener(playModeChangedListener)
+        player.registerPlayerReadyListener(playerReadyListener)
+        getLatestPlayerState()
+    }
 
+    private fun getLatestPlayerState() {
+        if (!player.isReady()) {
+            "播放器还未准备好".d()
+            return
+        }
+        val curSong = player.getCurrentSong()
+        if (curSong == null) {
+            "当前没有播放内容".d()
+            return
+        }
+        "获取最新的播放器状态".d()
+        viewModelState.update {
+            it.copy(
+                curSong = curSong,
+                isPlaying = player.isPlaying(),
+                progressInMs = player.getPosition(),
+                playMode = player.getPlayMode()
+            )
+        }
     }
 
     override fun onCleared() {
@@ -139,6 +168,7 @@ class SongViewModel : ViewModel() {
         player.unregisterIsPlayingChangedListener(isPlayingChangedListener)
         player.unregisterProgressChangedListener(progressChangedListener)
         player.unregisterPlayModeChangedListener(playModeChangedListener)
+        player.unregisterPlayerReadyListener(playerReadyListener)
     }
 
     /**
