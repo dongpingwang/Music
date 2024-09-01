@@ -12,7 +12,7 @@ import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
 import com.hjkl.player.util.getValue
 import com.hjkl.query.SongQuery
-import com.hjkl.query.util.AlbumArtUtil
+import com.hjkl.query.util.extraMetadataIfNeed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,7 +31,7 @@ sealed class SongUiState {
         val isPlaying: Boolean,
         val progressInMs: Long,
         val playMode: PlayMode,
-        private val updateTimeMillis: Long?
+        val updateTimeMillis: Long?
     ) : SongUiState()
 }
 
@@ -41,6 +41,13 @@ fun SongUiState.asSuccess(): SongUiState.Success {
     } else {
         NULL_SUCCESS
     }
+}
+
+fun SongUiState.shortLog(): String {
+    if (this is SongUiState.Success) {
+        return "Success(isLoading=false, songs.size=${songs.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, updateTimeMillis=$updateTimeMillis)"
+    }
+    return this.toString()
 }
 
 private data class SongViewModelState(
@@ -143,7 +150,6 @@ class SongViewModel : ViewModel() {
         fetchAllSongs(false)
         player.registerPlaySongChangedListener(playSongChangedListener)
         player.registerIsPlayingChangedListener(isPlayingChangedListener)
-        // player.registerProgressChangedListener(progressChangedListener)
         player.registerPlayModeChangedListener(playModeChangedListener)
         player.registerPlayerReadyListener(playerReadyListener)
         getLatestPlayerState()
@@ -175,7 +181,6 @@ class SongViewModel : ViewModel() {
         "onCleared".d()
         player.unregisterPlaySongChangedListener(playSongChangedListener)
         player.unregisterIsPlayingChangedListener(isPlayingChangedListener)
-        // player.unregisterProgressChangedListener(progressChangedListener)
         player.unregisterPlayModeChangedListener(playModeChangedListener)
         player.unregisterPlayerReadyListener(playerReadyListener)
     }
@@ -204,11 +209,7 @@ class SongViewModel : ViewModel() {
                     }
                     "start extract data from mmr".d()
                     songs.onBatchEach(50) { index, item, isBatchFinish ->
-                        if (item.bitmap == null) {
-                            val albumArtBitmap = AlbumArtUtil.extractAlbumArtBitmap(item.data)
-                            item.bitmap = albumArtBitmap?.second
-                            item.originBitmapBytes = albumArtBitmap?.first
-                        }
+                        item.extraMetadataIfNeed()
                         if (isBatchFinish) {
                             viewModelState.update {
                                 it.copy(

@@ -45,6 +45,7 @@ import com.hjkl.music.ui.player.PlayerPage
 import com.hjkl.music.ui.theme.MusicTheme
 import com.hjkl.player.constant.PlayMode
 import kotlinx.coroutines.launch
+import shortLog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,7 @@ fun SongScreen(
     onPlayPrev: () -> Unit,
     onPlayNext: () -> Unit
 ) {
-    "SongScreen() call: $uiState".d()
+    "SongScreen() call: ${uiState.shortLog()}".d()
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState= rememberStandardBottomSheetState(skipHiddenState = false))
     BottomSheetScaffold(
@@ -197,10 +198,13 @@ private fun ColumnScope.SongList(
 
         FloatingActionButton(
             onClick = {
-                "FloatingActionButton click".d()
-                val curSongPosition =
-                    uiState.asSuccess().songs.indexOfLast { it.id == uiState.asSuccess().curSong?.id }
-                scope.launch { listState.scrollToItem(curSongPosition) }
+                if (uiState.asSuccess().curSong != null) {
+                    val curSongPosition =
+                        uiState.asSuccess().songs.indexOfLast { it.id == uiState.asSuccess().curSong?.id }
+                    scope.launch { listState.scrollToItem(curSongPosition) }
+                } else {
+                    scope.launch { listState.scrollToItem(0) }
+                }
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)

@@ -29,3 +29,7 @@ fun <T> List<T>.onBatchEach(batchCount: Int, block: (Int, T, Boolean) -> Unit) {
         block(index, item, isBatchFinish)
     }
 }
+
+fun <T> T?.ifNull(block: () -> T): T {
+    return this ?: block()
+}

@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 
 data class Song(
     val id: Int,
-    val title: String,
-    val artist: String,
+    var title: String,
+    var artist: String,
     val artistId: Int,
-    val album: String,
+    var album: String,
     val albumId: Int,
     val genre: String?,
     val genreId: Int?,
