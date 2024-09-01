@@ -2,8 +2,6 @@ package com.hjkl.music.ui.song
 
 import SongUiState
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,6 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -24,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,14 +39,12 @@ import com.hjkl.music.ui.theme.MusicTheme
 import com.hjkl.player.constant.PlayMode
 import kotlinx.coroutines.launch
 
-private const val TAG = "SongScreens"
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongScreen(
     uiState: SongUiState,
     onRefresh: () -> Unit,
-    openDrawer: () -> Unit,
+    operateDrawerState: (Boolean) -> Boolean,
     onPlayAll: () -> Unit,
     onItemClick: (Int) -> Unit,
     onPlayToggle: () -> Unit,
@@ -59,14 +58,32 @@ fun SongScreen(
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState= rememberStandardBottomSheetState(skipHiddenState = false))
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        topBar = { TopAppBar(openDrawer = openDrawer) },
+        topBar = { TopAppBar(openDrawer = { operateDrawerState(true) }) },
         sheetContent = {
             PlayerPage(
                 uiState = uiState,
-                onBackClick = {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.hide()
+                onBackHandle = {
+                    if (it == null) {
+                        "手动点击返回按钮".d()
+                        scope.launch { scaffoldState.bottomSheetState.hide() }
+                        return@PlayerPage false
                     }
+                    "收到按键事件".d()
+                    if (it.key == Key.Back) {
+                        "收到返回按键事件".d()
+                        if (operateDrawerState(false)) {
+                            "隐藏NavigationDrawer，拦截返回按键事件".d()
+                            return@PlayerPage true
+                        }
+                        val expanded = scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                        if (expanded) {
+                            scope.launch { scaffoldState.bottomSheetState.hide() }
+                            "隐藏BottomSheet，拦截返回按键事件".d()
+                            return@PlayerPage true
+                        }
+                    }
+                    "不拦截按键事件".d()
+                    false
                 },
                 onValueChange = onSeekBarValueChange,
                 onPlaySwitchMode = onPlaySwitchMode,
@@ -78,8 +95,7 @@ fun SongScreen(
         sheetDragHandle = null,
         sheetPeekHeight = 0.dp,
         sheetMaxWidth = Dp.Infinity,
-        sheetShape = BottomSheetDefaults.HiddenShape,
-        modifier = Modifier.animateContentSize(animationSpec = spring())
+        sheetShape = BottomSheetDefaults.HiddenShape
     ) { innerPadding ->
         when (uiState) {
 
@@ -170,7 +186,7 @@ fun HomeFeedScreenPreview() {
             SongScreen(
                 uiState = FakeDatas.songUiState,
                 onRefresh = {},
-                openDrawer = {},
+                operateDrawerState = { false },
                 onPlayAll = {},
                 onItemClick = {},
                 onPlayToggle = {},

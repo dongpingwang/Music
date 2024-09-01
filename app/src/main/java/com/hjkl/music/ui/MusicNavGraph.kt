@@ -4,7 +4,6 @@ package com.hjkl.music.ui
 
 import SongViewModel
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,15 +16,13 @@ import com.hjkl.music.ui.song.SongRoute
 
 @Composable
 fun MusicNavGraph(
-    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    openDrawer: () -> Unit = {},
+    operateDrawerState: (Boolean) -> Boolean,
     startDestination: String = MusicDestinations.SONG_ROUTE,
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination,
-        modifier = modifier
+        startDestination = startDestination
     ) {
         composable(
             route = MusicDestinations.SONG_ROUTE
@@ -39,7 +36,7 @@ fun MusicNavGraph(
             )
             SongRoute(
                 songViewModel = songViewModel,
-                openDrawer = openDrawer,
+                operateDrawerState = operateDrawerState,
             )
         }
         composable(MusicDestinations.ALBUM_ROUTE) {

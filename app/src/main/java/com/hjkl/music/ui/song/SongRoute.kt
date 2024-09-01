@@ -8,14 +8,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun SongRoute(
     songViewModel: SongViewModel,
-    openDrawer: () -> Unit,
+    operateDrawerState: (Boolean) -> Boolean,
 ) {
     val uiState by songViewModel.uiState.collectAsStateWithLifecycle()
 
     SongScreen(
         uiState = uiState,
         onRefresh = { songViewModel.refresh() },
-        openDrawer = openDrawer,
+        operateDrawerState = operateDrawerState,
         onPlayAll = { songViewModel.playAll() },
         onItemClick = { songViewModel.playIndex(it) },
         onPlayToggle = { songViewModel.togglePlay() },

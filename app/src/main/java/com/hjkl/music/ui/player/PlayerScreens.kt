@@ -1,7 +1,6 @@
 package com.hjkl.music.ui.player
 
 import SongUiState
-import android.view.KeyEvent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,8 +30,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -50,7 +48,7 @@ import com.hjkl.player.util.parseMillisTimeToMmSs
 @Composable
 fun PlayerPage(
     uiState: SongUiState,
-    onBackClick: () -> Unit,
+    onBackHandle: (KeyEvent?) -> Boolean,
     onValueChange: (Boolean, Float) -> Unit,
     onPlaySwitchMode: (PlayMode) -> Unit,
     onPlayPrev: () -> Unit,
@@ -58,14 +56,13 @@ fun PlayerPage(
     onPlayNext: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
-    Box(modifier = Modifier.fillMaxSize().focusRequester(focusRequester).onKeyEvent {
-        if(it.key == Key.Back) {
-            onBackClick()
-           true
-        }else {
-            false
-        }
-    }) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .focusRequester(focusRequester)
+        .onKeyEvent {
+            "onKeyEvent".d()
+            onBackHandle(it)
+        }) {
         val pagerState = rememberPagerState(initialPage = 1) { 3 }
         HorizontalPager(
             state = pagerState,
@@ -98,7 +95,7 @@ fun PlayerPage(
                 .fillMaxWidth()
                 .padding(top = 32.dp, start = 16.dp, end = 32.dp)
         ) {
-            IconButton(onClick = { onBackClick() }) {
+            IconButton(onClick = { onBackHandle(null) }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.keyboard_arrow_down_24px),
                     contentDescription = null
@@ -267,7 +264,7 @@ private fun PlaySongInfoPage(
 private fun PlayerPagePreview() {
     PlayerPage(
         uiState = FakeDatas.songUiState,
-        onBackClick = {},
+        onBackHandle = { false },
         onValueChange = { isUserSeeking, progressRatio -> },
         onPlaySwitchMode = { playMode -> },
         onPlayPrev = {},

@@ -48,7 +48,19 @@ fun MusicApp(
             Row {
                 MusicNavGraph(
                     navController = navController,
-                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                    operateDrawerState = { willState ->
+                        // 参数：表示可能要设置的状态
+                        // 返回值：表示是否设置了新状态
+                        if (willState && drawerState.isClosed) {
+                            coroutineScope.launch { drawerState.open() }
+                            return@MusicNavGraph true
+                        }
+                        if (!willState && drawerState.isOpen) {
+                            coroutineScope.launch { drawerState.close() }
+                            return@MusicNavGraph true
+                        }
+                        false
+                    }
                 )
             }
         }
