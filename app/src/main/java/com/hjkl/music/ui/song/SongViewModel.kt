@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 sealed class SongUiState {
     data class Error(val msg: String) : SongUiState()
@@ -89,6 +90,8 @@ class SongViewModel : ViewModel() {
 
     // 是否正在调节进度条
     private var isUserSeeking = false
+    // 调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁
+    private var userSeekingMillis = 0L
 
     val uiState = viewModelState
         .map(SongViewModelState::toUiState)
@@ -103,6 +106,10 @@ class SongViewModel : ViewModel() {
 
     private val isPlayingChangedListener = object : (Boolean) -> Unit {
         override fun invoke(isPlaying: Boolean) {
+            if ((System.currentTimeMillis() - userSeekingMillis).absoluteValue < 500) {
+                "调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁".d()
+                return
+            }
             viewModelState.update { it.copy(isPlaying = isPlaying) }
         }
     }
@@ -274,6 +281,7 @@ class SongViewModel : ViewModel() {
                 (viewModelState.value.curSong?.duration?.times(progressRatio))?.toLong() ?: 0L
             viewModelState.update { it.copy(progressInMs = position) }
         } else {
+            userSeekingMillis = System.currentTimeMillis()
             seekTo(progressRatio)
         }
     }
