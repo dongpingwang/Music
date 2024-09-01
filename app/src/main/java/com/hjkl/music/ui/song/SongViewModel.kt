@@ -92,6 +92,8 @@ class SongViewModel : ViewModel() {
     private var isUserSeeking = false
     // 调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁
     private var userSeekingMillis = 0L
+    // 当前页面 0--首页 1--播放器页面
+    private var curPage = 0
 
     val uiState = viewModelState
         .map(SongViewModelState::toUiState)
@@ -141,7 +143,7 @@ class SongViewModel : ViewModel() {
         fetchAllSongs(false)
         player.registerPlaySongChangedListener(playSongChangedListener)
         player.registerIsPlayingChangedListener(isPlayingChangedListener)
-        player.registerProgressChangedListener(progressChangedListener)
+        // player.registerProgressChangedListener(progressChangedListener)
         player.registerPlayModeChangedListener(playModeChangedListener)
         player.registerPlayerReadyListener(playerReadyListener)
         getLatestPlayerState()
@@ -173,7 +175,7 @@ class SongViewModel : ViewModel() {
         "onCleared".d()
         player.unregisterPlaySongChangedListener(playSongChangedListener)
         player.unregisterIsPlayingChangedListener(isPlayingChangedListener)
-        player.unregisterProgressChangedListener(progressChangedListener)
+        // player.unregisterProgressChangedListener(progressChangedListener)
         player.unregisterPlayModeChangedListener(playModeChangedListener)
         player.unregisterPlayerReadyListener(playerReadyListener)
     }
@@ -188,10 +190,10 @@ class SongViewModel : ViewModel() {
         "fetchAllSongs: fromUser=$fromUser".d()
         viewModelScope.launch(Dispatchers.IO) {
             viewModelState.update { it.copy(isLoading = true) }
-            "start fetch data from database".d()
+            "start fetch data from mediaprovider".d()
             getAllSongsUseCase.getAllSongs()
                 .onSuccess { songs ->
-                    "finish fetch data from database".d()
+                    "finish fetch data from mediaprovider".d()
                     if (!fromUser) {
                         viewModelState.update {
                             it.copy(
@@ -271,6 +273,20 @@ class SongViewModel : ViewModel() {
             player.next()
         } ?: kotlin.run {
             "CurrentSong is null".d()
+        }
+    }
+
+    fun setCurPage(curPage:Int) {
+        this.curPage = curPage
+        // 进入播放器界面，才需要监听进度变化，优化性能
+        when(curPage) {
+            0 -> {
+                player.unregisterProgressChangedListener(progressChangedListener)
+            }
+            1 -> {
+                viewModelState.update { it.copy(progressInMs = player.getPosition()) }
+                player.registerProgressChangedListener(progressChangedListener)
+            }
         }
     }
 

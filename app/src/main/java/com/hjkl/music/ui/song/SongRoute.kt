@@ -16,6 +16,7 @@ fun SongRoute(
         uiState = uiState,
         onRefresh = { songViewModel.refresh() },
         operateDrawerState = operateDrawerState,
+        onPlayerPageExpandChanged = {songViewModel.setCurPage(if (it) 1 else 0)},
         onPlayAll = { songViewModel.playAll() },
         onItemClick = { songViewModel.playIndex(it) },
         onPlayToggle = { songViewModel.togglePlay() },

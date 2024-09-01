@@ -8,7 +8,7 @@ import com.hjkl.comm.LogTrace
 
 object AlbumArtUtil {
 
-    fun extractAlbumArtBitmap(filePath: String): Pair<ByteArray?,Bitmap?>? = LogTrace.measureTimeMillis("AlbumArtUtil#getAlbumArtBitmap()//$filePath") {
+    fun extractAlbumArtBitmap(filePath: String): Pair<ByteArray?,Bitmap?>? = LogTrace.measureTimeMillis("AlbumArtUtil#getAlbumArtBitmap():$filePath") {
         val metadataRetriever = MediaMetadataRetriever()
         try {
             metadataRetriever.setDataSource(filePath)

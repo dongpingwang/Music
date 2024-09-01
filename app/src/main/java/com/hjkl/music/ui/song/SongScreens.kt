@@ -45,6 +45,7 @@ fun SongScreen(
     uiState: SongUiState,
     onRefresh: () -> Unit,
     operateDrawerState: (Boolean) -> Boolean,
+    onPlayerPageExpandChanged:(Boolean) ->Unit,
     onPlayAll: () -> Unit,
     onItemClick: (Int) -> Unit,
     onPlayToggle: () -> Unit,
@@ -65,7 +66,10 @@ fun SongScreen(
                 onBackHandle = {
                     if (it == null) {
                         "手动点击返回按钮".d()
-                        scope.launch { scaffoldState.bottomSheetState.hide() }
+                        scope.launch {
+                            scaffoldState.bottomSheetState.hide()
+                            onPlayerPageExpandChanged(false)
+                        }
                         return@PlayerPage false
                     }
                     "收到按键事件".d()
@@ -77,7 +81,10 @@ fun SongScreen(
                         }
                         val expanded = scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
                         if (expanded) {
-                            scope.launch { scaffoldState.bottomSheetState.hide() }
+                            scope.launch {
+                                scaffoldState.bottomSheetState.hide()
+                                onPlayerPageExpandChanged(false)
+                            }
                             "隐藏BottomSheet，拦截返回按键事件".d()
                             return@PlayerPage true
                         }
@@ -120,6 +127,7 @@ fun SongScreen(
                         uiState = uiState,
                         onClick = {
                             scope.launch {
+                                onPlayerPageExpandChanged(true)
                                 scaffoldState.bottomSheetState.expand()
                             }
                         },
@@ -187,6 +195,7 @@ fun HomeFeedScreenPreview() {
                 uiState = FakeDatas.songUiState,
                 onRefresh = {},
                 operateDrawerState = { false },
+                onPlayerPageExpandChanged = {},
                 onPlayAll = {},
                 onItemClick = {},
                 onPlayToggle = {},
