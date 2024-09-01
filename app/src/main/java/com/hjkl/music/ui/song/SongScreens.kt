@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,13 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import asSuccess
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
+import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.BottomMiniPlayer
 import com.hjkl.music.ui.ToError
@@ -113,6 +120,7 @@ fun SongScreen(
             is SongUiState.Success -> {
                 Column {
                     SongList(
+                        uiState = uiState,
                         isLoading = uiState.isLoading,
                         songs = uiState.songs,
                         onPlayAll = onPlayAll,
@@ -156,6 +164,7 @@ private fun ColumnScope.EmptyTips() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.SongList(
+    uiState: SongUiState,
     isLoading: Boolean,
     songs: List<Song>,
     onPlayAll: () -> Unit,
@@ -169,17 +178,38 @@ private fun ColumnScope.SongList(
         },
         modifier = Modifier.weight(1F)
     ) {
+        val listState = rememberLazyListState()
+        val scope = rememberCoroutineScope()
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(0.dp),
-            state = rememberLazyListState()
+            state = listState
         ) {
             item {
                 HeaderSongItem(count = songs.size, onPlayAll = onPlayAll, onMoreClick = {})
             }
             itemsIndexed(songs) { index, song ->
-                SongItem(song = song, onItemClick = { onItemClick(index) }, onMoreClick = {})
+                val curSongPlaying = uiState.asSuccess().isPlaying && uiState.asSuccess().curSong?.id == song.id
+                SongItem(isSongPlaying = curSongPlaying, song = song, onItemClick = { onItemClick(index) }, onMoreClick = {})
             }
+        }
+
+        FloatingActionButton(
+            onClick = {
+                "FloatingActionButton click".d()
+                val curSongPosition =
+                    uiState.asSuccess().songs.indexOfLast { it.id == uiState.asSuccess().curSong?.id }
+                scope.launch { listState.scrollToItem(curSongPosition) }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 32.dp, end = 16.dp)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.my_location_24px),
+                contentDescription = null
+            )
         }
     }
 }

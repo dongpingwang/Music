@@ -9,20 +9,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,6 +81,7 @@ fun HeaderSongItem(
 
 @Composable
 fun SongItem(
+    isSongPlaying:Boolean,
     song: Song,
     onItemClick: () -> Unit,
     onMoreClick: () -> Unit
@@ -87,8 +89,19 @@ fun SongItem(
     Row(
         modifier = Modifier
             .clickable(onClick = { onItemClick() })
-
     ) {
+        val textColor = if (isSongPlaying) MaterialTheme.colorScheme.primary else Color.Unspecified
+        val iconTint = if (isSongPlaying) MaterialTheme.colorScheme.primary else LocalContentColor.current
+        if (isSongPlaying) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.equalizer_24px),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(start = 16.dp),
+                tint = iconTint
+            )
+        }
         if (song.bitmap != null) {
             Image(
                 bitmap = song.bitmap!!.asImageBitmap(),
@@ -119,12 +132,14 @@ fun SongItem(
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                color = textColor
             )
             Text(
                 text = song.artist,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                color = textColor
             )
         }
         IconButton(
@@ -136,6 +151,7 @@ fun SongItem(
             Icon(
                 imageVector = Icons.Filled.MoreVert,
                 contentDescription = null,
+                tint = iconTint
             )
         }
     }
@@ -148,7 +164,7 @@ fun SongItem(
 fun SongItemPreview() {
     MusicTheme {
         Surface {
-            SongItem(song = FakeDatas.song, onItemClick = {}, onMoreClick = {})
+            SongItem(isSongPlaying = true, song = FakeDatas.song, onItemClick = {}, onMoreClick = {})
         }
     }
 }
