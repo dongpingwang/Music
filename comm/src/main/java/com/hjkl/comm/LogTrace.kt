@@ -1,7 +1,5 @@
 package com.hjkl.comm
 
-import android.util.Log
-
 object LogTrace {
 
     private const val TAG = "LogTrace"
@@ -14,7 +12,7 @@ object LogTrace {
         val start = System.currentTimeMillis()
         val result = block()
         val cos = System.currentTimeMillis() - start
-        Log.i(TAG, "$tag run at tname:$tname, cos:$cos(ms)")
+        "$tag run at tname:$tname, cos:$cos(ms)".tag(TAG).d()
         return result
     }
 }

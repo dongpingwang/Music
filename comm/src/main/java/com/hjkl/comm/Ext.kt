@@ -16,17 +16,19 @@ fun <T> T?.getOrDefault(default: T): T {
 /**
  * 分批遍历，如10个条目为一组，遍历到第10/20/...个条目时，则当前一批遍历完成
  */
-fun <T> List<T>.onBatchEach(batchCount: Int, block: (Int, T, Boolean) -> Unit) {
-    if (this.size <= batchCount) {
+fun <T> List<T>.onBatchEach(firstBatch: Int, perBatchCount: Int, block: (Int, T, Boolean) -> Unit) {
+    if (this.size <= perBatchCount) {
         this.onEachIndexed { index, item ->
+            val isFirstBatchFinish = (index + 1) == firstBatch
             val isBatchFinish = (index + 1) == this.size
-            block(index, item, isBatchFinish)
+            block(index, item, isFirstBatchFinish || isBatchFinish)
         }
         return
     }
     this.onEachIndexed { index, item ->
-        val isBatchFinish = (index + 1) % batchCount == 0 || (index + 1) == this.size
-        block(index, item, isBatchFinish)
+        val isFirstBatchFinish = (index + 1) == firstBatch
+        val isBatchFinish = (index + 1) % perBatchCount == 0 || (index + 1) == this.size
+        block(index, item, isFirstBatchFinish || isBatchFinish)
     }
 }
 

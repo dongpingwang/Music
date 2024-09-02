@@ -2,15 +2,17 @@ package com.hjkl.query.util
 
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import com.hjkl.comm.LogTrace
-import com.hjkl.comm.d
-import com.hjkl.comm.ifNull
 import com.hjkl.entity.Song
+import com.hjkl.query.AlbumArtQuery
 
+private val albumArtQuery by lazy { AlbumArtQuery() }
 
-fun Song.extraMetadataIfNeed(): Song = LogTrace.measureTimeMillis("MediaMetadataExt#extraMetadataIfNeed") {
+fun Song.extraMetadataIfNeed(): Song  {
     var metadataRetriever: MediaMetadataRetriever? = null
     try {
+        if (this.bitmap == null) {
+            this.bitmap = albumArtQuery.getAlbumArtBitmap(this.id, this.albumId)
+        }
         metadataRetriever = MediaMetadataRetriever()
         metadataRetriever.setDataSource(this.data)
         if (this.bitmap == null) {
@@ -23,12 +25,16 @@ fun Song.extraMetadataIfNeed(): Song = LogTrace.measureTimeMillis("MediaMetadata
         }
 //        if (this.title == "<unknown>" || this.title.isEmpty()) {
 //            // "歌曲名称为<unknown>或空，尝试使用MediaMetadataRetriever进行解析".d()
-//             this.title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).ifNull { this.title }
+//            this.title =
+//                metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+//                    .ifNull { this.title }
 //        }
 //        if (this.artist == "<unknown>" || this.artist.isEmpty()) {
 //
 //            // "歌曲歌手名称为<unknown>或空，尝试使用MediaMetadataRetriever进行解析".d()
-//            this.artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).ifNull { this.artist }
+//            this.artist =
+//                metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+//                    .ifNull { this.artist }
 //        }
 //        if (this.album == "<unknown>" || this.album.isEmpty()) {
 //            // "歌曲歌手名称为<unknown>或空，尝试使用MediaMetadataRetriever进行解析".d()
@@ -40,5 +46,5 @@ fun Song.extraMetadataIfNeed(): Song = LogTrace.measureTimeMillis("MediaMetadata
         metadataRetriever?.release()
         metadataRetriever?.close()
     }
-    return@measureTimeMillis this
+    return this
 }

@@ -3,17 +3,13 @@ package com.hjkl.query
 import android.annotation.SuppressLint
 import android.os.Build
 import android.provider.MediaStore.Audio.Media
-import android.util.Log
 import com.hjkl.comm.AppUtil
 import com.hjkl.comm.LogTrace
+import com.hjkl.comm.d
 import com.hjkl.entity.Song
 
 
 class SongQuery : ISongQuery {
-
-    companion object {
-        private const val TAG = "SongQuery"
-    }
 
     @SuppressLint("Range")
     override fun getAllSongs(): Result<List<Song>> = LogTrace.measureTimeMillis("SongQuery#getAllSongs()") {
@@ -27,7 +23,7 @@ class SongQuery : ISongQuery {
             )
             val result = arrayListOf<Song>()
             if (cursor == null || cursor.count <= 0) {
-                Log.d(TAG, "cursor is null or null data")
+                "cursor is null or null data".d()
             } else {
                 while (cursor.moveToNext()) {
                     val id = cursor.getInt(cursor.getColumnIndex(Media._ID)) // id
@@ -60,7 +56,7 @@ class SongQuery : ISongQuery {
                         duration = duration,
                         size = size,
                     )
-                    Log.d(TAG, "song from cursor: $song")
+                    // "song from cursor: $song".d()
                     result.add(song)
                 }
             }

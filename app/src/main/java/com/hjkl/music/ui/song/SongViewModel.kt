@@ -1,8 +1,8 @@
 import SongViewModel.Companion.NULL_SUCCESS
 import androidx.annotation.FloatRange
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hjkl.comm.LogTrace
 import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
 import com.hjkl.comm.onBatchEach
@@ -37,7 +37,7 @@ sealed class SongUiState {
         val progressInMs: Long,
         val playMode: PlayMode,
         val playerErrorMsgOnce:String?,
-        val updateTimeMillis: Long?
+        val updateTimeMillis: Long? // 数据获取或者解析完成时间戳
     ) : SongUiState()
 }
 
@@ -65,7 +65,7 @@ private data class SongViewModelState(
     val progressInMs: Long = 0L,
     val playMode: PlayMode = PlayMode.LIST,
     val playerErrorMsgOnce: String? = null,
-    private val updateTimeMillis: Long? = null
+    val updateTimeMillis: Long? = null
 ) {
     fun toUiState(): SongUiState {
         if (!errorMsg.isNullOrEmpty()) {
@@ -234,15 +234,17 @@ class SongViewModel : ViewModel() {
                         }
                     }
                     "start extract data from mmr".d()
-                    songs.onBatchEach(50) { index, item, isBatchFinish ->
-                        item.extraMetadataIfNeed()
-                        if (isBatchFinish) {
-                            viewModelState.update {
-                                it.copy(
-                                    isLoading = (index + 1) != songs.size,
-                                    songs = songs,
-                                    updateTimeMillis = System.currentTimeMillis()
-                                )
+                    LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
+                        songs.onBatchEach(10, 50) { index, item, isBatchFinish ->
+                            item.extraMetadataIfNeed()
+                            if (isBatchFinish) {
+                                viewModelState.update {
+                                    it.copy(
+                                        isLoading = (index + 1) != songs.size,
+                                        songs = songs,
+                                        updateTimeMillis = System.currentTimeMillis()
+                                    )
+                                }
                             }
                         }
                     }
