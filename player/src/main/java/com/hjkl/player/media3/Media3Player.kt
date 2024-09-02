@@ -22,6 +22,7 @@ open class Media3Player : IPlayer {
     private val playSongChangedListeners = mutableListOf<(Song?) -> Unit>()
     private val isPlayingChangedListeners = mutableListOf<(Boolean) -> Unit>()
     private val playModeChangedListeners = mutableListOf<(PlayMode) -> Unit>()
+    private val playerErrorListeners = mutableListOf<(Int) -> Unit>()
     private val progressTracker = ProgressTracker()
 
     private var isPlaying: Boolean = false
@@ -194,6 +195,14 @@ open class Media3Player : IPlayer {
         return playModeChangedListeners.remove(listener)
     }
 
+    override fun registerPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean {
+        return playerErrorListeners.contains(listener) || playerErrorListeners.add(listener)
+    }
+
+    override fun unregisterPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean {
+        return playerErrorListeners.remove(listener)
+    }
+
     private val playerListener = object :Listener{
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             super.onMediaItemTransition(mediaItem, reason)
@@ -219,9 +228,11 @@ open class Media3Player : IPlayer {
             isPlayingChangedListeners.onEach { it(_isPlaying) }
         }
 
+        // TODO exoplayer默认不支持ape音频格式
         override fun onPlayerError(error: PlaybackException) {
             super.onPlayerError(error)
-            "onPlayerError: error=$error".d()
+            "onPlayerError: error=${error.errorCode} -- ${error.errorCodeName}".d()
+            playerErrorListeners.onEach { it(error.errorCode) }
         }
 
         override fun onEvents(player: Player, events: Player.Events) {

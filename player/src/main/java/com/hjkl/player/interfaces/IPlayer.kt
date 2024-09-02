@@ -119,4 +119,11 @@ interface IPlayer {
     fun registerPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean
 
     fun unregisterPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean
+
+    /**
+     * 播放失败事件监听
+     */
+    fun registerPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean
+
+    fun unregisterPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean
 }

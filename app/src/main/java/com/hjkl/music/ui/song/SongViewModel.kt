@@ -1,12 +1,16 @@
 import SongViewModel.Companion.NULL_SUCCESS
 import androidx.annotation.FloatRange
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
 import com.hjkl.comm.onBatchEach
 import com.hjkl.entity.Song
+import com.hjkl.music.R
 import com.hjkl.music.data.AppConfig
 import com.hjkl.music.data.GetAllSongsUseCase
+import com.hjkl.player.constant.PlayErrorCode
 import com.hjkl.player.constant.PlayMode
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
@@ -14,6 +18,7 @@ import com.hjkl.player.util.getValue
 import com.hjkl.query.SongQuery
 import com.hjkl.query.util.extraMetadataIfNeed
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -31,6 +36,7 @@ sealed class SongUiState {
         val isPlaying: Boolean,
         val progressInMs: Long,
         val playMode: PlayMode,
+        val playerErrorMsgOnce:String?,
         val updateTimeMillis: Long?
     ) : SongUiState()
 }
@@ -45,7 +51,7 @@ fun SongUiState.asSuccess(): SongUiState.Success {
 
 fun SongUiState.shortLog(): String {
     if (this is SongUiState.Success) {
-        return "Success(isLoading=false, songs.size=${songs.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, updateTimeMillis=$updateTimeMillis)"
+        return "Success(isLoading=false, songs.size=${songs.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsg=$playerErrorMsgOnce, updateTimeMillis=$updateTimeMillis)"
     }
     return this.toString()
 }
@@ -58,6 +64,7 @@ private data class SongViewModelState(
     val isPlaying: Boolean = false,
     val progressInMs: Long = 0L,
     val playMode: PlayMode = PlayMode.LIST,
+    val playerErrorMsgOnce: String? = null,
     private val updateTimeMillis: Long? = null
 ) {
     fun toUiState(): SongUiState {
@@ -71,6 +78,7 @@ private data class SongViewModelState(
             isPlaying = isPlaying,
             progressInMs = progressInMs,
             playMode = playMode,
+            playerErrorMsgOnce = playerErrorMsgOnce,
             updateTimeMillis = updateTimeMillis
         )
     }
@@ -86,6 +94,7 @@ class SongViewModel : ViewModel() {
                 isPlaying = false,
                 progressInMs = 0L,
                 playMode = PlayMode.LIST,
+                playerErrorMsgOnce = null,
                 updateTimeMillis = System.currentTimeMillis()
             )
         }
@@ -145,6 +154,21 @@ class SongViewModel : ViewModel() {
         }
     }
 
+    private val playErrorListener = object : (Int) -> Unit {
+        override fun invoke(errorCode: Int) {
+            if (errorCode == PlayErrorCode.ERROR_FORMAT_UNSUPPORTED) {
+                viewModelState.update { it.copy(playerErrorMsgOnce = ResUtil.getString(id = R.string.toast_format_unsupport)) }
+            } else {
+                viewModelState.update { it.copy(playerErrorMsgOnce = ResUtil.getString(id = R.string.toast_unknown)) }
+            }
+            // 使用后进行清空
+            viewModelScope.launch {
+                delay(50)
+                viewModelState.update { it.copy(playerErrorMsgOnce = null) }
+            }
+        }
+    }
+
     init {
         "init".d()
         fetchAllSongs(false)
@@ -152,6 +176,7 @@ class SongViewModel : ViewModel() {
         player.registerIsPlayingChangedListener(isPlayingChangedListener)
         player.registerPlayModeChangedListener(playModeChangedListener)
         player.registerPlayerReadyListener(playerReadyListener)
+        player.registerPlayerErrorListener(playErrorListener)
         getLatestPlayerState()
     }
 
@@ -183,6 +208,7 @@ class SongViewModel : ViewModel() {
         player.unregisterIsPlayingChangedListener(isPlayingChangedListener)
         player.unregisterPlayModeChangedListener(playModeChangedListener)
         player.unregisterPlayerReadyListener(playerReadyListener)
+        player.unregisterPlayerErrorListener(playErrorListener)
     }
 
     /**

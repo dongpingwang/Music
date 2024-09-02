@@ -17,12 +17,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,9 +68,18 @@ fun SongScreen(
     "SongScreen() call: ${uiState.shortLog()}".d()
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState= rememberStandardBottomSheetState(skipHiddenState = false))
+    val snackbarHostState = remember { SnackbarHostState() }
+    uiState.asSuccess().playerErrorMsgOnce?.let {
+        scope.launch {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         topBar = { TopAppBar(openDrawer = { operateDrawerState(true) }) },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 120.0.dp))
+        },
         sheetContent = {
             PlayerPage(
                 uiState = uiState,
