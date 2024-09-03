@@ -51,7 +51,7 @@ fun SongUiState.asSuccess(): SongUiState.Success {
 
 fun SongUiState.shortLog(): String {
     if (this is SongUiState.Success) {
-        return "Success(isLoading=false, songs.size=${songs.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsg=$playerErrorMsgOnce, updateTimeMillis=$updateTimeMillis)"
+        return "Success(isLoading=$isLoading, songs.size=${songs.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsg=$playerErrorMsgOnce, updateTimeMillis=$updateTimeMillis)"
     }
     return this.toString()
 }

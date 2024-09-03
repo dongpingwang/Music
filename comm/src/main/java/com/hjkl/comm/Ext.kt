@@ -1,5 +1,7 @@
 package com.hjkl.comm
 
+import java.io.Closeable
+
 /**
  * 如果对象为空，则创建
  */
@@ -32,6 +34,24 @@ fun <T> List<T>.onBatchEach(firstBatch: Int, perBatchCount: Int, block: (Int, T,
     }
 }
 
-fun <T> T?.ifNull(block: () -> T): T {
-    return this ?: block()
+/**
+ * 安全的关闭资源流
+ */
+fun AutoCloseable?.closeSafely() {
+    try {
+        this?.close()
+    } catch (e: Exception) {
+        // ignore exception
+    }
+}
+
+/**
+ * 安全的关闭资源流
+ */
+fun Closeable?.closeSafely() {
+    try {
+        this?.close()
+    } catch (e: Exception) {
+        // ignore exception
+    }
 }

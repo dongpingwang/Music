@@ -43,8 +43,11 @@ fun Song.extraMetadataIfNeed(): Song  {
     } catch (e: Exception) {
         e.printStackTrace()
     } finally {
-        metadataRetriever?.release()
-        metadataRetriever?.close()
+        try {
+            metadataRetriever?.close()
+        }catch (e:Exception) {
+            // ignore exception
+        }
     }
     return this
 }

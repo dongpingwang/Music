@@ -5,6 +5,7 @@ import android.os.Build
 import android.provider.MediaStore.Audio.Media
 import com.hjkl.comm.AppUtil
 import com.hjkl.comm.LogTrace
+import com.hjkl.comm.closeSafely
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
 
@@ -60,7 +61,7 @@ class SongQuery : ISongQuery {
                     result.add(song)
                 }
             }
-            cursor?.close()
+            cursor.closeSafely()
             Result.success(result)
         }.getOrElse {
             it.printStackTrace()
