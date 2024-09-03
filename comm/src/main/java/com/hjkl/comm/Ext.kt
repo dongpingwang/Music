@@ -8,6 +8,7 @@ import java.io.Closeable
 fun <T> T?.createIfNull(block: () -> T): T {
     return this ?: block()
 }
+
 /**
  * 如果对象为空，则返回默认值
  */
@@ -54,4 +55,38 @@ fun Closeable?.closeSafely() {
     } catch (e: Exception) {
         // ignore exception
     }
+}
+
+/**
+ * 是否是List中的第一个位置
+ */
+fun <T> List<T>.isFirstIndex(index: Int): Boolean {
+    return 0 == index
+}
+
+/**
+ * 是否是List中的第一个位置
+ */
+fun <T> List<T>.isLastIndex(index: Int): Boolean {
+    return (this.size - 1) == index
+}
+
+/**
+ * 为true时执行
+ */
+fun Boolean?.onTrue(block: () -> Unit): Boolean? {
+    if (this == true) {
+        block()
+    }
+    return this
+}
+
+/**
+ * 为false或者null时执行
+ */
+fun Boolean?.onFalse(block: () -> Unit): Boolean? {
+    if (this == false || this == null) {
+        block()
+    }
+    return this
 }

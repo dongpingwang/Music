@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.hjkl.comm.LogTrace
 import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
+import com.hjkl.comm.isLastIndex
 import com.hjkl.comm.onBatchEach
+import com.hjkl.comm.onFalse
+import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.data.AppConfig
@@ -225,30 +228,45 @@ class SongViewModel : ViewModel() {
             getAllSongsUseCase.getAllSongs()
                 .onSuccess { songs ->
                     "finish fetch data from mediaprovider".d()
-                    if (!fromUser) {
+                    fromUser.onFalse {
                         viewModelState.update {
                             it.copy(
                                 songs = songs,
                                 updateTimeMillis = System.currentTimeMillis()
                             )
                         }
-                    }
-                    "start extract data from mmr".d()
-                    LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
-                        songs.onBatchEach(10, 50) { index, item, isBatchFinish ->
-                            item.extraMetadataIfNeed()
-                            if (isBatchFinish) {
-                                viewModelState.update {
-                                    it.copy(
-                                        isLoading = (index + 1) != songs.size,
-                                        songs = songs,
-                                        updateTimeMillis = System.currentTimeMillis()
-                                    )
+                        "start extract data from mmr".d()
+                        LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
+                            songs.onBatchEach(10, 50) { index, item, isBatchFinish ->
+                                item.extraMetadataIfNeed()
+                                isBatchFinish.onTrue {
+                                    viewModelState.update {
+                                        it.copy(
+                                            isLoading = (index + 1) != songs.size,
+                                            songs = songs,
+                                            updateTimeMillis = System.currentTimeMillis()
+                                        )
+                                    }
                                 }
                             }
                         }
+                        "finish extract data from mmr".d()
+                    }.onTrue {
+                        "start extract data from mmr".d()
+                        LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
+                            songs.onEach {
+                                it.extraMetadataIfNeed()
+                            }
+                        }
+                        viewModelState.update {
+                            it.copy(
+                                isLoading = false,
+                                songs = songs,
+                                updateTimeMillis = System.currentTimeMillis()
+                            )
+                        }
+                        "finish extract data from mmr".d()
                     }
-                    "finish extract data from mmr".d()
                 }.onFailure { throwable ->
                     viewModelState.update { it.copy(errorMsg = throwable.message) }
                 }
