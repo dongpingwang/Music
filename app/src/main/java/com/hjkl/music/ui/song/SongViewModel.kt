@@ -1,5 +1,6 @@
 import SongViewModel.Companion.NULL_SUCCESS
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hjkl.comm.LogTrace
 import com.hjkl.comm.d
@@ -92,6 +93,13 @@ class SongViewModel : ViewModel() {
                 playerErrorMsgOnce = null,
                 updateTimeMillis = System.currentTimeMillis()
             )
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        fun provideFactory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return SongViewModel() as T
+            }
         }
     }
 

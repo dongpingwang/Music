@@ -15,27 +15,10 @@ object MusicDestinations {
     const val ABOUT_ROUTE = "about"
 }
 
-/**
- * Models the navigation actions in the app.
- */
-class JetnewsNavigationActions(navController: NavHostController) {
-    val navigateToHome: () -> Unit = {
-        navController.navigate(MusicDestinations.SONG_ROUTE) {
-            // Pop up to the start destination of the graph to
-            // avoid building up a large stack of destinations
-            // on the back stack as users select items
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            // Avoid multiple copies of the same destination when
-            // reselecting the same item
-            launchSingleTop = true
-            // Restore state when reselecting a previously selected item
-            restoreState = true
-        }
-    }
-    val navigateToInterests: () -> Unit = {
-        navController.navigate(MusicDestinations.ARTIST_ROUTE) {
+
+class MusicNavigationActions(private val navController: NavHostController) {
+    private fun navigate(route: String) {
+        navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
             }
@@ -43,4 +26,7 @@ class JetnewsNavigationActions(navController: NavHostController) {
             restoreState = true
         }
     }
+
+    val navigateToHome: () -> Unit = { navigate(MusicDestinations.SONG_ROUTE) }
+    val navigateToAlbum: () -> Unit = { navigate(MusicDestinations.ALBUM_ROUTE) }
 }

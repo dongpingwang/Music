@@ -1,16 +1,14 @@
-
-
 package com.hjkl.music.ui
 
 import SongViewModel
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hjkl.music.ui.album.AlbumRoute
+import com.hjkl.music.ui.album.AlbumViewModel
 import com.hjkl.music.ui.song.SongRoute
 
 
@@ -28,26 +26,22 @@ fun MusicNavGraph(
             route = MusicDestinations.SONG_ROUTE
         ) { navBackStackEntry ->
             val songViewModel: SongViewModel = viewModel(
-                factory = object : ViewModelProvider.Factory{
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return SongViewModel() as T
-                    }
-                }
+                factory = SongViewModel.provideFactory()
             )
             SongRoute(
                 songViewModel = songViewModel,
                 operateDrawerState = operateDrawerState,
             )
         }
-        composable(MusicDestinations.ALBUM_ROUTE) {
-//            val interestsViewModel: InterestsViewModel = viewModel(
-//                factory = InterestsViewModel.provideFactory(appContainer.interestsRepository)
-//            )
-//            InterestsRoute(
-//                interestsViewModel = interestsViewModel,
-//                isExpandedScreen = isExpandedScreen,
-//                openDrawer = openDrawer
-//            )
+        composable(route = MusicDestinations.ALBUM_ROUTE) {
+            val albumViewModel: AlbumViewModel = viewModel(
+                factory = AlbumViewModel.provideFactory()
+            )
+            AlbumRoute(
+                albumViewModel = albumViewModel,
+                operateDrawerState = operateDrawerState
+
+            )
         }
     }
 }

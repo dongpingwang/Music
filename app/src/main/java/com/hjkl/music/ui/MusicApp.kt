@@ -19,22 +19,19 @@ fun MusicApp(
     MusicTheme {
         val navController = rememberNavController()
         val navigationActions = remember(navController) {
-            JetnewsNavigationActions(navController)
+            MusicNavigationActions(navController)
         }
-
         val coroutineScope = rememberCoroutineScope()
-
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route ?: MusicDestinations.SONG_ROUTE
-
         val drawerState = rememberDrawerState(DrawerValue.Closed)
 
         ModalNavigationDrawer(
             drawerContent = {
                 AppDrawer(
-                    currentRoute = MusicDestinations.SONG_ROUTE,
-                    navigateToSong = { },
-                    navigateToAlbum = { },
+                    currentRoute = currentRoute,
+                    navigateToSong = navigationActions.navigateToHome,
+                    navigateToAlbum = navigationActions.navigateToAlbum,
                     navigateToArtist = {},
                     navigateToFolder = {},
                     navigateToFavorite = {},
