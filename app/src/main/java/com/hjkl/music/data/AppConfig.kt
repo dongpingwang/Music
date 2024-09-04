@@ -3,8 +3,6 @@ package com.hjkl.music.data
 import android.util.Log
 import com.drake.serialize.serialize.annotation.SerializeConfig
 import com.drake.serialize.serialize.serial
-import com.hjkl.comm.AppUtil
-import com.tencent.mmkv.MMKV
 
 @SerializeConfig(mmapID = "app_config")
 object AppConfig {
@@ -13,7 +11,6 @@ object AppConfig {
 
     fun init() {
         Log.d(TAG, "init")
-        MMKV.initialize(AppUtil.getContext())
     }
 
     // 播放模式
