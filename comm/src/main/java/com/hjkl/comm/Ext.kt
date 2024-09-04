@@ -3,13 +3,6 @@ package com.hjkl.comm
 import java.io.Closeable
 
 /**
- * 如果对象为空，则创建
- */
-fun <T> T?.createIfNull(block: () -> T): T {
-    return this ?: block()
-}
-
-/**
  * 如果对象为空，则返回默认值
  */
 fun <T> T?.getOrDefault(default: T): T {

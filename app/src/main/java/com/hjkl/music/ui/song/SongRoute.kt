@@ -4,6 +4,7 @@ import SongViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import asSuccess
 
 @Composable
 fun SongRoute(
@@ -16,16 +17,16 @@ fun SongRoute(
         uiState = uiState,
         onRefresh = { songViewModel.refresh() },
         operateDrawerState = operateDrawerState,
-        onPlayerPageExpandChanged = {songViewModel.setCurPage(if (it) 1 else 0)},
-        onPlayAll = { songViewModel.playAll() },
-        onItemClick = { songViewModel.playIndex(it) },
-        onPlayToggle = { songViewModel.togglePlay() },
+        onPlayerPageExpandChanged = { songViewModel.player().setCurPage(if (it) 1 else 0) },
+        onPlayAll = { songViewModel.player().playAll(uiState.asSuccess().songs) },
+        onItemClick = { songViewModel.player().playIndex(uiState.asSuccess().songs, it) },
+        onPlayToggle = { songViewModel.player().togglePlay() },
         onSeekBarValueChange = { isUserSeeking, progressRatio ->
-            songViewModel.userInputSeekBar(isUserSeeking, progressRatio)
+            songViewModel.player().userInputSeekBar(isUserSeeking, progressRatio)
         },
-        onPlaySwitchMode = { songViewModel.switchMode(it) },
-        onPlayPrev = { songViewModel.playPrev() },
-        onPlayNext = { songViewModel.playNext() }
+        onPlaySwitchMode = { songViewModel.player().switchMode(it) },
+        onPlayPrev = { songViewModel.player().playPrev() },
+        onPlayNext = { songViewModel.player().playNext() }
     )
 }
 

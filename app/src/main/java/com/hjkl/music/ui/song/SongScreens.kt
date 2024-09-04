@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -76,7 +77,11 @@ fun SongScreen(
     }
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        topBar = { TopAppBar(openDrawer = { operateDrawerState(true) }) },
+        topBar = {
+            TopAppBar(
+                title = stringResource(id = R.string.song_title),
+                openDrawer = { operateDrawerState(true) })
+        },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 120.0.dp))
         },

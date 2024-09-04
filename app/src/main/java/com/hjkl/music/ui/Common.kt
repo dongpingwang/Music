@@ -2,7 +2,6 @@ package com.hjkl.music.ui
 
 import SongUiState
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,7 +39,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import asSuccess
-import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.theme.MusicTheme
@@ -48,11 +46,11 @@ import com.hjkl.music.ui.theme.MusicTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
-    openDrawer: () -> Unit,
-    modifier: Modifier = Modifier,
+    title: String,
+    openDrawer: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(text = stringResource(R.string.song_title)) },
+        title = { Text(text = title) },
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
@@ -68,32 +66,11 @@ fun TopAppBar(
                     contentDescription = stringResource(R.string.search)
                 )
             }
-        },
-        modifier = modifier
+        }
     )
 }
 
 
-//@Composable
-//fun ToLoading() {
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .wrapContentSize()
-//    ) {
-//        CircularProgressIndicator(
-//            modifier = Modifier
-//                .align(Alignment.Center)
-//                .size(80.dp),
-//            color = MaterialTheme.colorScheme.secondary,
-//            trackColor = MaterialTheme.colorScheme.surfaceVariant
-//        )
-//        Text(
-//            text = stringResource(id = R.string.loading_desc),
-//            modifier = Modifier.align(Alignment.Center)
-//        )
-//    }
-//}
 
 @Composable
 fun ToError() {
@@ -218,7 +195,7 @@ fun BottomMiniPlayer(
 fun SongItemPreview() {
     MusicTheme {
         Surface {
-            TopAppBar(openDrawer = { })
+            TopAppBar(title = "标题", openDrawer = { })
         }
     }
 }
