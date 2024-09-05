@@ -45,7 +45,7 @@ class PlayerStateProvider {
         playerErrorMsgOnce = null
     )
 
-    private val scope = CoroutineScope(Dispatchers.IO + CoroutineName("PlayerStateProvider"))
+    private val scope = CoroutineScope(CoroutineName("PlayerStateProvider"))
     private val _playerUiState = MutableStateFlow(defaultPlayerUiState)
     val playerUiState = _playerUiState.asStateFlow()
     private val player = PlayerProxy
@@ -105,7 +105,7 @@ class PlayerStateProvider {
                 _playerUiState.update { it.copy(playerErrorMsgOnce = ResUtil.getString(id = R.string.toast_unknown)) }
             }
             // 使用后进行清空
-            scope.launch {
+            scope.launch(Dispatchers.IO) {
                 delay(50)
                 _playerUiState.update { it.copy(playerErrorMsgOnce = null) }
             }

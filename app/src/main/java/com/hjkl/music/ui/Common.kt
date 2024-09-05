@@ -1,6 +1,5 @@
 package com.hjkl.music.ui
 
-import SongUiState
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,9 +37,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import asSuccess
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.comm.SongUiState
+import com.hjkl.music.ui.comm.asSuccess
 import com.hjkl.music.ui.theme.MusicTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

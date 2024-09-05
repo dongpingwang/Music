@@ -1,6 +1,5 @@
 package com.hjkl.music.ui.song
 
-import SongUiState
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +36,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import asSuccess
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
 import com.hjkl.music.R
@@ -45,11 +43,13 @@ import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.BottomMiniPlayer
 import com.hjkl.music.ui.ToError
 import com.hjkl.music.ui.TopAppBar
+import com.hjkl.music.ui.comm.SongUiState
+import com.hjkl.music.ui.comm.asSuccess
+import com.hjkl.music.ui.comm.shortLog
 import com.hjkl.music.ui.player.PlayerPage
 import com.hjkl.music.ui.theme.MusicTheme
 import com.hjkl.player.constant.PlayMode
 import kotlinx.coroutines.launch
-import shortLog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

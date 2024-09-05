@@ -4,7 +4,7 @@ import SongViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import asSuccess
+import com.hjkl.music.ui.comm.asSuccess
 
 @Composable
 fun SongRoute(
