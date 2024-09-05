@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.SongUiState
-import com.hjkl.music.ui.comm.asSuccess
 import com.hjkl.music.ui.theme.MusicTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,8 +90,8 @@ fun BottomMiniPlayer(
     onClick: () -> Unit,
     onTogglePlay: () -> Unit
 ) {
-    val curSong = uiState.asSuccess().curSong
-    val isPlaying = uiState.asSuccess().isPlaying
+    val curSong = uiState.curSong
+    val isPlaying = uiState.isPlaying
     val hasPlayingContent: Boolean = curSong != null
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)

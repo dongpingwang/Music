@@ -44,7 +44,6 @@ import com.hjkl.music.ui.BottomMiniPlayer
 import com.hjkl.music.ui.ToError
 import com.hjkl.music.ui.TopAppBar
 import com.hjkl.music.ui.comm.SongUiState
-import com.hjkl.music.ui.comm.asSuccess
 import com.hjkl.music.ui.comm.shortLog
 import com.hjkl.music.ui.player.PlayerPage
 import com.hjkl.music.ui.theme.MusicTheme
@@ -57,7 +56,7 @@ fun SongScreen(
     uiState: SongUiState,
     onRefresh: () -> Unit,
     operateDrawerState: (Boolean) -> Boolean,
-    onPlayerPageExpandChanged:(Boolean) ->Unit,
+    onPlayerPageExpandChanged: (Boolean) -> Unit,
     onPlayAll: () -> Unit,
     onItemClick: (Int) -> Unit,
     onPlayToggle: () -> Unit,
@@ -68,9 +67,11 @@ fun SongScreen(
 ) {
     "SongScreen() call: ${uiState.shortLog()}".d()
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState= rememberStandardBottomSheetState(skipHiddenState = false))
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+    )
     val snackbarHostState = remember { SnackbarHostState() }
-    uiState.asSuccess().playerErrorMsgOnce?.let {
+    uiState.playerErrorMsgOnce?.let {
         scope.launch {
             snackbarHostState.showSnackbar(it)
         }
@@ -83,7 +84,10 @@ fun SongScreen(
                 openDrawer = { operateDrawerState(true) })
         },
         snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 120.0.dp))
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(bottom = 120.0.dp)
+            )
         },
         sheetContent = {
             PlayerPage(
@@ -104,7 +108,8 @@ fun SongScreen(
                             "隐藏NavigationDrawer，拦截返回按键事件".d()
                             return@PlayerPage true
                         }
-                        val expanded = scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                        val expanded =
+                            scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
                         if (expanded) {
                             scope.launch {
                                 scaffoldState.bottomSheetState.hide()
@@ -129,23 +134,22 @@ fun SongScreen(
         sheetMaxWidth = Dp.Infinity,
         sheetShape = BottomSheetDefaults.HiddenShape
     ) { innerPadding ->
-        when (uiState) {
-
-            is SongUiState.Error -> {
+        when {
+            uiState.errorMsg != null -> {
                 ToError()
             }
 
-            is SongUiState.Success -> {
+            else -> {
                 Column {
                     SongList(
                         uiState = uiState,
                         isLoading = uiState.isLoading,
-                        songs = uiState.songs,
+                        songs = uiState.datas,
                         onPlayAll = onPlayAll,
                         onItemClick = onItemClick,
                         onRefresh = onRefresh
                     )
-                    val isEmpty = uiState.songs.isEmpty()
+                    val isEmpty = uiState.datas.isEmpty()
                     if (!uiState.isLoading && isEmpty) {
                         EmptyTips()
                     }
@@ -161,8 +165,6 @@ fun SongScreen(
                     )
                 }
             }
-
-            else -> {}
         }
     }
 }
@@ -208,16 +210,20 @@ private fun ColumnScope.SongList(
                 HeaderSongItem(count = songs.size, onPlayAll = onPlayAll, onMoreClick = {})
             }
             itemsIndexed(songs) { index, song ->
-                val curSongPlaying = uiState.asSuccess().isPlaying && uiState.asSuccess().curSong?.id == song.id
-                SongItem(isSongPlaying = curSongPlaying, song = song, onItemClick = { onItemClick(index) }, onMoreClick = {})
+                val curSongPlaying = uiState.isPlaying && uiState.curSong?.id == song.id
+                SongItem(
+                    isSongPlaying = curSongPlaying,
+                    song = song,
+                    onItemClick = { onItemClick(index) },
+                    onMoreClick = {})
             }
         }
 
         FloatingActionButton(
             onClick = {
-                if (uiState.asSuccess().curSong != null) {
+                if (uiState.curSong != null) {
                     val curSongPosition =
-                        uiState.asSuccess().songs.indexOfLast { it.id == uiState.asSuccess().curSong?.id }
+                        uiState.datas.indexOfLast { it.id == uiState.curSong.id }
                     scope.launch { listState.scrollToItem(curSongPosition) }
                 } else {
                     scope.launch { listState.scrollToItem(0) }

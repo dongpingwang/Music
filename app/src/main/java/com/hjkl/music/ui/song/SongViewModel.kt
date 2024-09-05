@@ -4,11 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
 import com.hjkl.music.ui.comm.CommViewModel
-import com.hjkl.music.ui.comm.ViewModelState
-import com.hjkl.music.ui.comm.toUiState
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -44,10 +39,6 @@ class SongViewModel : CommViewModel<Song>() {
             }
         }
     }
-
-    val uiState = viewModelState
-        .map(ViewModelState<Song>::toUiState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
 
     fun refresh() {
         source().fetchAllSongs(true)

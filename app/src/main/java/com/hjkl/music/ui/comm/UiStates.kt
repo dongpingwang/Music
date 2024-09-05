@@ -15,62 +15,9 @@ data class ViewModelState<T>(
     val updateTimeMillis: Long? = null
 )
 
-fun ViewModelState<Song>.toUiState(): SongUiState {
-    if (!errorMsg.isNullOrEmpty()) {
-        return SongUiState.Error(errorMsg)
-    }
-    return SongUiState.Success(
-        isLoading = isLoading,
-        songs = datas,
-        curSong = curSong,
-        isPlaying = isPlaying,
-        progressInMs = progressInMs,
-        playMode = playMode,
-        playerErrorMsgOnce = playerErrorMsgOnce,
-        updateTimeMillis = updateTimeMillis
-    )
-}
+typealias SongUiState = ViewModelState<Song>
 
-
-object Defaults {
-    val songUiState = SongUiState.Success(
-        isLoading = false,
-        songs = emptyList(),
-        curSong = null,
-        isPlaying = false,
-        progressInMs = 0L,
-        playMode = PlayMode.LIST,
-        playerErrorMsgOnce = null,
-        updateTimeMillis = System.currentTimeMillis()
-    )
-}
-
-sealed class SongUiState {
-    data class Error(val msg: String) : SongUiState()
-    data class Success(
-        val isLoading: Boolean,
-        val songs: List<Song>,
-        val curSong: Song?,
-        val isPlaying: Boolean,
-        val progressInMs: Long,
-        val playMode: PlayMode,
-        val playerErrorMsgOnce: String?,
-        val updateTimeMillis: Long?
-    ) : SongUiState()
-}
-
-fun SongUiState.asSuccess(): SongUiState.Success {
-    return if (this is SongUiState.Success) {
-        this
-    } else {
-        Defaults.songUiState
-    }
-}
-
-fun SongUiState.shortLog(): String {
-    if (this is SongUiState.Success) {
-        return "Success(isLoading=$isLoading, songs.size=${songs.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsg=$playerErrorMsgOnce, updateTimeMillis=$updateTimeMillis)"
-    }
-    return this.toString()
+fun <T> ViewModelState<T>.shortLog(): String {
+    return "ViewModelState(isLoading=$isLoading, errorMsg=$errorMsg, datas.size=${datas.size}, curSong=${curSong?.shortLog()}, isPlaying=$isPlaying, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsg=$playerErrorMsgOnce, updateTimeMillis=$updateTimeMillis)"
 }
 

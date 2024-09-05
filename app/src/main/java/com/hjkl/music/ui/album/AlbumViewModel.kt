@@ -2,8 +2,9 @@ package com.hjkl.music.ui.album
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.hjkl.music.ui.comm.CommViewModel
 
-class AlbumViewModel() : ViewModel() {
+class AlbumViewModel() : CommViewModel<AlbumViewModel>() {
 
     companion object {
         @Suppress("UNCHECKED_CAST")

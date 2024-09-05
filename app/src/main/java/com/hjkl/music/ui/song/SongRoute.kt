@@ -4,7 +4,6 @@ import SongViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hjkl.music.ui.comm.asSuccess
 
 @Composable
 fun SongRoute(
@@ -18,8 +17,8 @@ fun SongRoute(
         onRefresh = { songViewModel.refresh() },
         operateDrawerState = operateDrawerState,
         onPlayerPageExpandChanged = { songViewModel.player().setCurPage(if (it) 1 else 0) },
-        onPlayAll = { songViewModel.player().playAll(uiState.asSuccess().songs) },
-        onItemClick = { songViewModel.player().playIndex(uiState.asSuccess().songs, it) },
+        onPlayAll = { songViewModel.player().playAll(uiState.datas) },
+        onItemClick = { songViewModel.player().playIndex(uiState.datas, it) },
         onPlayToggle = { songViewModel.player().togglePlay() },
         onSeekBarValueChange = { isUserSeeking, progressRatio ->
             songViewModel.player().userInputSeekBar(isUserSeeking, progressRatio)

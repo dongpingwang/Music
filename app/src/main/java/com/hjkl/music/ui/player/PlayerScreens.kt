@@ -40,7 +40,6 @@ import com.hjkl.comm.d
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.SongUiState
-import com.hjkl.music.ui.comm.asSuccess
 import com.hjkl.player.constant.PlayMode
 import com.hjkl.player.util.parseMillisTimeToMmSs
 
@@ -142,9 +141,9 @@ private fun PlaySongInfoPage(
             .fillMaxSize()
             .padding(top = 80.dp, start = 32.dp, end = 32.dp)
     ) {
-        val bitmap = uiState.asSuccess().curSong?.bitmap
-        val title = uiState.asSuccess().curSong?.title ?: "未知歌曲"
-        val artist = uiState.asSuccess().curSong?.artist ?: "未知歌手"
+        val bitmap = uiState.curSong?.bitmap
+        val title = uiState.curSong?.title ?: "未知歌曲"
+        val artist = uiState.curSong?.artist ?: "未知歌手"
         Box(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -174,8 +173,8 @@ private fun PlaySongInfoPage(
 
         Spacer(modifier = Modifier.weight(1F))
         var progressRatio = 0F
-        uiState.asSuccess().curSong?.let {
-            progressRatio = uiState.asSuccess().progressInMs.toFloat() / it.duration
+        uiState.curSong?.let {
+            progressRatio = uiState.progressInMs.toFloat() / it.duration
         }
         var progressRatioUI = progressRatio
         Slider(
@@ -190,9 +189,9 @@ private fun PlaySongInfoPage(
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)) {
-            Text(text = uiState.asSuccess().progressInMs.parseMillisTimeToMmSs())
+            Text(text = uiState.progressInMs.parseMillisTimeToMmSs())
             Text(
-                text = (uiState.asSuccess().curSong?.duration ?: 0L).parseMillisTimeToMmSs(),
+                text = (uiState.curSong?.duration ?: 0L).parseMillisTimeToMmSs(),
                 modifier = Modifier.align(
                     Alignment.TopEnd
                 )
@@ -203,16 +202,16 @@ private fun PlaySongInfoPage(
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
         ) {
-            val playModeRes = when (uiState.asSuccess().playMode) {
+            val playModeRes = when (uiState.playMode) {
                 PlayMode.LIST -> R.drawable.repeat_24px
                 PlayMode.REPEAT_ONE -> R.drawable.repeat_one_24px
                 PlayMode.SHUFFLE -> R.drawable.shuffle_24px
                 else -> R.drawable.repeat_24px
             }
             val playStateRes =
-                if (uiState.asSuccess().isPlaying) R.drawable.pause_24px else R.drawable.play_arrow_24px
+                if (uiState.isPlaying) R.drawable.pause_24px else R.drawable.play_arrow_24px
             IconButton(
-                onClick = { onPlaySwitchMode(uiState.asSuccess().playMode) }
+                onClick = { onPlaySwitchMode(uiState.playMode) }
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = playModeRes),
