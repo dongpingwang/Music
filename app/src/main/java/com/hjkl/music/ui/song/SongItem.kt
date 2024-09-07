@@ -83,7 +83,7 @@ fun HeaderSongItem(
                 .semantics { role = Role.Button }
         )
         Text(
-            text = stringResource(id = R.string.play_all_desc, count),
+            text = stringResource(id = R.string.formatter_play_all_desc, count),
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

@@ -1,6 +1,8 @@
 package com.hjkl.music.ui.comm
 
 import com.hjkl.entity.Album
+import com.hjkl.entity.Artist
+import com.hjkl.entity.Folder
 import com.hjkl.entity.Song
 import com.hjkl.music.data.Defaults.defaultPlayerUiState
 import com.hjkl.music.data.PlayerUiState
@@ -15,6 +17,8 @@ data class ViewModelState<T>(
 
 typealias SongUiState = ViewModelState<Song>
 typealias AlbumUiState = ViewModelState<Album>
+typealias ArtistUiState = ViewModelState<Artist>
+typealias FolderUiState = ViewModelState<Folder>
 
 fun <T> ViewModelState<T>.shortLog(): String {
     return "ViewModelState(isLoading=$isLoading, errorMsg=$errorMsg, datas.size=${datas.size}, playerUiState=${playerUiState.shortLog()}, updateTimeMillis=$updateTimeMillis)"

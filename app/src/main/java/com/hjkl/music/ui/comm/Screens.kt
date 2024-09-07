@@ -46,7 +46,7 @@ data class PlayerActions(
 @Composable
 fun <T> ScreenWithTopBottomBar(
     uiState: ViewModelState<T>,
-    title:String,
+    title: String,
     topBarActions: TopBarActions,
     bottomBarActions: BottomBarActions,
     playerActions: PlayerActions,

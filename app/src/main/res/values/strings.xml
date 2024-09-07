@@ -9,9 +9,10 @@
     <string name="setting_title">设置</string>
     <string name="about_title">关于</string>
     <string name="loading_desc">疯狂加载中</string>
-    <string name="play_all_desc">播放全部（%d）</string>
+    <string name="formatter_play_all_desc">播放全部（%d）</string>
     <string name="no_play_desc">暂无播放内容~</string>
     <string name="toast_format_unsupport">该歌曲格式不支持，换一首歌吧~</string>
     <string name="toast_unknown">播放出错了，换一首歌吧~</string>
     <string name="toast_add_to_next_play_success">已添加至播放队列</string>
+    <string name="formatter_album_count_desc">%d 首</string>
 </resources>

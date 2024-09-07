@@ -24,7 +24,7 @@ class SongQuery : ISongQuery {
             )
             val result = arrayListOf<Song>()
             if (cursor == null || cursor.count <= 0) {
-                "cursor is null or null data".d()
+                "cursor is null or null data: $cursor ${cursor?.count}".d()
             } else {
                 while (cursor.moveToNext()) {
                     val id = cursor.getInt(cursor.getColumnIndex(Media._ID)) // id

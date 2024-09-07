@@ -56,7 +56,7 @@ fun BottomMiniPlayer(
         ) {
             AlbumImage(
                 data = curSong?.bitmap, contentDescription = null, modifier = Modifier
-                    .size(56.dp)
+                    .size(48.dp)
                     .clip(MaterialTheme.shapes.medium)
             )
             val desc = if (curSong != null) {

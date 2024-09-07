@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
@@ -17,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.hjkl.music.R
 
@@ -27,6 +27,7 @@ fun AlbumImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
     placeholderBrush: Brush = thumbnailPlaceholderDefaultBrush(),
+    errorImage: Int = R.drawable.default_audio_art
 ) {
 
     var imagePainterState by remember {
@@ -37,6 +38,7 @@ fun AlbumImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(data)
             .crossfade(false)
+            .diskCachePolicy(CachePolicy.DISABLED)
             .build(),
         contentScale = contentScale,
         onState = { state -> imagePainterState = state }
@@ -46,22 +48,23 @@ fun AlbumImage(
         modifier = modifier
     ) {
         when (imagePainterState) {
-            // is AsyncImagePainter.State.Loading,
+            is AsyncImagePainter.State.Loading,
             is AsyncImagePainter.State.Error -> {
                 Image(
-                    painter = painterResource(id = R.drawable.img_empty),
+                    painter = painterResource(id = errorImage),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
                 )
             }
+
             else -> {
-//                Box(
-//                    modifier = Modifier
-//                        .background(placeholderBrush)
-//                        .fillMaxSize()
-//
-//                )
+                Box(
+                    modifier = Modifier
+                        .background(placeholderBrush)
+                        .fillMaxSize()
+
+                )
             }
         }
 

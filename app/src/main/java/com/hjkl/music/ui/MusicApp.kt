@@ -49,6 +49,8 @@ import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
 import com.hjkl.music.R
 import com.hjkl.music.ui.album.AlbumScreen
+import com.hjkl.music.ui.artist.ArtistScreen
+import com.hjkl.music.ui.folder.FolderScreen
 import com.hjkl.music.ui.song.SongScreen
 import com.hjkl.music.ui.theme.MusicTheme
 import kotlinx.coroutines.launch
@@ -187,10 +189,13 @@ private fun ScreenContents(
                 AlbumScreen(onDrawerClicked = onDrawerClicked)
             }
 
-            Screen.ARTIST -> {}
-
-
-            Screen.FOLDER -> {}
+            Screen.ARTIST -> {
+                ArtistScreen(onDrawerClicked = onDrawerClicked)
+            }
+            
+            Screen.FOLDER -> {
+                FolderScreen(onDrawerClicked = onDrawerClicked)
+            }
 
             Screen.FAVORITE -> {}
 
@@ -240,7 +245,7 @@ private enum class Screen(val text: String, val icon: ImageVector) {
     ALBUM(ResUtil.getString(R.string.album_title), Icons.Default.Album),
     ARTIST(ResUtil.getString(R.string.artist_title), Icons.Default.PeopleAlt),
     FOLDER(ResUtil.getString(R.string.folder_title), Icons.Default.Folder),
-    FAVORITE(ResUtil.getString(R.string.folder_title), Icons.Default.Favorite),
+    FAVORITE(ResUtil.getString(R.string.favorite_title), Icons.Default.Favorite),
     MYLIST(ResUtil.getString(R.string.mylist_title), Icons.Default.ListAlt),
     SETTING(ResUtil.getString(R.string.setting_title), Icons.Default.Settings)
 }

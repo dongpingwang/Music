@@ -18,3 +18,6 @@
 
 ## 启动页面
 - https://developer.android.google.cn/develop/ui/views/launch/splash-screen?hl=zh-cn
+
+## 示例
+- https://github.com/RetroMusicPlayer/RetroMusicPlayer.git
