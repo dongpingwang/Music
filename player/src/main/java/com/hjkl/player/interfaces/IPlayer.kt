@@ -23,7 +23,7 @@ interface IPlayer {
     /**
      * 播放歌曲，从指定的歌曲开始播放
      */
-    fun playSong(songs: List<Song>, startIndex: Int)
+    fun playSong(songs: List<Song>, startIndex: Int, playWhenReady: Boolean)
 
     /**
      * 获取播放列表
@@ -55,11 +55,20 @@ interface IPlayer {
      */
     fun next()
 
-
     /**
      * 上一首
      */
     fun prev()
+
+    /**
+     * 添加到下一曲
+     */
+    fun addToNextPlay(song: Song, startPlay: Boolean)
+
+    /***
+     * 获取当前播放歌曲的索引位置
+     */
+    fun getCurrentPlayIndex(): Int
 
     /**
      * 判断是否在播放中
@@ -126,4 +135,11 @@ interface IPlayer {
     fun registerPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean
 
     fun unregisterPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean
+
+    /**
+     * 播放列表变化监听
+     */
+    fun registerPlaylistChangedListener(listener: (List<Song>) -> Unit): Boolean
+
+    fun unregisterPlaylistChangedListener(listener: (List<Song>) -> Unit): Boolean
 }

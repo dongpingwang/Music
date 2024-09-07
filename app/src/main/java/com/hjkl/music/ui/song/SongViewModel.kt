@@ -33,7 +33,8 @@ class SongViewModel : CommViewModel<Song>() {
                     it.copy(
                         isLoading = source.isLoading,
                         errorMsg = source.errorMsg,
-                        datas = source.songs
+                        datas = source.songs,
+                        updateTimeMillis = source.updateTimeMillis
                     )
                 }
             }

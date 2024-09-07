@@ -1,10 +1,10 @@
 package com.hjkl.music.data
 
-import androidx.annotation.FloatRange
 import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
 import com.hjkl.music.R
+import com.hjkl.music.data.Defaults.defaultPlayerUiState
 import com.hjkl.player.constant.PlayErrorCode
 import com.hjkl.player.constant.PlayMode
 import com.hjkl.player.interfaces.IPlayer
@@ -25,8 +25,14 @@ data class PlayerUiState(
     val isPlaying: Boolean,
     val progressInMs: Long,
     val playMode: PlayMode,
-    val playerErrorMsgOnce: String?
-)
+    val playerErrorMsgOnce: String?,
+    val toast: String?,
+    val playlist: List<Song>
+) {
+    fun shortLog(): String {
+        return "PlayerUiState(curSong=${curSong?.shortLog()}, isPlaying=${isPlaying}, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsgOnce=$playerErrorMsgOnce, playlist.size=${playlist.size})"
+    }
+}
 
 class PlayerStateProvider {
     companion object {
@@ -37,14 +43,6 @@ class PlayerStateProvider {
         }
     }
 
-    private val defaultPlayerUiState = PlayerUiState(
-        curSong = null,
-        isPlaying = false,
-        progressInMs = 0L,
-        playMode = PlayMode.LIST,
-        playerErrorMsgOnce = null
-    )
-
     private val scope = CoroutineScope(CoroutineName("PlayerStateProvider"))
     private val _playerUiState = MutableStateFlow(defaultPlayerUiState)
     val playerUiState = _playerUiState.asStateFlow()
@@ -53,8 +51,9 @@ class PlayerStateProvider {
     // 是否正在调节进度条
     private var isUserSeeking = false
 
-    // 调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁
+    // 播放中，调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁
     private var userSeekingMillis = 0L
+    private var playingWhenUserSeeking = false
 
     // 当前页面 0--首页 1--播放器页面
     private var curPage = 0
@@ -67,7 +66,7 @@ class PlayerStateProvider {
 
     private val isPlayingChangedListener = object : (Boolean) -> Unit {
         override fun invoke(isPlaying: Boolean) {
-            if ((System.currentTimeMillis() - userSeekingMillis).absoluteValue < 500) {
+            if ((System.currentTimeMillis() - userSeekingMillis).absoluteValue < 500 && playingWhenUserSeeking) {
                 "调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁".d()
                 return
             }
@@ -99,16 +98,20 @@ class PlayerStateProvider {
 
     private val playErrorListener = object : (Int) -> Unit {
         override fun invoke(errorCode: Int) {
-            if (errorCode == PlayErrorCode.ERROR_FORMAT_UNSUPPORTED) {
-                _playerUiState.update { it.copy(playerErrorMsgOnce = ResUtil.getString(id = R.string.toast_format_unsupport)) }
+            val errorMsg = if (errorCode == PlayErrorCode.ERROR_FORMAT_UNSUPPORTED) {
+                ResUtil.getString(id = R.string.toast_format_unsupport)
             } else {
-                _playerUiState.update { it.copy(playerErrorMsgOnce = ResUtil.getString(id = R.string.toast_unknown)) }
+                ResUtil.getString(id = R.string.toast_unknown)
             }
-            // 使用后进行清空
-            scope.launch(Dispatchers.IO) {
-                delay(50)
-                _playerUiState.update { it.copy(playerErrorMsgOnce = null) }
-            }
+            updateToastOnce(errorMsg)
+        }
+    }
+
+
+    private val playlistChangedListener = object : (List<Song>) -> Unit {
+        override fun invoke(playlist: List<Song>) {
+            "playlistChanged: ${playlist.size}".d()
+            _playerUiState.update { it.copy(playlist = playlist) }
         }
     }
 
@@ -119,6 +122,7 @@ class PlayerStateProvider {
         player.registerPlayModeChangedListener(playModeChangedListener)
         player.registerPlayerReadyListener(playerReadyListener)
         player.registerPlayerErrorListener(playErrorListener)
+        player.registerPlaylistChangedListener(playlistChangedListener)
         getLatestPlayerState()
     }
 
@@ -129,6 +133,7 @@ class PlayerStateProvider {
         player.unregisterPlayModeChangedListener(playModeChangedListener)
         player.unregisterPlayerReadyListener(playerReadyListener)
         player.unregisterPlayerErrorListener(playErrorListener)
+        player.unregisterPlaylistChangedListener(playlistChangedListener)
     }
 
     private fun getLatestPlayerState() {
@@ -156,20 +161,37 @@ class PlayerStateProvider {
         player.playSong(songs)
     }
 
-    fun playIndex(songs: List<Song>, startIndex: Int) {
-        player.playSong(songs, startIndex)
+    fun playIndex(songs: List<Song>, startIndex: Int, playWhenReady: Boolean) {
+        player.playSong(songs, startIndex, playWhenReady)
+    }
+
+    fun maybePlayIndex(songs: List<Song>, startIndex: Int) {
+        if (player.getCurrentSong()?.id == songs[startIndex].id) {
+            // 播放是这首歌，不用处理
+            return
+        }
+        // 只设置播放列表，不进行播放
+        playIndex(songs, startIndex, false)
     }
 
     fun togglePlay() {
-        _playerUiState.value.curSong?.let {
+        runIfHasPlayedContent {
             if (player.isPlaying()) {
                 player.pause()
             } else {
                 player.play()
             }
-        } ?: kotlin.run {
-            "CurrentSong is null".d()
         }
+    }
+
+    fun maybeTogglePlay(songs: List<Song>, startIndex: Int) {
+        if (player.getCurrentSong()?.id == songs[startIndex].id) {
+            // 播放是这首歌，切换暂停或者播放
+            togglePlay()
+            return
+        }
+        // 设置播放列表，并播放
+        playIndex(songs, startIndex, true)
     }
 
     fun switchMode(curPlayMode: PlayMode) {
@@ -182,19 +204,16 @@ class PlayerStateProvider {
     }
 
     fun playPrev() {
-        _playerUiState.value.curSong?.let {
-            player.prev()
-        } ?: kotlin.run {
-            "CurrentSong is null".d()
-        }
+        runIfHasPlayedContent { player.prev() }
     }
 
     fun playNext() {
-        _playerUiState.value.curSong?.let {
-            player.next()
-        } ?: kotlin.run {
-            "CurrentSong is null".d()
-        }
+        runIfHasPlayedContent { player.next() }
+    }
+
+    fun addToNextPlay(song: Song) {
+        player.addToNextPlay(song, false)
+        updateToastOnce(ResUtil.getString(R.string.toast_add_to_next_play_success))
     }
 
     fun setCurPage(curPage: Int) {
@@ -212,27 +231,45 @@ class PlayerStateProvider {
         }
     }
 
-    fun userInputSeekBar(isUserSeeking: Boolean, progressRatio: Float) {
+    fun userInputSeekBar(isUserSeeking: Boolean, progressInMillis: Long) {
         this.isUserSeeking = isUserSeeking
         if (isUserSeeking) {
-            val position =
-                (_playerUiState.value.curSong?.duration?.times(progressRatio))?.toLong() ?: 0L
-            _playerUiState.update { it.copy(progressInMs = position) }
+            // _playerUiState.update { it.copy(progressInMs = progressInMillis) }
         } else {
             userSeekingMillis = System.currentTimeMillis()
-            seekTo(progressRatio)
+            playingWhenUserSeeking = player.isPlaying()
+            seekTo(progressInMillis)
         }
     }
 
-    fun seekTo(@FloatRange(from = 0.0, to = 1.0) progressRatio: Float) {
+    private fun seekTo(progressInMs: Long) {
+        runIfHasPlayedContent { player.seekTo(progressInMs) }
+    }
+
+    private fun runIfHasPlayedContent(block: () -> Unit) {
         _playerUiState.value.curSong?.let {
-            val position = it.duration.times(progressRatio).toLong()
-            player.seekTo(position)
-            if (!player.isPlaying()) {
-                player.play()
-            }
+            block()
         } ?: kotlin.run {
-            "CurrentSong is null".d()
+            "no played content".d()
+        }
+    }
+
+    private fun updateToastOnce(errorMsg: String? = null, toast: String? = null) {
+        if (errorMsg != null) {
+            _playerUiState.update { it.copy(playerErrorMsgOnce = errorMsg) }
+            // 使用后进行清空
+            scope.launch(Dispatchers.IO) {
+                delay(50)
+                _playerUiState.update { it.copy(playerErrorMsgOnce = null) }
+            }
+        }
+        if (toast != null) {
+            _playerUiState.update { it.copy(toast = toast) }
+            // 使用后进行清空
+            scope.launch(Dispatchers.IO) {
+                delay(50)
+                _playerUiState.update { it.copy(toast = null) }
+            }
         }
     }
 }

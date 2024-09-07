@@ -4,57 +4,84 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.rounded.PauseCircleFilled
+import androidx.compose.material.icons.rounded.PlayCircleFilled
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.comm.AlbumImage
+import com.hjkl.music.ui.comm.SongItemMoreDialog
 import com.hjkl.music.ui.theme.MusicTheme
+import com.hjkl.player.util.parseMillisTimeToMinutes
 
 @Composable
 fun HeaderSongItem(
     count: Int,
     onPlayAll: () -> Unit,
-    onMoreClick: () -> Unit
+    onEdit: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = MaterialTheme.shapes.large
+            ),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = { onPlayAll() },
+        Image(
+            imageVector = Icons.Filled.PlayArrow,
+            contentDescription = null,
+            contentScale = ContentScale.Inside,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
             modifier = Modifier
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 4.dp)
-                .size(32.dp)
-
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.playlist_play_24px),
-                contentDescription = null,
-            )
-        }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(bounded = false, radius = 24.dp)
+                ) {
+                    onPlayAll()
+                }
+                .size(48.dp)
+                .semantics { role = Role.Button }
+        )
         Text(
             text = stringResource(id = R.string.play_all_desc, count),
             style = MaterialTheme.typography.titleMedium,
@@ -62,18 +89,14 @@ fun HeaderSongItem(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(1F)
-                .padding(vertical = 20.dp)
         )
         IconButton(
-            onClick = { onMoreClick() },
-            modifier = Modifier
-                .padding(horizontal = 4.dp, vertical = 16.dp)
-                .size(32.dp)
-
+            onClick = { onEdit() }
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.playlist_add_check_24px),
+                imageVector = Icons.Default.EditNote,
                 contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -81,82 +104,141 @@ fun HeaderSongItem(
 
 @Composable
 fun SongItem(
-    isSongPlaying:Boolean,
+    isSongPlaying: Boolean,
     song: Song,
-    onItemClick: () -> Unit,
+    onItemClicked: () -> Unit,
+    onPlayClicked: () -> Unit,
+    onAddToQueue: () -> Unit,
     onMoreClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .clickable(onClick = { onItemClick() })
-    ) {
-        val textColor = if (isSongPlaying) MaterialTheme.colorScheme.primary else Color.Unspecified
-        val iconTint = if (isSongPlaying) MaterialTheme.colorScheme.primary else LocalContentColor.current
-        if (isSongPlaying) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.equalizer_24px),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(start = 16.dp),
-                tint = iconTint
-            )
+
+    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+        val bgColor = when {
+            isSongPlaying -> MaterialTheme.colorScheme.secondaryContainer
+            else -> MaterialTheme.colorScheme.surfaceContainer
         }
-        if (song.bitmap != null) {
-            Image(
-                bitmap = song.bitmap!!.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(40.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-            )
-        } else {
-            Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.audio_file_24px),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(40.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(MaterialTheme.colorScheme.surfaceDim)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .weight(1F)
-                .padding(vertical = 10.dp)
+        Card(
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(
+                containerColor = bgColor
+            ), onClick = { onItemClicked() }
         ) {
-            Text(
-                text = song.title,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = textColor
-            )
-            Text(
-                text = song.artist,
-                style = MaterialTheme.typography.labelSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = textColor
-            )
-        }
-        IconButton(
-            onClick = { onMoreClick() },
-            modifier = Modifier
-                .padding(vertical = 10.dp)
-                .size(40.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.MoreVert,
-                contentDescription = null,
-                tint = iconTint
+
+            SongItemHeader(song)
+            SongItemFooter(
+                isSongPlaying = isSongPlaying,
+                song = song,
+                onPlayClicked = onPlayClicked,
+                onAddToQueue = onAddToQueue
             )
         }
     }
 }
 
+@Composable
+private fun SongItemHeader(song: Song) {
+    Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 16.dp)
+        ) {
+            Text(
+                text = song.title,
+                maxLines = 2,
+                minLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+            Text(
+                text = song.artist,
+                maxLines = 2,
+                minLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
+        AlbumImage(
+            song.bitmap, contentDescription = null, modifier = Modifier
+                .size(56.dp)
+                .clip(MaterialTheme.shapes.medium)
+        )
+    }
+}
+
+@Composable
+private fun SongItemFooter(
+    isSongPlaying: Boolean,
+    song: Song,
+    onPlayClicked: () -> Unit,
+    onAddToQueue: () -> Unit
+) {
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val playIcon = when {
+        isSongPlaying -> Icons.Rounded.PauseCircleFilled
+        else -> Icons.Rounded.PlayCircleFilled
+    }
+    Row(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            imageVector = playIcon,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(bounded = false, radius = 24.dp)
+                ) {
+                    onPlayClicked()
+                }
+                .size(48.dp)
+                .padding(6.dp)
+                .semantics { role = Role.Button }
+        )
+
+        Text(
+            text = song.duration.parseMillisTimeToMinutes(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .weight(1F)
+        )
+
+        IconButton(
+            onClick = {
+                onAddToQueue()
+            }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        IconButton(
+            onClick = {
+                showBottomSheet = true
+            },
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+
+    if (showBottomSheet) {
+        SongItemMoreDialog(onDialogHide = { showBottomSheet = false })
+    }
+}
 
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
@@ -164,7 +246,13 @@ fun SongItem(
 fun SongItemPreview() {
     MusicTheme {
         Surface {
-            SongItem(isSongPlaying = true, song = FakeDatas.song, onItemClick = {}, onMoreClick = {})
+            SongItem(
+                isSongPlaying = true,
+                song = FakeDatas.song,
+                onItemClicked = {},
+                onPlayClicked = {},
+                onAddToQueue = {},
+                onMoreClick = {})
         }
     }
 }
@@ -175,7 +263,7 @@ fun SongItemPreview() {
 fun HeaderSongItemPreview() {
     MusicTheme {
         Surface {
-            HeaderSongItem(4, onPlayAll = {}, onMoreClick = {})
+            HeaderSongItem(4, onPlayAll = {}, onEdit = {})
         }
     }
 }

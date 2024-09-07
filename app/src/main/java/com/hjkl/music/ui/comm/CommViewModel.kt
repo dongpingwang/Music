@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.hjkl.comm.d
 import com.hjkl.music.data.PlayerStateProvider
 import com.hjkl.music.data.SongDataSource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 
 abstract class CommViewModel<T> : ViewModel() {
 
@@ -38,15 +36,9 @@ abstract class CommViewModel<T> : ViewModel() {
         player().init()
         viewModelScope.launch {
             player().playerUiState.collect { playerState ->
-                "playerUiState changed: $playerState".d()
+                "playerUiState changed: ${playerState.shortLog()}".d()
                 viewModelState.update {
-                    it.copy(
-                        curSong = playerState.curSong,
-                        isPlaying = playerState.isPlaying,
-                        progressInMs = playerState.progressInMs,
-                        playMode = playerState.playMode,
-                        playerErrorMsgOnce = playerState.playerErrorMsgOnce
-                    )
+                    it.copy(playerUiState = playerState)
                 }
             }
         }

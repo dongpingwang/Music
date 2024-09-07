@@ -64,15 +64,13 @@ dependencies {
     implementation(libs.androidx.compose.materialWindow)
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.androidx.navigation.runtime.ktx)
-    // implementation(libs.fluent.system.icons)
-    // implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.accompanist.swiperefresh)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
-    // implementation (libs.mmkv)
     implementation (libs.serialize)
-
+    implementation(libs.coil.kt.compose)
 
     implementation(project(":comm"))
     implementation(project(":media_query"))

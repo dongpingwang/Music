@@ -1,6 +1,5 @@
 package com.hjkl.music.test
 
-import SongViewModel
 import com.hjkl.entity.Song
 import com.hjkl.music.ui.comm.ViewModelState
 
@@ -21,5 +20,5 @@ object FakeDatas {
     )
 
     val songs = listOf(song, song, song)
-    val songUiState = ViewModelState<Song>()
+    val songUiState = ViewModelState<Song>(datas = songs)
 }

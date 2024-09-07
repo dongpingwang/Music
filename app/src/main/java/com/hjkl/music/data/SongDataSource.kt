@@ -6,6 +6,7 @@ import com.hjkl.comm.onBatchEach
 import com.hjkl.comm.onFalse
 import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
+import com.hjkl.music.data.Defaults.defaultSongDataSourceState
 import com.hjkl.query.SongQuery
 import com.hjkl.query.util.extraMetadataIfNeed
 import kotlinx.coroutines.CoroutineName
@@ -35,12 +36,7 @@ class SongDataSource {
         }
     }
 
-    private val defaultSongDataSourceState = SongDataSourceState(
-        isLoading = true,
-        songs = emptyList(),
-        errorMsg = null,
-        updateTimeMillis = null
-    )
+
     private val scope = CoroutineScope(CoroutineName("SongDataSource"))
     private val _songDataSourceState = MutableStateFlow(defaultSongDataSourceState)
     val songDataSourceState = _songDataSourceState.asStateFlow()

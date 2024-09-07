@@ -1,8 +1,8 @@
 package com.hjkl.music.ui.song
 
+import SongViewModel
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,159 +10,129 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hjkl.comm.d
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Song
 import com.hjkl.music.R
+import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.BottomMiniPlayer
-import com.hjkl.music.ui.ToError
-import com.hjkl.music.ui.TopAppBar
+import com.hjkl.music.ui.comm.BottomBarActions
+import com.hjkl.music.ui.comm.PlayerActions
+import com.hjkl.music.ui.comm.ScreenWithTopBottomBar
+import com.hjkl.music.ui.comm.ToError
 import com.hjkl.music.ui.comm.SongUiState
-import com.hjkl.music.ui.comm.shortLog
-import com.hjkl.music.ui.player.PlayerPage
+import com.hjkl.music.ui.comm.TopBarActions
 import com.hjkl.music.ui.theme.MusicTheme
-import com.hjkl.player.constant.PlayMode
 import kotlinx.coroutines.launch
+
+@Composable
+fun SongScreen(
+    onDrawerClicked: () -> Unit,
+) {
+    val songViewModel: SongViewModel = viewModel(
+        factory = SongViewModel.provideFactory()
+    )
+    val uiState by songViewModel.uiState.collectAsStateWithLifecycle()
+    SongScreen(
+        uiState = uiState,
+        // 点击Toolbar菜单按钮，切换侧边栏
+        topBarActions = TopBarActions(onDrawerClicked = onDrawerClicked),
+        // 点击BottomBar中播放按钮，切换播放状态
+        bottomBarActions = BottomBarActions(onPlayToggle = { songViewModel.player().togglePlay() }),
+        playerActions = PlayerActions(
+            // 切换到播放界面事件分发
+            onPlayerPageExpandChanged = { songViewModel.player().setCurPage(if (it) 1 else 0) },
+            // 切换播放状态
+            onPlayToggle = { songViewModel.player().togglePlay() },
+            // 调节进度
+            onSeekBarValueChange = { isUserSeeking, progressInMillis ->
+                songViewModel.player().userInputSeekBar(isUserSeeking, progressInMillis)
+            },
+            // 切换播放模式
+            onPlaySwitchMode = {
+                songViewModel.player().switchMode(it)
+            },
+            // 上一曲
+            onPlayPrev = { songViewModel.player().playPrev() },
+            // 下一曲
+            onPlayNext = { songViewModel.player().playNext() }
+        ),
+        // 下拉刷新
+        onRefresh = { songViewModel.refresh() },
+        // 播放全部
+        onPlayAll = { songViewModel.player().playAll(uiState.datas) },
+        // 点击列表条目，进到播放界面
+        onItemClicked = { songViewModel.player().maybePlayIndex(uiState.datas, it) },
+        // 点击列表条目中的播放按钮
+        onPlayClicked = { songViewModel.player().maybeTogglePlay(uiState.datas, it) },
+        // 点击列表条目中的添加到下一曲按钮
+        onAddToQueue = { songViewModel.player().addToNextPlay(it) }
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongScreen(
     uiState: SongUiState,
+    topBarActions: TopBarActions,
+    bottomBarActions: BottomBarActions,
+    playerActions: PlayerActions,
     onRefresh: () -> Unit,
-    operateDrawerState: (Boolean) -> Boolean,
-    onPlayerPageExpandChanged: (Boolean) -> Unit,
     onPlayAll: () -> Unit,
-    onItemClick: (Int) -> Unit,
-    onPlayToggle: () -> Unit,
-    onSeekBarValueChange: (Boolean, Float) -> Unit,
-    onPlaySwitchMode: (PlayMode) -> Unit,
-    onPlayPrev: () -> Unit,
-    onPlayNext: () -> Unit
+    onItemClicked: (Int) -> Unit,
+    onPlayClicked: (Int) -> Unit,
+    onAddToQueue: (Song) -> Unit
 ) {
-    "SongScreen() call: ${uiState.shortLog()}".d()
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
-    )
-    val snackbarHostState = remember { SnackbarHostState() }
-    uiState.playerErrorMsgOnce?.let {
-        scope.launch {
-            snackbarHostState.showSnackbar(it)
-        }
-    }
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        topBar = {
-            TopAppBar(
-                title = stringResource(id = R.string.song_title),
-                openDrawer = { operateDrawerState(true) })
-        },
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.padding(bottom = 120.0.dp)
-            )
-        },
-        sheetContent = {
-            PlayerPage(
-                uiState = uiState,
-                onBackHandle = {
-                    if (it == null) {
-                        "手动点击返回按钮".d()
-                        scope.launch {
-                            scaffoldState.bottomSheetState.hide()
-                            onPlayerPageExpandChanged(false)
-                        }
-                        return@PlayerPage false
-                    }
-                    "收到按键事件".d()
-                    if (it.key == Key.Back) {
-                        "收到返回按键事件".d()
-                        if (operateDrawerState(false)) {
-                            "隐藏NavigationDrawer，拦截返回按键事件".d()
-                            return@PlayerPage true
-                        }
-                        val expanded =
-                            scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
-                        if (expanded) {
-                            scope.launch {
-                                scaffoldState.bottomSheetState.hide()
-                                onPlayerPageExpandChanged(false)
-                            }
-                            "隐藏BottomSheet，拦截返回按键事件".d()
-                            return@PlayerPage true
-                        }
-                    }
-                    "不拦截按键事件".d()
-                    false
-                },
-                onValueChange = onSeekBarValueChange,
-                onPlaySwitchMode = onPlaySwitchMode,
-                onPlayPrev = onPlayPrev,
-                onPlayToggle = onPlayToggle,
-                onPlayNext = onPlayNext
-            )
-        },
-        sheetDragHandle = null,
-        sheetPeekHeight = 0.dp,
-        sheetMaxWidth = Dp.Infinity,
-        sheetShape = BottomSheetDefaults.HiddenShape
-    ) { innerPadding ->
+    ScreenWithTopBottomBar(
+        uiState = uiState,
+        title = stringResource(id = R.string.song_title),
+        topBarActions = topBarActions,
+        bottomBarActions = bottomBarActions,
+        playerActions = playerActions
+    ) { scaffoldState ->
         when {
             uiState.errorMsg != null -> {
                 ToError()
             }
 
             else -> {
-                Column {
-                    SongList(
-                        uiState = uiState,
-                        isLoading = uiState.isLoading,
-                        songs = uiState.datas,
-                        onPlayAll = onPlayAll,
-                        onItemClick = onItemClick,
-                        onRefresh = onRefresh
-                    )
-                    val isEmpty = uiState.datas.isEmpty()
-                    if (!uiState.isLoading && isEmpty) {
-                        EmptyTips()
-                    }
-                    BottomMiniPlayer(
-                        uiState = uiState,
-                        onClick = {
-                            scope.launch {
-                                onPlayerPageExpandChanged(true)
-                                scaffoldState.bottomSheetState.expand()
-                            }
-                        },
-                        onTogglePlay = onPlayToggle
-                    )
+                SongList(
+                    uiState = uiState.playerUiState,
+                    isLoading = uiState.isLoading,
+                    songs = uiState.datas,
+                    onPlayAll = onPlayAll,
+                    onItemClicked = {
+                        scope.launch {
+                            onItemClicked(it)
+                            playerActions.onPlayerPageExpandChanged(true)
+                            scaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                    onPlayClicked = onPlayClicked,
+                    onAddToQueue = onAddToQueue,
+                    onRefresh = onRefresh
+                )
+                val isEmpty = uiState.datas.isEmpty()
+                if (!uiState.isLoading && isEmpty) {
+                    EmptyTips()
                 }
             }
         }
@@ -184,11 +154,13 @@ private fun ColumnScope.EmptyTips() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.SongList(
-    uiState: SongUiState,
+    uiState: PlayerUiState,
     isLoading: Boolean,
     songs: List<Song>,
     onPlayAll: () -> Unit,
-    onItemClick: (Int) -> Unit,
+    onItemClicked: (Int) -> Unit,
+    onPlayClicked: (Int) -> Unit,
+    onAddToQueue: (Song) -> Unit,
     onRefresh: () -> Unit
 ) {
     PullToRefreshBox(
@@ -207,14 +179,16 @@ private fun ColumnScope.SongList(
             state = listState
         ) {
             item {
-                HeaderSongItem(count = songs.size, onPlayAll = onPlayAll, onMoreClick = {})
+                HeaderSongItem(count = songs.size, onPlayAll = onPlayAll, onEdit = {})
             }
             itemsIndexed(songs) { index, song ->
                 val curSongPlaying = uiState.isPlaying && uiState.curSong?.id == song.id
                 SongItem(
                     isSongPlaying = curSongPlaying,
                     song = song,
-                    onItemClick = { onItemClick(index) },
+                    onItemClicked = { onItemClicked(index) },
+                    onPlayClicked = { onPlayClicked(index) },
+                    onAddToQueue = { onAddToQueue(song) },
                     onMoreClick = {})
             }
         }
@@ -223,7 +197,7 @@ private fun ColumnScope.SongList(
             onClick = {
                 if (uiState.curSong != null) {
                     val curSongPosition =
-                        uiState.datas.indexOfLast { it.id == uiState.curSong.id }
+                        songs.indexOfLast { it.id == uiState.curSong.id }
                     scope.launch { listState.scrollToItem(curSongPosition) }
                 } else {
                     scope.launch { listState.scrollToItem(0) }
@@ -234,7 +208,7 @@ private fun ColumnScope.SongList(
                 .padding(bottom = 32.dp, end = 16.dp)
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.my_location_24px),
+                imageVector = Icons.Default.MyLocation,
                 contentDescription = null
             )
         }
@@ -250,16 +224,22 @@ fun HomeFeedScreenPreview() {
         Surface {
             SongScreen(
                 uiState = FakeDatas.songUiState,
+                topBarActions = TopBarActions(onDrawerClicked = {}),
+                bottomBarActions = BottomBarActions(onPlayToggle = {}),
+                playerActions = PlayerActions(
+                    onPlayerPageExpandChanged = {},
+                    onPlayToggle = {},
+                    onSeekBarValueChange = { isUserSeeking, progressInMillis -> },
+                    onPlaySwitchMode = {},
+                    onPlayPrev = {},
+                    onPlayNext = {}
+                ),
                 onRefresh = {},
-                operateDrawerState = { false },
-                onPlayerPageExpandChanged = {},
                 onPlayAll = {},
-                onItemClick = {},
-                onPlayToggle = {},
-                onSeekBarValueChange = { isUserSeeking, progressRatio -> },
-                onPlaySwitchMode = { playMode -> },
-                onPlayPrev = {},
-                onPlayNext = {})
+                onItemClicked = {},
+                onPlayClicked = {},
+                onAddToQueue = {}
+            )
         }
     }
 }

@@ -15,7 +15,6 @@ import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.util.findSong
 import com.hjkl.player.util.toMediaItem
 
-
 open class Media3Player : IPlayer {
 
     private val playlistManager by lazy { PlaylistManager() }
@@ -50,14 +49,14 @@ open class Media3Player : IPlayer {
     }
 
     override fun playSong(songs: List<Song>) {
-        playSong(songs, 0)
+        playSong(songs, 0, true)
     }
 
-    override fun playSong(songs: List<Song>, startIndex: Int) {
-        "playSong: songs.size=${songs.size} startIndex=$startIndex".d()
+    override fun playSong(songs: List<Song>, startIndex: Int, playWhenReady: Boolean) {
+        "playSong: songs.size=${songs.size} startIndex=$startIndex playWhenReady=$playWhenReady".d()
         playlistManager.setPlaylist(songs)
         player.setMediaItems(songs.toMediaItem(), startIndex, 0L)
-        player.playWhenReady = true
+        player.playWhenReady = playWhenReady
         player.prepare()
     }
 
@@ -91,7 +90,7 @@ open class Media3Player : IPlayer {
             player.playWhenReady = true
         } else {
             "hasn't NextMediaItem, playSongs".d()
-            val playlist = ArrayList<Song>().apply {addAll(getPlaylist())  }
+            val playlist = ArrayList<Song>().apply { addAll(getPlaylist()) }
             playSong(playlist)
         }
     }
@@ -104,11 +103,37 @@ open class Media3Player : IPlayer {
 
         } else {
             "hasn't PreviousMediaItem, playSongs".d()
-            val playlist = ArrayList<Song>().apply {addAll(getPlaylist())  }
+            val playlist = ArrayList<Song>().apply { addAll(getPlaylist()) }
             if (playlist.isNotEmpty()) {
-                playSong(playlist, playlist.size - 1)
+                playSong(playlist, playlist.size - 1, true)
             }
         }
+    }
+
+    override fun addToNextPlay(song: Song, startPlay: Boolean) {
+        "addToNextPlay: song=${song.shortLog()} startPlay=$startPlay".d()
+        val currentPlayIndex = getCurrentPlayIndex()
+        "currentPlayIndex: $currentPlayIndex".d()
+        player.addMediaItem(currentPlayIndex + 1, song.toMediaItem())
+        playlistManager.addSong(currentPlayIndex + 1, song)
+        if (currentPlayIndex < 0) {
+            // 没有播放过，添加时进行播放
+            val playlist = ArrayList<Song>().apply { addAll(getPlaylist()) }
+            playSong(playlist)
+        } else {
+            if (startPlay) {
+                val playlist = ArrayList<Song>().apply { addAll(getPlaylist()) }
+                playSong(playlist, currentPlayIndex + 1, true)
+            }
+        }
+    }
+
+    override fun getCurrentPlayIndex(): Int {
+        // exo中player.currentMediaItemIndex不准，没有播放过，默认返回0，符合预期
+        if (curSong == null) {
+            return -1
+        }
+        return getPlaylist().indexOfFirst { it.id == curSong?.id }
     }
 
     override fun isPlaying(): Boolean {
@@ -118,6 +143,7 @@ open class Media3Player : IPlayer {
     override fun seekTo(positionMs: Long) {
         "seekTo: $positionMs".d()
         player.seekTo(positionMs)
+        player.playWhenReady = true
     }
 
     override fun getDuration(): Long {
@@ -167,7 +193,9 @@ open class Media3Player : IPlayer {
 
     override fun registerIsPlayingChangedListener(listener: (Boolean) -> Unit): Boolean {
         "registerIsPlayingChangedListener: $listener".d()
-        return isPlayingChangedListeners.contains(listener) || isPlayingChangedListeners.add(listener)
+        return isPlayingChangedListeners.contains(listener) || isPlayingChangedListeners.add(
+            listener
+        )
     }
 
     override fun unregisterIsPlayingChangedListener(listener: (Boolean) -> Unit): Boolean {
@@ -196,14 +224,26 @@ open class Media3Player : IPlayer {
     }
 
     override fun registerPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean {
+        "registerPlayerErrorListener: $listener".d()
         return playerErrorListeners.contains(listener) || playerErrorListeners.add(listener)
     }
 
     override fun unregisterPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean {
+        "unregisterPlayerErrorListener: $listener".d()
         return playerErrorListeners.remove(listener)
     }
 
-    private val playerListener = object :Listener{
+    override fun registerPlaylistChangedListener(listener: (List<Song>) -> Unit): Boolean {
+        "registerPlaylistChangedListener: $listener".d()
+        return playlistManager.registerPlaylistChangedListener(listener)
+    }
+
+    override fun unregisterPlaylistChangedListener(listener: (List<Song>) -> Unit): Boolean {
+        "unregisterPlaylistChangedListener: $listener".d()
+        return playlistManager.unregisterPlaylistChangedListener(listener)
+    }
+
+    private val playerListener = object : Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             super.onMediaItemTransition(mediaItem, reason)
             curSong = playlistManager.getPlaylist().findSong(mediaItem)
@@ -245,12 +285,14 @@ open class Media3Player : IPlayer {
             "onRepeatModeChanged: repeatMode=$repeatMode".d()
             when (repeatMode) {
                 REPEAT_MODE_ALL, REPEAT_MODE_ONE -> {
-                    val _playMode = if (repeatMode == REPEAT_MODE_ALL) PlayMode.LIST else PlayMode.REPEAT_ONE
+                    val _playMode =
+                        if (repeatMode == REPEAT_MODE_ALL) PlayMode.LIST else PlayMode.REPEAT_ONE
                     playMode = _playMode
                     playModeChangedListeners.onEach {
                         it(_playMode)
                     }
                 }
+
                 else -> {}
             }
         }
