@@ -8,6 +8,12 @@ enum class PlayMode {
     SHUFFLE
 }
 
+enum class RepeatMode {
+    REPEAT_MODE_OFF,
+    REPEAT_MODE_ONE,
+    REPEAT_MODE_ALL
+}
+
 object PlayErrorCode {
     val ERROR_FORMAT_UNSUPPORTED = ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED
 }

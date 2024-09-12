@@ -71,6 +71,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose.android)
     implementation (libs.serialize)
     implementation(libs.coil.kt.compose)
+    // implementation(libs.accompanist.permissions)
+
+    implementation(fileTree(baseDir = "libs"))
 
     implementation(project(":comm"))
     implementation(project(":media_query"))

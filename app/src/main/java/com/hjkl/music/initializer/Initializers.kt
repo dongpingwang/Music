@@ -6,7 +6,7 @@ import com.hjkl.comm.d
 import com.hjkl.music.data.AppConfig
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
-import com.hjkl.player.util.toPlayMode
+import com.hjkl.player.util.toRepeatMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -33,8 +33,11 @@ object Initializers {
 
     private fun restorePlayerState(player: IPlayer) {
         "restorePlayerState".d()
-        val playMode = AppConfig.playMode.toPlayMode()
-        "恢复上次的播放模式: $playMode".d()
-        player.setPlayMode(playMode)
+        val playMode = AppConfig.repeatMode.toRepeatMode()
+        "恢复上次的重复播放模式: $playMode".d()
+        player.setRepeatMode(playMode)
+        val shuffled = AppConfig.shuffleMode
+        "恢复上次的重复播放模式: $shuffled".d()
+        player.setShuffleEnable(shuffled)
     }
 }

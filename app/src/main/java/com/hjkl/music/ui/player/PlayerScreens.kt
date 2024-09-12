@@ -14,6 +14,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
@@ -37,13 +38,10 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hjkl.comm.d
-import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.comm.ImageBackgroundColorScrim
-import com.hjkl.music.ui.comm.PlayerPageMoreDialog
-import com.hjkl.music.util.verticalGradientScrim
-import com.hjkl.player.constant.PlayMode
+import com.hjkl.music.ui.comm.dialog.PlayerPageMoreDialog
+import com.hjkl.player.constant.RepeatMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -55,7 +53,8 @@ fun PlayerPages(
     uiState: PlayerUiState,
     onBackHandle: (KeyEvent?) -> Boolean,
     onValueChange: (Boolean, Long) -> Unit,
-    onPlaySwitchMode: (PlayMode) -> Unit,
+    onRepeatModeSwitch: (RepeatMode) -> Unit,
+    onShuffleModeEnable: (Boolean) -> Unit,
     onPlayPrev: () -> Unit,
     onPlayToggle: () -> Unit,
     onPlayNext: () -> Unit
@@ -77,17 +76,9 @@ fun PlayerPages(
                 onBackHandle(it).also { resetPageIndex() }
             }, contentAlignment = Alignment.Center
     ) {
-        PlayerBackground(
-            song = uiState.curSong
-        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalGradientScrim(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.50f),
-                    startYPercentage = 1f,
-                    endYPercentage = 0f
-                )
                 .systemBarsPadding()
                 .padding(horizontal = 8.dp)
         ) {
@@ -107,7 +98,8 @@ fun PlayerPages(
                         PlayerContentRegular(
                             uiState = uiState,
                             onValueChange = onValueChange,
-                            onPlaySwitchMode = onPlaySwitchMode,
+                            onRepeatModeSwitch = onRepeatModeSwitch,
+                            onShuffleModeEnable = onShuffleModeEnable,
                             onPlayPrev = onPlayPrev,
                             onPlayToggle = onPlayToggle,
                             onPlayNext = onPlayNext
@@ -127,19 +119,6 @@ fun PlayerPages(
     }
 }
 
-
-@Composable
-private fun PlayerBackground(
-    song: Song?
-) {
-    if (song?.bitmap != null) {
-        ImageBackgroundColorScrim(
-            data = song.bitmap,
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-}
 
 @Composable
 private fun TopAppBar(
@@ -162,20 +141,34 @@ private fun TopAppBar(
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(pagerState.pageCount) { iteration ->
-                val indicatorColor = when {
-                    pagerState.currentPage == iteration -> MaterialTheme.colorScheme.secondaryContainer
-                    else -> MaterialTheme.colorScheme.surfaceContainer
-                }
-                Box(
-                    modifier = Modifier
-                        .align(alignment = Alignment.CenterVertically)
-                        .padding(2.dp)
-                        .clip(CircleShape)
-                        .background(indicatorColor)
-                        .size(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                when (iteration) {
+                    pagerState.currentPage -> {
+                        Box(
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterVertically)
+                                .padding(2.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .size(width = 16.dp, height = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
 
+                        }
+                    }
+
+                    else -> {
+                        Box(
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterVertically)
+                                .padding(2.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .size(6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                        }
+                    }
                 }
             }
         }
@@ -199,7 +192,8 @@ private fun PlayerPagesPreview() {
         FakeDatas.songUiState.playerUiState,
         onBackHandle = { false },
         onValueChange = { i, f -> },
-        onPlaySwitchMode = {},
+        onRepeatModeSwitch = {},
+        onShuffleModeEnable = {},
         onPlayPrev = {},
         onPlayToggle = {},
         onPlayNext = {})

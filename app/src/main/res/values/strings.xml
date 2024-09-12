@@ -10,9 +10,29 @@
     <string name="about_title">关于</string>
     <string name="loading_desc">疯狂加载中</string>
     <string name="formatter_play_all_desc">播放全部（%d）</string>
-    <string name="no_play_desc">暂无播放内容~</string>
     <string name="toast_format_unsupport">该歌曲格式不支持，换一首歌吧~</string>
     <string name="toast_unknown">播放出错了，换一首歌吧~</string>
     <string name="toast_add_to_next_play_success">已添加至播放队列</string>
     <string name="formatter_album_count_desc">%d 首</string>
+    <string name="scan_music">扫描音乐</string>
+    <string name="play_mode_repeat_off">顺序播放</string>
+    <string name="play_mode_repeat">列表循环</string>
+    <string name="play_mode_repeat_one">当曲循环</string>
+    <string name="play_mode_shuffle_off">随机播放关</string>
+    <string name="play_mode_shuffle_enabled">随机播放开</string>
+
+    <string name="no_play_desc1">吹过的牛逼也会随青春一笑了之</string>
+    <string name="no_play_desc2">没有人能挽回时间的狂流</string>
+    <string name="no_play_desc3">就让往事随风 都随风</string>
+    <string name="no_play_desc4">让我弹着 让我唱着</string>
+    <string name="no_play_desc5">天空海阔你与我</string>
+    <string name="no_play_desc6">谁人定我去或留</string>
+    <string name="no_play_desc7">清风笑 竟惹寂寥</string>
+    <string name="no_play_desc8">至少我还拥有自由</string>
+    <string name="no_play_desc9">抬头望向 天空蓝蓝</string>
+    <string name="no_play_desc10">告别夜晚 等待天亮</string>
+
+    <string name="dialog_clear_queue_content">清空当前播放列表</string>
+    <string name="dialog_clear_confirm_txt">清空</string>
+    <string name="dialog_clear_dismiss_txt">取消</string>
 </resources>

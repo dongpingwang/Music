@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Folder
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.BottomBarActions
 import com.hjkl.music.ui.comm.FolderUiState
 import com.hjkl.music.ui.comm.PlayerActions
@@ -46,15 +47,8 @@ fun FolderScreen(
     FolderScreen(
         uiState = uiState,
         topBarActions = TopBarActions(onDrawerClicked = onDrawerClicked),
-        bottomBarActions = BottomBarActions(onPlayToggle = {}),
-        playerActions = PlayerActions(
-            onPlayerPageExpandChanged = {},
-            onPlayToggle = {},
-            onSeekBarValueChange = { i, f -> },
-            onPlaySwitchMode = {},
-            onPlayPrev = {},
-            onPlayNext = {}
-        )
+        bottomBarActions = ActionHandler.get().bottomBarActions,
+        playerActions = ActionHandler.get().playerActions
     )
 }
 
@@ -73,7 +67,7 @@ fun FolderScreen(
         bottomBarActions = bottomBarActions,
         playerActions = playerActions
     ) {
-        LazyColumn {
+        LazyColumn(modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, folder ->
                 FolderItem(folder = folder, onItemClicked = {})
             }
@@ -132,12 +126,16 @@ private fun ArtistScreenPreview() {
     FolderScreen(
         uiState = FakeDatas.folderUiState,
         topBarActions = TopBarActions(onDrawerClicked = {}),
-        bottomBarActions = BottomBarActions(onPlayToggle = {}),
+        bottomBarActions = BottomBarActions(
+            onPlayToggle = {},
+            onScrollToNext = {},
+            onScrollToPrevious = {}),
         playerActions = PlayerActions(
             onPlayerPageExpandChanged = {},
             onPlayToggle = {},
             onSeekBarValueChange = { i, f -> },
-            onPlaySwitchMode = {},
+            onRepeatModeSwitch = {},
+            onShuffleModeEnable = {},
             onPlayPrev = {},
             onPlayNext = {}
         )

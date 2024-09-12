@@ -2,6 +2,7 @@ package com.hjkl.player.interfaces
 
 import com.hjkl.entity.Song
 import com.hjkl.player.constant.PlayMode
+import com.hjkl.player.constant.RepeatMode
 
 interface IPlayer {
 
@@ -102,6 +103,36 @@ interface IPlayer {
     fun getPlayMode(): PlayMode
 
     /**
+     * 设置重复播放模式
+     */
+    fun setRepeatMode(repeatMode: RepeatMode)
+
+    /**
+     * 获取重复播放模式
+     */
+    fun getRepeatMode(): RepeatMode
+
+    /**
+     * 设置随机播放模式
+     */
+    fun setShuffleEnable(shuffled: Boolean)
+
+    /**
+     * 随机播放模式是否开启
+     */
+    fun isShuffleEnable(): Boolean
+
+    /**
+     * 清空播放列表
+     */
+    fun clearPlaylist()
+
+    /**
+     * 移除指定位置歌曲
+     */
+    fun removeItem(index: Int)
+
+    /**
      * 当前歌曲变化监听
      */
     fun registerPlaySongChangedListener(listener: (Song?) -> Unit): Boolean
@@ -128,6 +159,10 @@ interface IPlayer {
     fun registerPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean
 
     fun unregisterPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean
+
+    fun registerPlayModeChangedListener(listener: (RepeatMode?, Boolean?) -> Unit): Boolean
+
+    fun unregisterPlayModeChangedListener(listener: (RepeatMode?, Boolean?) -> Unit): Boolean
 
     /**
      * 播放失败事件监听

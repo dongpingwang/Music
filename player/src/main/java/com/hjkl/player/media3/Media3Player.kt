@@ -5,12 +5,11 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Player.Listener
-import androidx.media3.common.Player.REPEAT_MODE_ALL
-import androidx.media3.common.Player.REPEAT_MODE_ONE
 import com.hjkl.comm.d
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
 import com.hjkl.player.constant.PlayMode
+import com.hjkl.player.constant.RepeatMode
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.util.findSong
 import com.hjkl.player.util.toMediaItem
@@ -21,6 +20,7 @@ open class Media3Player : IPlayer {
     private val playSongChangedListeners = mutableListOf<(Song?) -> Unit>()
     private val isPlayingChangedListeners = mutableListOf<(Boolean) -> Unit>()
     private val playModeChangedListeners = mutableListOf<(PlayMode) -> Unit>()
+    private val newPlayModeChangedListeners = mutableListOf<(RepeatMode?, Boolean?) -> Unit>()
     private val playerErrorListeners = mutableListOf<(Int) -> Unit>()
     private val progressTracker = ProgressTracker()
 
@@ -129,11 +129,11 @@ open class Media3Player : IPlayer {
     }
 
     override fun getCurrentPlayIndex(): Int {
-        // exo中player.currentMediaItemIndex不准，没有播放过，默认返回0，符合预期
+        // exo中player.currentMediaItemIndex不准，没有播放过，默认返回0，不符合预期
         if (curSong == null) {
             return -1
         }
-        return getPlaylist().indexOfFirst { it.id == curSong?.id }
+        return player.currentMediaItemIndex
     }
 
     override fun isPlaying(): Boolean {
@@ -159,26 +159,68 @@ open class Media3Player : IPlayer {
         when (playMode) {
             PlayMode.LIST -> {
                 player.shuffleModeEnabled = false
-                player.repeatMode = REPEAT_MODE_ALL
+                player.repeatMode = Player.REPEAT_MODE_ALL
             }
 
             PlayMode.REPEAT_ONE -> {
                 player.shuffleModeEnabled = false
-                player.repeatMode = REPEAT_MODE_ONE
+                player.repeatMode = Player.REPEAT_MODE_ONE
             }
 
             PlayMode.SHUFFLE -> {
+                player.repeatMode = Player.REPEAT_MODE_ALL
                 player.shuffleModeEnabled = true
             }
         }
         this.playMode = playMode
-        playModeChangedListeners.onEach {
-            it(playMode)
-        }
+        playModeChangedListeners.onEach { it(playMode) }
     }
 
     override fun getPlayMode(): PlayMode {
         return playMode.getOrDefault(PlayMode.LIST)
+    }
+
+    override fun setRepeatMode(repeatMode: RepeatMode) {
+        "setRepeatMode:$repeatMode".d()
+        val playerRepeatMode = when (repeatMode) {
+            RepeatMode.REPEAT_MODE_OFF -> Player.REPEAT_MODE_OFF
+            RepeatMode.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ALL
+            RepeatMode.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ONE
+        }
+        player.repeatMode = playerRepeatMode
+        newPlayModeChangedListeners.onEach { it(repeatMode, null) }
+    }
+
+    override fun getRepeatMode(): RepeatMode {
+        return toMyRepeatMode(player.repeatMode)
+    }
+
+    private fun toMyRepeatMode(@Player.RepeatMode repeatMode: Int): RepeatMode {
+        return when (repeatMode) {
+            Player.REPEAT_MODE_OFF -> RepeatMode.REPEAT_MODE_OFF
+            Player.REPEAT_MODE_ALL -> RepeatMode.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ONE -> RepeatMode.REPEAT_MODE_ONE
+            else -> RepeatMode.REPEAT_MODE_OFF
+        }
+    }
+
+    override fun setShuffleEnable(shuffled: Boolean) {
+        player.shuffleModeEnabled = shuffled
+        newPlayModeChangedListeners.onEach { it(null, shuffled) }
+    }
+
+    override fun isShuffleEnable(): Boolean {
+        return player.shuffleModeEnabled
+    }
+
+    override fun clearPlaylist() {
+        player.clearMediaItems()
+        playlistManager.clearPlaylist()
+    }
+
+    override fun removeItem(index: Int) {
+        player.removeMediaItem(index)
+        playlistManager.removeItem(index)
     }
 
     override fun registerPlaySongChangedListener(listener: (Song?) -> Unit): Boolean {
@@ -221,6 +263,18 @@ open class Media3Player : IPlayer {
     override fun unregisterPlayModeChangedListener(listener: (PlayMode) -> Unit): Boolean {
         "unregisterPlayModeChangedListener: $listener".d()
         return playModeChangedListeners.remove(listener)
+    }
+
+    override fun registerPlayModeChangedListener(listener: (RepeatMode?, Boolean?) -> Unit): Boolean {
+        "registerPlayModeChangedListener: $listener".d()
+        return newPlayModeChangedListeners.contains(listener) || newPlayModeChangedListeners.add(
+            listener
+        )
+    }
+
+    override fun unregisterPlayModeChangedListener(listener: (RepeatMode?, Boolean?) -> Unit): Boolean {
+        "unregisterPlayModeChangedListener: $listener".d()
+        return newPlayModeChangedListeners.remove(listener)
     }
 
     override fun registerPlayerErrorListener(listener: (errorCode: Int) -> Unit): Boolean {
@@ -283,10 +337,11 @@ open class Media3Player : IPlayer {
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
             "onRepeatModeChanged: repeatMode=$repeatMode".d()
+            newPlayModeChangedListeners.onEach { it(toMyRepeatMode(repeatMode), null) }
             when (repeatMode) {
-                REPEAT_MODE_ALL, REPEAT_MODE_ONE -> {
+                Player.REPEAT_MODE_ALL, Player.REPEAT_MODE_ONE -> {
                     val _playMode =
-                        if (repeatMode == REPEAT_MODE_ALL) PlayMode.LIST else PlayMode.REPEAT_ONE
+                        if (repeatMode == Player.REPEAT_MODE_ALL) PlayMode.LIST else PlayMode.REPEAT_ONE
                     playMode = _playMode
                     playModeChangedListeners.onEach {
                         it(_playMode)
@@ -300,6 +355,7 @@ open class Media3Player : IPlayer {
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
             super.onShuffleModeEnabledChanged(shuffleModeEnabled)
             "onShuffleModeEnabledChanged: shuffleModeEnabled=$shuffleModeEnabled".d()
+            newPlayModeChangedListeners.onEach { it(null, shuffleModeEnabled) }
             if (shuffleModeEnabled) {
                 val _playMode = PlayMode.SHUFFLE
                 playMode = _playMode

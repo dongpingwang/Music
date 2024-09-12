@@ -65,6 +65,13 @@ fun <T> List<T>.isLastIndex(index: Int): Boolean {
 }
 
 /**
+ * 是否List只有1个元素
+ */
+fun <T> List<T>.isSizeOne(): Boolean {
+    return this.size == 1
+}
+
+/**
  * 为true时执行
  */
 fun Boolean?.onTrue(block: () -> Unit): Boolean? {

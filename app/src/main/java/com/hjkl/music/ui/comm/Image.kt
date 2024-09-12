@@ -1,23 +1,13 @@
 package com.hjkl.music.ui.comm
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
+import coil.ImageLoader
+import coil.compose.AsyncImage
 import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.hjkl.music.R
 
 @Composable
@@ -26,53 +16,26 @@ fun AlbumImage(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
-    placeholderBrush: Brush = thumbnailPlaceholderDefaultBrush(),
-    errorImage: Int = R.drawable.default_audio_art
+    placeHolderImage: Int? = R.drawable.default_audio_art,
+    errorImage: Int? = R.drawable.default_audio_art
 ) {
-
-    var imagePainterState by remember {
-        mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty)
-    }
-
-    val imageLoader = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(data)
+    Box(modifier = modifier) {
+        val imageLoaderBuilder = ImageLoader.Builder(LocalContext.current)
             .crossfade(false)
             .diskCachePolicy(CachePolicy.DISABLED)
-            .build(),
-        contentScale = contentScale,
-        onState = { state -> imagePainterState = state }
-    )
 
-    Box(
-        modifier = modifier
-    ) {
-        when (imagePainterState) {
-            is AsyncImagePainter.State.Loading,
-            is AsyncImagePainter.State.Error -> {
-                Image(
-                    painter = painterResource(id = errorImage),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
-            }
-
-            else -> {
-                Box(
-                    modifier = Modifier
-                        .background(placeholderBrush)
-                        .fillMaxSize()
-
-                )
-            }
+        if (placeHolderImage != null) {
+            imageLoaderBuilder.placeholder(placeHolderImage)
         }
-
-        Image(
-            painter = imageLoader,
+        if (errorImage != null) {
+            imageLoaderBuilder.error(errorImage)
+        }
+        AsyncImage(
+            model = data,
             contentDescription = contentDescription,
-            contentScale = contentScale,
+            imageLoader = imageLoaderBuilder.build(),
             modifier = modifier,
+            contentScale = contentScale,
         )
     }
 }

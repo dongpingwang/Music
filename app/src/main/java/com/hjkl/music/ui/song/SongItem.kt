@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.PauseCircleFilled
 import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material3.Card
@@ -47,9 +48,16 @@ import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.AlbumImage
-import com.hjkl.music.ui.comm.SongItemMoreDialog
+import com.hjkl.music.ui.comm.dialog.SongItemMoreDialog
 import com.hjkl.music.ui.theme.MusicTheme
 import com.hjkl.player.util.parseMillisTimeToMinutes
+
+data class ItemActions(
+    val onPlayAll: (List<Song>) -> Unit,
+    val onItemClicked: (List<Song>, Int) -> Boolean,
+    val onPlayClicked: (List<Song>, Int) -> Unit,
+    val onAddToQueue: (Song) -> Unit
+)
 
 @Composable
 fun HeaderSongItem(
@@ -91,6 +99,15 @@ fun HeaderSongItem(
                 .weight(1F)
         )
         IconButton(
+            onClick = { }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Sort,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        IconButton(
             onClick = { onEdit() }
         ) {
             Icon(
@@ -108,8 +125,7 @@ fun SongItem(
     song: Song,
     onItemClicked: () -> Unit,
     onPlayClicked: () -> Unit,
-    onAddToQueue: () -> Unit,
-    onMoreClick: () -> Unit
+    onAddToQueue: () -> Unit
 ) {
 
     Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
@@ -160,7 +176,9 @@ private fun SongItemHeader(song: Song) {
             )
         }
         AlbumImage(
-            song.bitmap, contentDescription = null, modifier = Modifier
+            song.bitmap,
+            contentDescription = null,
+            modifier = Modifier
                 .size(56.dp)
                 .clip(MaterialTheme.shapes.medium)
         )
@@ -251,8 +269,7 @@ fun SongItemPreview() {
                 song = FakeDatas.song,
                 onItemClicked = {},
                 onPlayClicked = {},
-                onAddToQueue = {},
-                onMoreClick = {})
+                onAddToQueue = {})
         }
     }
 }

@@ -6,11 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,26 +21,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hjkl.music.R
+import com.hjkl.comm.onTrue
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.comm.dialog.PlaylistDialog
+import com.hjkl.music.ui.custom.PlayerProgressButton
 import com.hjkl.music.ui.theme.MusicTheme
 
 @Composable
 fun BottomMiniPlayer(
     uiState: PlayerUiState,
     onClick: () -> Unit,
-    onTogglePlay: () -> Unit
+    onTogglePlay: () -> Unit,
+    onScrollToNext: () -> Unit = {},
+    onScrollToPrevious: () -> Unit = {}
 ) {
     val curSong = uiState.curSong
     val isPlaying = uiState.isPlaying
     val hasPlayingContent: Boolean = curSong != null
     var showBottomSheet by remember { mutableStateOf(false) }
+    val progress = when {
+        hasPlayingContent -> (uiState.progressInMs.toFloat() / curSong!!.duration).coerceIn(
+            0F,
+            100F
+        )
 
+        else -> 0F
+    }
     BottomAppBar(modifier = Modifier
         .clickable {
             if (hasPlayingContent) {
@@ -55,41 +62,29 @@ fun BottomMiniPlayer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AlbumImage(
-                data = curSong?.bitmap, contentDescription = null, modifier = Modifier
+                data = curSong?.bitmap,
+                contentDescription = null,
+                modifier = Modifier
                     .size(48.dp)
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MaterialTheme.shapes.medium),
+                placeHolderImage = null
             )
-            val desc = if (curSong != null) {
-                "${curSong.title} - ${curSong.artist}"
-            } else {
-                stringResource(id = R.string.no_play_desc)
+            val desc = when {
+                hasPlayingContent -> uiState.curSong?.title + " - " + uiState.curSong?.artist
+                else -> uiState.randomNoPlayContentDesc
             }
             Text(
                 text = desc,
                 style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(1F)
                     .padding(horizontal = 8.dp)
             )
-            IconButton(
-                onClick = {
-                    if (hasPlayingContent) {
-                        onTogglePlay()
-                    }
-                }
 
-            ) {
-                val playIcon = when {
-                    isPlaying -> Icons.Filled.Pause
-                    else -> Icons.Filled.PlayArrow
-                }
-                Icon(
-                    imageVector = playIcon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
+            PlayerProgressButton(isPlaying = isPlaying, progress = progress) {
+                hasPlayingContent.onTrue(onTogglePlay)
             }
 
             IconButton(
@@ -108,7 +103,7 @@ fun BottomMiniPlayer(
         }
     }
     if (showBottomSheet) {
-        PlaylistDialog(onDialogHide = { showBottomSheet = false })
+        PlaylistDialog(uiState = uiState, onDialogHide = { showBottomSheet = false })
     }
 }
 
@@ -121,7 +116,9 @@ fun BottomMiniPlayerPreview() {
             BottomMiniPlayer(
                 uiState = FakeDatas.songUiState.playerUiState,
                 onClick = {},
-                onTogglePlay = {}
+                onTogglePlay = {},
+                onScrollToNext = {},
+                onScrollToPrevious = {}
             )
         }
     }

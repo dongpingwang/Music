@@ -26,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Album
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.AlbumUiState
 import com.hjkl.music.ui.comm.BottomBarActions
@@ -44,15 +45,8 @@ fun AlbumScreen(
     AlbumScreen(
         uiState = uiState,
         topBarActions = TopBarActions(onDrawerClicked = onDrawerClicked),
-        bottomBarActions = BottomBarActions(onPlayToggle = {}),
-        playerActions = PlayerActions(
-            onPlayerPageExpandChanged = {},
-            onPlayToggle = {},
-            onSeekBarValueChange = { i, f -> },
-            onPlaySwitchMode = {},
-            onPlayPrev = {},
-            onPlayNext = {}
-        )
+        bottomBarActions = ActionHandler.get().bottomBarActions,
+        playerActions = ActionHandler.get().playerActions
     )
 }
 
@@ -72,7 +66,7 @@ fun AlbumScreen(
         playerActions = playerActions
     ) {
 
-        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, album ->
                 val isFirstColumn = index % 2 == 0
                 val startPaddingDp = when {
@@ -112,6 +106,7 @@ private fun AlbumCard(
                 .sizeIn(maxWidth = 400.dp, maxHeight = 400.dp)
                 .aspectRatio(1F)
                 .clip(shape = MaterialTheme.shapes.large),
+            placeHolderImage = R.drawable.default_album_art,
             errorImage = R.drawable.default_album_art
         )
         Column {
@@ -147,12 +142,16 @@ private fun AlbumScreenPreview() {
     AlbumScreen(
         uiState = FakeDatas.albumUiState,
         topBarActions = TopBarActions(onDrawerClicked = {}),
-        bottomBarActions = BottomBarActions(onPlayToggle = {}),
+        bottomBarActions = BottomBarActions(
+            onPlayToggle = {},
+            onScrollToNext = {},
+            onScrollToPrevious = {}),
         playerActions = PlayerActions(
             onPlayerPageExpandChanged = {},
             onPlayToggle = {},
             onSeekBarValueChange = { i, f -> },
-            onPlaySwitchMode = {},
+            onRepeatModeSwitch = {},
+            onShuffleModeEnable = {},
             onPlayPrev = {},
             onPlayNext = {}
         )

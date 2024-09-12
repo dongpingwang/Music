@@ -1,5 +1,6 @@
 package com.hjkl.music.data
 
+
 import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
@@ -7,6 +8,7 @@ import com.hjkl.music.R
 import com.hjkl.music.data.Defaults.defaultPlayerUiState
 import com.hjkl.player.constant.PlayErrorCode
 import com.hjkl.player.constant.PlayMode
+import com.hjkl.player.constant.RepeatMode
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
 import com.hjkl.player.util.getValue
@@ -22,19 +24,22 @@ import kotlin.math.absoluteValue
 
 data class PlayerUiState(
     val curSong: Song?,
+    val curPlayIndex: Int,
     val isPlaying: Boolean,
     val progressInMs: Long,
-    val playMode: PlayMode,
+    val repeatMode: RepeatMode,
+    val shuffled: Boolean,
     val playerErrorMsgOnce: String?,
     val toast: String?,
+    val randomNoPlayContentDesc: String,
     val playlist: List<Song>
 ) {
     fun shortLog(): String {
-        return "PlayerUiState(curSong=${curSong?.shortLog()}, isPlaying=${isPlaying}, progressInMs=$progressInMs, playMode=$playMode, playerErrorMsgOnce=$playerErrorMsgOnce, playlist.size=${playlist.size})"
+        return "PlayerUiState(curSong=${curSong?.shortLog()}, curPlayIndex=${curPlayIndex}, isPlaying=${isPlaying}, progressInMs=$progressInMs, repeatMode=$repeatMode, shuffled=$shuffled, playerErrorMsgOnce=$playerErrorMsgOnce, playlist.size=${playlist.size})"
     }
 }
 
-class PlayerStateProvider {
+class PlayerStateProvider private constructor() {
     companion object {
         private val provider: PlayerStateProvider by lazy { PlayerStateProvider() }
 
@@ -60,7 +65,15 @@ class PlayerStateProvider {
 
     private val playSongChangedListener = object : (Song?) -> Unit {
         override fun invoke(song: Song?) {
-            _playerUiState.update { it.copy(curSong = song) }
+            _playerUiState.update {
+                it.copy(
+                    curSong = song,
+                    curPlayIndex = player.getCurrentPlayIndex()
+                )
+            }
+            if (song == null) {
+                _playerUiState.update { it.copy(isPlaying = false) }
+            }
         }
     }
 
@@ -82,10 +95,16 @@ class PlayerStateProvider {
         }
     }
 
-    private val playModeChangedListener = object : (PlayMode) -> Unit {
-        override fun invoke(playMode: PlayMode) {
-            _playerUiState.update { it.copy(playMode = playMode) }
-            AppConfig.playMode = playMode.getValue()
+    private val playModeChangedListener = object : (RepeatMode?, Boolean?) -> Unit {
+        override fun invoke(repeatMode: RepeatMode?, shuffled: Boolean?) {
+            repeatMode?.run {
+                _playerUiState.update { it.copy(repeatMode = this) }
+                AppConfig.repeatMode = this.getValue()
+            }
+            shuffled?.run {
+                _playerUiState.update { it.copy(shuffled = this) }
+                AppConfig.shuffleMode = this
+            }
         }
     }
 
@@ -104,6 +123,7 @@ class PlayerStateProvider {
                 ResUtil.getString(id = R.string.toast_unknown)
             }
             updateToastOnce(errorMsg)
+            _playerUiState.update { it.copy(isPlaying = false) }
         }
     }
 
@@ -112,6 +132,9 @@ class PlayerStateProvider {
         override fun invoke(playlist: List<Song>) {
             "playlistChanged: ${playlist.size}".d()
             _playerUiState.update { it.copy(playlist = playlist) }
+            if (playlist.isEmpty()) {
+                _playerUiState.update { it.copy(randomNoPlayContentDesc = ResUtil.getString(Defaults.randomNoPlayDescRes())) }
+            }
         }
     }
 
@@ -123,6 +146,7 @@ class PlayerStateProvider {
         player.registerPlayerReadyListener(playerReadyListener)
         player.registerPlayerErrorListener(playErrorListener)
         player.registerPlaylistChangedListener(playlistChangedListener)
+        player.registerProgressChangedListener(progressChangedListener)
         getLatestPlayerState()
     }
 
@@ -134,6 +158,7 @@ class PlayerStateProvider {
         player.unregisterPlayerReadyListener(playerReadyListener)
         player.unregisterPlayerErrorListener(playErrorListener)
         player.unregisterPlaylistChangedListener(playlistChangedListener)
+        player.unregisterProgressChangedListener(progressChangedListener)
     }
 
     private fun getLatestPlayerState() {
@@ -152,7 +177,8 @@ class PlayerStateProvider {
                 curSong = curSong,
                 isPlaying = player.isPlaying(),
                 progressInMs = player.getPosition(),
-                playMode = player.getPlayMode()
+                repeatMode = player.getRepeatMode(),
+                shuffled = player.isShuffleEnable()
             )
         }
     }
@@ -165,13 +191,14 @@ class PlayerStateProvider {
         player.playSong(songs, startIndex, playWhenReady)
     }
 
-    fun maybePlayIndex(songs: List<Song>, startIndex: Int) {
+    fun maybePlayIndex(songs: List<Song>, startIndex: Int): Boolean {
         if (player.getCurrentSong()?.id == songs[startIndex].id) {
-            // 播放是这首歌，不用处理
-            return
+            // 播放是这首歌，进到播放器界面
+            return true
         }
-        // 只设置播放列表，不进行播放
-        playIndex(songs, startIndex, false)
+        // 播的不是这首歌，则进行播放
+        playIndex(songs, startIndex, true)
+        return false
     }
 
     fun togglePlay() {
@@ -194,6 +221,7 @@ class PlayerStateProvider {
         playIndex(songs, startIndex, true)
     }
 
+    @Deprecated("", replaceWith = ReplaceWith("switchRepeatMode()", ""))
     fun switchMode(curPlayMode: PlayMode) {
         val willPlayMode = when (curPlayMode) {
             PlayMode.LIST -> PlayMode.REPEAT_ONE
@@ -201,6 +229,20 @@ class PlayerStateProvider {
             PlayMode.SHUFFLE -> PlayMode.LIST
         }
         player.setPlayMode(willPlayMode)
+    }
+
+
+    fun switchRepeatMode(curRepeatMode: RepeatMode) {
+        val willPlayMode = when (curRepeatMode) {
+            RepeatMode.REPEAT_MODE_OFF -> RepeatMode.REPEAT_MODE_ALL
+            RepeatMode.REPEAT_MODE_ALL -> RepeatMode.REPEAT_MODE_ONE
+            RepeatMode.REPEAT_MODE_ONE -> RepeatMode.REPEAT_MODE_OFF
+        }
+        player.setRepeatMode(willPlayMode)
+    }
+
+    fun setShuffleEnable(shuffled: Boolean) {
+        player.setShuffleEnable(shuffled)
     }
 
     fun playPrev() {
@@ -216,19 +258,28 @@ class PlayerStateProvider {
         updateToastOnce(ResUtil.getString(R.string.toast_add_to_next_play_success))
     }
 
+    fun clearPlaylist() {
+        player.clearPlaylist()
+    }
+
+    fun removeItem(index: Int) {
+        player.removeItem(index)
+    }
+
+    @Deprecated("")
     fun setCurPage(curPage: Int) {
         this.curPage = curPage
         // 进入播放器界面，才需要监听进度变化，优化性能
-        when (curPage) {
-            0 -> {
-                player.unregisterProgressChangedListener(progressChangedListener)
-            }
-
-            1 -> {
-                _playerUiState.update { it.copy(progressInMs = player.getPosition()) }
-                player.registerProgressChangedListener(progressChangedListener)
-            }
-        }
+//        when (curPage) {
+//            0 -> {
+//                player.unregisterProgressChangedListener(progressChangedListener)
+//            }
+//
+//            1 -> {
+//                _playerUiState.update { it.copy(progressInMs = player.getPosition()) }
+//                player.registerProgressChangedListener(progressChangedListener)
+//            }
+//        }
     }
 
     fun userInputSeekBar(isUserSeeking: Boolean, progressInMillis: Long) {

@@ -22,6 +22,16 @@ class PlaylistManager {
         notifyPlaylistChanged()
     }
 
+    fun clearPlaylist() {
+        playlist.clear()
+        notifyPlaylistChanged()
+    }
+
+    fun removeItem(index: Int) {
+        playlist.removeAt(index)
+        notifyPlaylistChanged()
+    }
+
     private fun notifyPlaylistChanged() {
         playlistChangedListeners.onEach { it(ArrayList<Song>().apply { addAll(playlist) }) }
     }

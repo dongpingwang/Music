@@ -1,6 +1,5 @@
 package com.hjkl.music.ui.player
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -17,8 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
@@ -45,17 +46,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.AlbumImage
-import com.hjkl.music.ui.comm.PlaylistDialog
-import com.hjkl.player.constant.PlayMode
+import com.hjkl.music.ui.comm.dialog.PlaylistDialog
+import com.hjkl.player.constant.RepeatMode
 import com.hjkl.player.util.parseMillisTimeToMmSs
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -64,49 +63,40 @@ import kotlin.time.Duration.Companion.seconds
 fun PlayerContentRegular(
     uiState: PlayerUiState,
     onValueChange: (Boolean, Long) -> Unit,
-    onPlaySwitchMode: (PlayMode) -> Unit,
+    onRepeatModeSwitch: (RepeatMode) -> Unit,
+    onShuffleModeEnable: (Boolean) -> Unit,
     onPlayPrev: () -> Unit,
     onPlayToggle: () -> Unit,
     onPlayNext: () -> Unit
 ) {
+
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp)
     ) {
         Spacer(modifier = Modifier.weight(1F))
         PlayerImage(
-            song = uiState.curSong,
-            modifier = Modifier.weight(10F)
+            song = uiState.curSong
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        SongDescription(
-            uiState.curSong?.title.getOrDefault("未知歌曲"),
-            uiState.curSong?.artist.getOrDefault("未知歌手")
+        Spacer(modifier = Modifier.height(4.dp))
+        SongDescription(uiState = uiState, onToggleCollect = {})
+        Spacer(modifier = Modifier.height(148.dp))
+        PlayerSlider(
+            progressInMillis = uiState.progressInMs,
+            durationInMillis = uiState.curSong?.duration.getOrDefault(0L),
+            onValueChange = onValueChange,
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(10F)
-        ) {
-            PlayerSlider(
-                progressInMillis = uiState.progressInMs,
-                durationInMillis = uiState.curSong?.duration.getOrDefault(0L),
-                onValueChange = onValueChange,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            PlayerButtons(
-                isPlaying = uiState.isPlaying,
-                playMode = uiState.playMode,
-                onPlaySwitchMode = onPlaySwitchMode,
-                onPlayPrev = onPlayPrev,
-                onPlayToggle = onPlayToggle,
-                onPlayNext = onPlayNext,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-        Spacer(modifier = Modifier.weight(1F))
+        Spacer(modifier = Modifier.height(4.dp))
+        PlayerButtons(
+            uiState = uiState,
+            onRepeatModeSwitch = onRepeatModeSwitch,
+            onShuffleModeEnable = onShuffleModeEnable,
+            onPlayPrev = onPlayPrev,
+            onPlayToggle = onPlayToggle,
+            onPlayNext = onPlayNext
+        )
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -114,38 +104,86 @@ fun PlayerContentRegular(
 @Composable
 private fun PlayerImage(
     song: Song?,
-    modifier: Modifier = Modifier
 ) {
     AlbumImage(
         data = song?.bitmap,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = modifier
+        modifier = Modifier
             .sizeIn(maxWidth = 500.dp, maxHeight = 500.dp)
+            .padding(horizontal = 8.dp)
             .aspectRatio(1f)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium),
+        placeHolderImage = null
     )
 }
 
 @Composable
 private fun SongDescription(
-    title: String,
-    artist: String,
-    titleTextStyle: TextStyle = MaterialTheme.typography.headlineSmall
+    uiState: PlayerUiState,
+    onToggleCollect: () -> Unit
 ) {
-    Text(
-        text = title,
-        style = titleTextStyle,
-        maxLines = 1,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.basicMarquee()
-    )
-    Text(
-        text = artist,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurface,
-        maxLines = 1
-    )
+    val title = uiState.curSong?.title.getOrDefault("未知歌曲")
+    val artist = uiState.curSong?.artist.getOrDefault("未知歌手")
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val sideButtonsModifier = Modifier
+        .size(48.dp)
+        .background(
+            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+            shape = CircleShape
+        )
+        .semantics { role = Role.Button }
+    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Column(modifier = Modifier.weight(1F)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.basicMarquee()
+            )
+            Text(
+                text = artist,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                modifier = Modifier
+                    .basicMarquee()
+                    .padding(top = 8.dp)
+            )
+        }
+        Row(modifier = Modifier.padding(start = 8.dp)) {
+            Image(
+                imageVector = Icons.Filled.FavoriteBorder,
+                contentDescription = null,
+                contentScale = ContentScale.Inside,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                modifier = sideButtonsModifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(bounded = false, radius = 48.dp / 2)
+                ) {
+                    onToggleCollect()
+                }
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Image(
+                imageVector = Icons.Filled.QueueMusic,
+                contentDescription = null,
+                contentScale = ContentScale.Inside,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                modifier = sideButtonsModifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(bounded = false, radius = 48.dp / 2)
+                ) {
+                    showBottomSheet = true
+                }
+            )
+        }
+
+    }
+    if (showBottomSheet) {
+        PlaylistDialog(uiState = uiState, onDialogHide = { showBottomSheet = false })
+    }
 }
 
 
@@ -189,24 +227,23 @@ private fun PlayerSlider(
 
 @Composable
 private fun PlayerButtons(
-    isPlaying: Boolean,
-    playMode: PlayMode,
-    onPlaySwitchMode: (PlayMode) -> Unit,
+    uiState: PlayerUiState,
+    onRepeatModeSwitch: (RepeatMode) -> Unit,
+    onShuffleModeEnable: (Boolean) -> Unit,
     onPlayPrev: () -> Unit,
     onPlayToggle: () -> Unit,
     onPlayNext: () -> Unit,
-    modifier: Modifier = Modifier,
-    playerButtonSize: Dp = 72.dp,
-    sideButtonSize: Dp = 48.dp,
 ) {
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val repeatMode = uiState.repeatMode
+    val isPlaying = uiState.isPlaying
+
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         val sideButtonsModifier = Modifier
-            .size(sideButtonSize)
+            .size(48.dp)
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 shape = CircleShape
@@ -214,30 +251,32 @@ private fun PlayerButtons(
             .semantics { role = Role.Button }
 
         val primaryButtonModifier = Modifier
-            .size(playerButtonSize)
+            .size(72.dp)
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = CircleShape
             )
             .semantics { role = Role.Button }
 
-        val playModeIcon = when (playMode) {
-            PlayMode.LIST -> Icons.Default.Repeat
-            PlayMode.REPEAT_ONE -> Icons.Default.RepeatOne
-            PlayMode.SHUFFLE -> Icons.Default.Shuffle
+        val isRepeatModeOff = repeatMode == RepeatMode.REPEAT_MODE_OFF
+        val repeatModeIcon = when (repeatMode) {
+            RepeatMode.REPEAT_MODE_OFF -> Icons.Default.Repeat
+            RepeatMode.REPEAT_MODE_ALL -> Icons.Default.Repeat
+            RepeatMode.REPEAT_MODE_ONE -> Icons.Default.RepeatOne
             else -> Icons.Default.Repeat
         }
 
         Image(
-            imageVector = playModeIcon,
+            imageVector = repeatModeIcon,
             contentDescription = null,
             contentScale = ContentScale.Inside,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            alpha = if (isRepeatModeOff) 0.2F else 1F,
             modifier = sideButtonsModifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(bounded = false, radius = sideButtonSize / 2)
+                indication = ripple(bounded = false, radius = 48.dp / 2)
             ) {
-                onPlaySwitchMode(playMode)
+                onRepeatModeSwitch(repeatMode)
             }
         )
         Image(
@@ -247,7 +286,7 @@ private fun PlayerButtons(
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = sideButtonsModifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(bounded = false, radius = sideButtonSize / 2)
+                indication = ripple(bounded = false, radius = 48.dp / 2)
             ) {
                 onPlayPrev()
             }
@@ -265,12 +304,11 @@ private fun PlayerButtons(
                 .padding(8.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = false, radius = playerButtonSize / 2)
+                    indication = ripple(bounded = false, radius = 72.dp / 2)
                 ) {
                     onPlayToggle()
                 }
         )
-
 
         Image(
             imageVector = Icons.Filled.SkipNext,
@@ -280,30 +318,25 @@ private fun PlayerButtons(
             modifier = sideButtonsModifier
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = false, radius = sideButtonSize / 2)
+                    indication = ripple(bounded = false, radius = 48.dp / 2)
                 ) {
                     onPlayNext()
                 }
         )
-
         Image(
-            imageVector = Icons.Filled.QueueMusic,
+            imageVector = Icons.Default.Shuffle,
             contentDescription = null,
             contentScale = ContentScale.Inside,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            alpha = if (uiState.shuffled.not()) 0.2F else 1F,
             modifier = sideButtonsModifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(bounded = false, radius = sideButtonSize / 2)
+                indication = ripple(bounded = false, radius = 48.dp / 2)
             ) {
-                showBottomSheet = true
+                onShuffleModeEnable(uiState.shuffled.not())
             }
         )
     }
-
-    if (showBottomSheet) {
-        PlaylistDialog(onDialogHide = { showBottomSheet = false })
-    }
-
 }
 
 @Preview
@@ -312,7 +345,8 @@ fun PlayerContentRegularPreview() {
     PlayerContentRegular(
         uiState = FakeDatas.songUiState.playerUiState,
         onValueChange = { isUserSeeking, progressInMillis -> },
-        onPlaySwitchMode = { playMode -> },
+        onRepeatModeSwitch = { },
+        onShuffleModeEnable = {},
         onPlayPrev = {},
         onPlayToggle = {},
         onPlayNext = {}

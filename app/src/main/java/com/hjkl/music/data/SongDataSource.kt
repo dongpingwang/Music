@@ -55,7 +55,7 @@ class SongDataSource {
             "start fetch data from mediaprovider".d()
             songQuery.getAllSongs()
                 .onSuccess { songs ->
-                    "finish fetch data from mediaprovider".d()
+                    "finish fetch data from mediaprovider: songs.size=${songs.size}".d()
                     fromUser.onFalse {
                         _songDataSourceState.update {
                             it.copy(

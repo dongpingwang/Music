@@ -19,25 +19,30 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
-import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.player.PlayerPages
 import com.hjkl.player.constant.PlayMode
+import com.hjkl.player.constant.RepeatMode
 import kotlinx.coroutines.launch
 
 data class TopBarActions(val onDrawerClicked: () -> Unit)
-data class BottomBarActions(val onPlayToggle: () -> Unit)
+data class BottomBarActions(
+    val onPlayToggle: () -> Unit,
+    val onScrollToNext: () -> Unit,
+    val onScrollToPrevious: () -> Unit
+)
+
 data class PlayerActions(
     val onPlayerPageExpandChanged: (Boolean) -> Unit,
     val onPlayToggle: () -> Unit,
     val onSeekBarValueChange: (Boolean, Long) -> Unit,
-    val onPlaySwitchMode: (PlayMode) -> Unit,
+    val onRepeatModeSwitch: (RepeatMode) -> Unit,
+    val onShuffleModeEnable: (Boolean) -> Unit,
     val onPlayPrev: () -> Unit,
     val onPlayNext: () -> Unit,
 )
@@ -106,7 +111,8 @@ fun <T> ScreenWithTopBottomBar(
                     false
                 },
                 onValueChange = playerActions.onSeekBarValueChange,
-                onPlaySwitchMode = playerActions.onPlaySwitchMode,
+                onRepeatModeSwitch = playerActions.onRepeatModeSwitch,
+                onShuffleModeEnable = playerActions.onShuffleModeEnable,
                 onPlayPrev = playerActions.onPlayPrev,
                 onPlayToggle = playerActions.onPlayToggle,
                 onPlayNext = playerActions.onPlayNext
@@ -132,6 +138,8 @@ fun <T> ScreenWithTopBottomBar(
                     }
                 },
                 onTogglePlay = bottomBarActions.onPlayToggle,
+                onScrollToNext = bottomBarActions.onScrollToNext,
+                onScrollToPrevious = bottomBarActions.onScrollToPrevious
             )
         }
     }
@@ -145,12 +153,16 @@ private fun ScreenWithTopBottomBarPreview() {
         uiState = FakeDatas.songUiState,
         title = "",
         topBarActions = TopBarActions(onDrawerClicked = { }),
-        bottomBarActions = BottomBarActions(onPlayToggle = {}),
+        bottomBarActions = BottomBarActions(
+            onPlayToggle = {},
+            onScrollToNext = {},
+            onScrollToPrevious = {}),
         playerActions = PlayerActions(
             onPlayerPageExpandChanged = {},
             onPlayToggle = {},
             onSeekBarValueChange = { i, f -> },
-            onPlaySwitchMode = {},
+            onRepeatModeSwitch = {},
+            onShuffleModeEnable = {},
             onPlayPrev = {},
             onPlayNext = {}
         )
