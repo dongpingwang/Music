@@ -4,14 +4,11 @@ import com.hjkl.entity.Album
 import com.hjkl.entity.Artist
 import com.hjkl.entity.Folder
 import com.hjkl.entity.Song
-import com.hjkl.music.data.Defaults.defaultPlayerUiState
-import com.hjkl.music.data.PlayerUiState
 
 data class ViewModelState<T>(
     val isLoading: Boolean = true,
     val errorMsg: String? = null,
     val datas: List<T> = emptyList(),
-    val playerUiState: PlayerUiState = defaultPlayerUiState,
     val updateTimeMillis: Long? = null
 )
 
@@ -21,6 +18,6 @@ typealias ArtistUiState = ViewModelState<Artist>
 typealias FolderUiState = ViewModelState<Folder>
 
 fun <T> ViewModelState<T>.shortLog(): String {
-    return "ViewModelState(isLoading=$isLoading, errorMsg=$errorMsg, datas.size=${datas.size}, playerUiState=${playerUiState.shortLog()}, updateTimeMillis=$updateTimeMillis)"
+    return "ViewModelState(isLoading=$isLoading, errorMsg=$errorMsg, datas.size=${datas.size}, updateTimeMillis=$updateTimeMillis)"
 }
 

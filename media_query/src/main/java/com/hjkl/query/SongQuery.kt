@@ -43,6 +43,7 @@ class SongQuery : ISongQuery {
                     val displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME)) // 文件的名称
                     val duration = cursor.getLong(cursor.getColumnIndex(Media.DURATION)) // 时长
                     val size = cursor.getInt(cursor.getColumnIndex(Media.SIZE)) // 文件大小
+                    val year = cursor.getInt(cursor.getColumnIndex(Media.YEAR)) // 出版年份
                     val song = Song(
                         id = id,
                         title = title,
@@ -55,6 +56,7 @@ class SongQuery : ISongQuery {
                         data = data,
                         displayName = displayName,
                         duration = duration,
+                        year = year,
                         size = size,
                     )
                     // "song from cursor: $song".d()

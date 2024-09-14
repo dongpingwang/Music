@@ -1,4 +1,4 @@
-package com.hjkl.music.ui.comm
+package com.hjkl.music.ui.bar
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.hjkl.comm.onTrue
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.dialog.PlaylistDialog
 import com.hjkl.music.ui.custom.PlayerProgressButton
 import com.hjkl.music.ui.theme.MusicTheme
@@ -51,12 +52,13 @@ fun BottomMiniPlayer(
 
         else -> 0F
     }
-    BottomAppBar(modifier = Modifier
+    BottomAppBar(Modifier
         .clickable {
             if (hasPlayingContent) {
                 onClick()
             }
-        }) {
+        }
+    ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -89,7 +91,7 @@ fun BottomMiniPlayer(
 
             IconButton(
                 onClick = {
-                    if (hasPlayingContent) {
+                    if (uiState.playlist.isNotEmpty()) {
                         showBottomSheet = true
                     }
                 }
@@ -114,11 +116,9 @@ fun BottomMiniPlayerPreview() {
     MusicTheme {
         Surface {
             BottomMiniPlayer(
-                uiState = FakeDatas.songUiState.playerUiState,
+                uiState = FakeDatas.playerUiState,
                 onClick = {},
-                onTogglePlay = {},
-                onScrollToNext = {},
-                onScrollToPrevious = {}
+                onTogglePlay = {}
             )
         }
     }

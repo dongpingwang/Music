@@ -3,6 +3,24 @@ package com.hjkl.music.ui.comm
 import com.hjkl.music.data.PlayerStateProvider
 import com.hjkl.music.ui.comm.dialog.PlaylistDialogActions
 import com.hjkl.music.ui.song.ItemActions
+import com.hjkl.player.constant.RepeatMode
+
+data class TopBarActions(val onDrawerClicked: () -> Unit)
+data class BottomBarActions(
+    val onPlayToggle: () -> Unit,
+    val onScrollToNext: () -> Unit,
+    val onScrollToPrevious: () -> Unit
+)
+
+data class PlayerActions(
+    val onPlayerPageExpandChanged: (Boolean) -> Unit,
+    val onPlayToggle: () -> Unit,
+    val onSeekBarValueChange: (Boolean, Long) -> Unit,
+    val onRepeatModeSwitch: (RepeatMode) -> Unit,
+    val onShuffleModeEnable: (Boolean) -> Unit,
+    val onPlayPrev: () -> Unit,
+    val onPlayNext: () -> Unit,
+)
 
 class ActionHandler private constructor(player: PlayerStateProvider) {
 

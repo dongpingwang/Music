@@ -1,5 +1,6 @@
 package com.hjkl.music.ui.album
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,17 +26,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Album
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.comm.ActionHandler
+import com.hjkl.music.ui.bar.DrawerTopAppBar
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.AlbumUiState
-import com.hjkl.music.ui.comm.BottomBarActions
-import com.hjkl.music.ui.comm.PlayerActions
-import com.hjkl.music.ui.comm.ScreenWithTopBottomBar
-import com.hjkl.music.ui.comm.TopBarActions
 
 @Composable
 fun AlbumScreen(
-    onDrawerClicked: () -> Unit
+    onDrawerClicked: () -> Unit,
+    onCardClicked: (Album) -> Unit
 ) {
     val albumViewModel: AlbumViewModel = viewModel(
         factory = AlbumViewModel.provideFactory()
@@ -44,28 +41,22 @@ fun AlbumScreen(
     val uiState by albumViewModel.uiState.collectAsStateWithLifecycle()
     AlbumScreen(
         uiState = uiState,
-        topBarActions = TopBarActions(onDrawerClicked = onDrawerClicked),
-        bottomBarActions = ActionHandler.get().bottomBarActions,
-        playerActions = ActionHandler.get().playerActions
+        onDrawerClicked = onDrawerClicked,
+        onCardClicked = onCardClicked
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumScreen(
     uiState: AlbumUiState,
-    topBarActions: TopBarActions,
-    bottomBarActions: BottomBarActions,
-    playerActions: PlayerActions
+    onDrawerClicked: () -> Unit,
+    onCardClicked: (Album) -> Unit
 ) {
-    ScreenWithTopBottomBar(
-        uiState = uiState,
-        title = stringResource(id = R.string.album_title),
-        topBarActions = topBarActions,
-        bottomBarActions = bottomBarActions,
-        playerActions = playerActions
-    ) {
-
+    Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+        DrawerTopAppBar(
+            title = stringResource(id = R.string.album_title),
+            onDrawerClicked = onDrawerClicked
+        )
         LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, album ->
                 val isFirstColumn = index % 2 == 0
@@ -79,7 +70,7 @@ fun AlbumScreen(
                 }
                 AlbumCard(
                     album = album,
-                    onCardClicked = {},
+                    onCardClicked = onCardClicked,
                     startPaddingDp = startPaddingDp,
                     endPaddingDp = endPaddingDp
                 )
@@ -91,13 +82,13 @@ fun AlbumScreen(
 @Composable
 private fun AlbumCard(
     album: Album,
-    onCardClicked: () -> Unit,
+    onCardClicked: (Album) -> Unit,
     startPaddingDp: Dp = 16.dp,
     endPaddingDp: Dp = 16.dp
 ) {
     Column(modifier = Modifier
         .padding(top = 8.dp, bottom = 8.dp, start = startPaddingDp, end = endPaddingDp)
-        .clickable { }) {
+        .clickable { onCardClicked(album) }) {
         AlbumImage(
             data = album.getAlbumArtBitmap(),
             contentDescription = null,
@@ -141,20 +132,8 @@ private fun AlbumCard(
 private fun AlbumScreenPreview() {
     AlbumScreen(
         uiState = FakeDatas.albumUiState,
-        topBarActions = TopBarActions(onDrawerClicked = {}),
-        bottomBarActions = BottomBarActions(
-            onPlayToggle = {},
-            onScrollToNext = {},
-            onScrollToPrevious = {}),
-        playerActions = PlayerActions(
-            onPlayerPageExpandChanged = {},
-            onPlayToggle = {},
-            onSeekBarValueChange = { i, f -> },
-            onRepeatModeSwitch = {},
-            onShuffleModeEnable = {},
-            onPlayPrev = {},
-            onPlayNext = {}
-        )
+        onDrawerClicked = {},
+        onCardClicked = {}
     )
 }
 

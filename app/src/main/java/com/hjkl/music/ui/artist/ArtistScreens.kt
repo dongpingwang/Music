@@ -1,5 +1,6 @@
 package com.hjkl.music.ui.artist
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,14 +28,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Artist
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.comm.ActionHandler
+import com.hjkl.music.ui.bar.DrawerTopAppBar
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.ArtistUiState
-import com.hjkl.music.ui.comm.BottomBarActions
-import com.hjkl.music.ui.comm.PlayerActions
-import com.hjkl.music.ui.comm.ScreenWithTopBottomBar
-import com.hjkl.music.ui.comm.TopBarActions
-
 
 @Composable
 fun ArtistScreen(
@@ -44,29 +40,20 @@ fun ArtistScreen(
         factory = ArtistViewModel.provideFactory()
     )
     val uiState by artistViewModel.uiState.collectAsStateWithLifecycle()
-    ArtistScreen(
-        uiState = uiState,
-        topBarActions = TopBarActions(onDrawerClicked = onDrawerClicked),
-        bottomBarActions = ActionHandler.get().bottomBarActions,
-        playerActions = ActionHandler.get().playerActions
-    )
+    ArtistScreen(uiState = uiState, onDrawerClicked = onDrawerClicked)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistScreen(
     uiState: ArtistUiState,
-    topBarActions: TopBarActions,
-    bottomBarActions: BottomBarActions,
-    playerActions: PlayerActions
+    onDrawerClicked: () -> Unit
 ) {
-    ScreenWithTopBottomBar(
-        uiState = uiState,
-        title = stringResource(id = R.string.artist_title),
-        topBarActions = topBarActions,
-        bottomBarActions = bottomBarActions,
-        playerActions = playerActions
-    ) {
+    Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+        DrawerTopAppBar(
+            title = stringResource(id = R.string.artist_title),
+            onDrawerClicked = onDrawerClicked
+        )
         LazyColumn(modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, artist ->
                 ArtistItem(artist = artist, onItemClicked = {})
@@ -128,21 +115,7 @@ private fun ArtistItem(
 private fun ArtistScreenPreview() {
     ArtistScreen(
         uiState = FakeDatas.artistUiState,
-        topBarActions = TopBarActions(onDrawerClicked = {}),
-        bottomBarActions = BottomBarActions(
-            onPlayToggle = {},
-            onScrollToNext = {},
-            onScrollToPrevious = {}),
-        playerActions = PlayerActions(
-            onPlayerPageExpandChanged = {},
-            onPlayToggle = {},
-            onSeekBarValueChange = { i, f -> },
-            onRepeatModeSwitch = {},
-            onShuffleModeEnable = {},
-            onPlayPrev = {},
-            onPlayNext = {}
-        )
-    )
+        onDrawerClicked = {})
 }
 
 @Preview

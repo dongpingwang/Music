@@ -6,6 +6,7 @@ data class Album(val id: Int, val name: String) {
 
     private val songs = ArrayList<Song>()
 
+
     fun getSongs(): List<Song> {
         return songs
     }
@@ -22,7 +23,23 @@ data class Album(val id: Int, val name: String) {
         return songs.firstOrNull { it.artist.isNotEmpty() }?.artist
     }
 
+    fun getArtistId(): Int? {
+        return songs.firstOrNull { it.artistId > 0 }?.artistId
+    }
+
+    fun getYear(): Int? {
+        return songs.firstOrNull { it.year > 0 }?.year
+    }
+
     fun getSongCount(): Int {
         return songs.size
+    }
+
+    fun getTotalDuration(): Long {
+        var duration = 0L
+        songs.onEach {
+            duration += it.duration
+        }
+        return duration
     }
 }

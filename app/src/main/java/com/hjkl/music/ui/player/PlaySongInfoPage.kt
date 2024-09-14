@@ -50,10 +50,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
+import com.hjkl.music.R
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.dialog.PlaylistDialog
+import com.hjkl.music.utils.DisplayUtil
 import com.hjkl.player.constant.RepeatMode
 import com.hjkl.player.util.parseMillisTimeToMmSs
 import kotlin.time.Duration.Companion.milliseconds
@@ -123,8 +125,6 @@ private fun SongDescription(
     uiState: PlayerUiState,
     onToggleCollect: () -> Unit
 ) {
-    val title = uiState.curSong?.title.getOrDefault("未知歌曲")
-    val artist = uiState.curSong?.artist.getOrDefault("未知歌手")
     var showBottomSheet by remember { mutableStateOf(false) }
     val sideButtonsModifier = Modifier
         .size(48.dp)
@@ -136,14 +136,14 @@ private fun SongDescription(
     Row(modifier = Modifier.padding(horizontal = 16.dp)) {
         Column(modifier = Modifier.weight(1F)) {
             Text(
-                text = title,
+                text = DisplayUtil.getDisplayTitle(uiState.curSong?.title),
                 style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.basicMarquee()
             )
             Text(
-                text = artist,
+                text = DisplayUtil.getDisplayTitle(uiState.curSong?.artist),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -343,7 +343,7 @@ private fun PlayerButtons(
 @Composable
 fun PlayerContentRegularPreview() {
     PlayerContentRegular(
-        uiState = FakeDatas.songUiState.playerUiState,
+        uiState = FakeDatas.playerUiState,
         onValueChange = { isUserSeeking, progressInMillis -> },
         onRepeatModeSwitch = { },
         onShuffleModeEnable = {},

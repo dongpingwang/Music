@@ -1,6 +1,7 @@
 package com.hjkl.music.ui.folder
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,13 +28,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Folder
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.comm.ActionHandler
-import com.hjkl.music.ui.comm.BottomBarActions
+import com.hjkl.music.ui.bar.DrawerTopAppBar
 import com.hjkl.music.ui.comm.FolderUiState
-import com.hjkl.music.ui.comm.PlayerActions
-import com.hjkl.music.ui.comm.ScreenWithTopBottomBar
-import com.hjkl.music.ui.comm.TopBarActions
-
 
 @Composable
 fun FolderScreen(
@@ -46,27 +41,20 @@ fun FolderScreen(
     val uiState by folderViewModel.uiState.collectAsStateWithLifecycle()
     FolderScreen(
         uiState = uiState,
-        topBarActions = TopBarActions(onDrawerClicked = onDrawerClicked),
-        bottomBarActions = ActionHandler.get().bottomBarActions,
-        playerActions = ActionHandler.get().playerActions
+        onDrawerClicked = onDrawerClicked
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FolderScreen(
     uiState: FolderUiState,
-    topBarActions: TopBarActions,
-    bottomBarActions: BottomBarActions,
-    playerActions: PlayerActions
+    onDrawerClicked: () -> Unit
 ) {
-    ScreenWithTopBottomBar(
-        uiState = uiState,
-        title = stringResource(id = R.string.folder_title),
-        topBarActions = topBarActions,
-        bottomBarActions = bottomBarActions,
-        playerActions = playerActions
-    ) {
+    Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+        DrawerTopAppBar(
+            title = stringResource(id = R.string.folder_title),
+            onDrawerClicked = onDrawerClicked
+        )
         LazyColumn(modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, folder ->
                 FolderItem(folder = folder, onItemClicked = {})
@@ -125,20 +113,7 @@ private fun FolderItem(
 private fun ArtistScreenPreview() {
     FolderScreen(
         uiState = FakeDatas.folderUiState,
-        topBarActions = TopBarActions(onDrawerClicked = {}),
-        bottomBarActions = BottomBarActions(
-            onPlayToggle = {},
-            onScrollToNext = {},
-            onScrollToPrevious = {}),
-        playerActions = PlayerActions(
-            onPlayerPageExpandChanged = {},
-            onPlayToggle = {},
-            onSeekBarValueChange = { i, f -> },
-            onRepeatModeSwitch = {},
-            onShuffleModeEnable = {},
-            onPlayPrev = {},
-            onPlayNext = {}
-        )
+        onDrawerClicked = {}
     )
 }
 

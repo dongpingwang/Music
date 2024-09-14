@@ -1,6 +1,7 @@
 package com.hjkl.music.data
 
 import androidx.annotation.StringRes
+import com.hjkl.comm.ResUtil
 import com.hjkl.music.R
 import com.hjkl.player.constant.RepeatMode
 
@@ -16,7 +17,7 @@ object Defaults {
         shuffled = false,
         playerErrorMsgOnce = null,
         toast = null,
-        randomNoPlayContentDesc = "",
+        randomNoPlayContentDesc = ResUtil.getString(randomNoPlayDescRes()),
         playlist = emptyList()
     )
 

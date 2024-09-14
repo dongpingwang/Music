@@ -15,6 +15,7 @@ data class Song(
     val displayName: String,
     val duration: Long,
     val size: Int,
+    val year:Int,
     var bitmap: Bitmap? = null // 专辑封面
 ) {
 
