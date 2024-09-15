@@ -35,9 +35,10 @@ class SongViewModel : CommViewModel<Song>() {
                 "songDataSourceState changed: ${source.shortLog()}".d()
                 viewModelState.update {
                     it.copy(
-                        isLoading = source.isLoading,
-                        errorMsg = source.errorMsg,
+                        isFetchCompleted = source.isFetchCompleted,
+                        isExtractCompleted = source.isExtractCompleted,
                         datas = source.songs,
+                        errorMsg = source.errorMsg,
                         updateTimeMillis = source.updateTimeMillis
                     )
                 }
@@ -48,11 +49,11 @@ class SongViewModel : CommViewModel<Song>() {
             fetchSongSource()
         }.onFalse {
             "还没启动初始化过，不需要获取数据".d()
-            viewModelState.update { it.copy(isLoading = false) }
+            viewModelState.update { it.copy(isFetchCompleted = true, isExtractCompleted = true) }
         }
 
         viewModelScope.launch {
-            PlayerStateProvider.get().playerUiState.collect{
+            PlayerStateProvider.get().playerUiState.collect {
                 _playerUiState.tryEmit(it)
             }
         }

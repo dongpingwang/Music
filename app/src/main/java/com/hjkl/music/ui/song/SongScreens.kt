@@ -100,7 +100,7 @@ fun SongScreen(
             onDrawerClicked = onDrawerClicked,
             onSearchClicked = {})
         when {
-            (uiState.errorMsg != null) || (!uiState.isLoading && uiState.datas.isEmpty()) -> {
+            (uiState.errorMsg != null) || (uiState.isFetchCompleted && uiState.datas.isEmpty()) -> {
                 ErrorOrEmpty(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -109,10 +109,10 @@ fun SongScreen(
                 )
             }
 
-            else -> {
+            uiState.datas.isNotEmpty() -> {
                 SongList(
                     uiState = playerUiState,
-                    isLoading = uiState.isLoading,
+                    isLoading = !uiState.isFetchCompleted,
                     songs = uiState.datas,
                     onPlayAll = onPlayAll,
                     onItemClicked = onItemClicked,
@@ -128,7 +128,7 @@ fun SongScreen(
 @OptIn(ExperimentalPermissionsApi::class)
 @Preview
 @Composable
-private fun ErrorOrEmpty(modifier: Modifier = Modifier, onScanMusic: () -> Unit = {}) {
+fun ErrorOrEmpty(modifier: Modifier = Modifier, onScanMusic: () -> Unit = {}) {
     val permission = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> android.Manifest.permission.READ_MEDIA_AUDIO
         else -> android.Manifest.permission.READ_EXTERNAL_STORAGE

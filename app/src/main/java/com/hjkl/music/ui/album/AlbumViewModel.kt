@@ -34,9 +34,10 @@ class AlbumViewModel : CommViewModel<Album>() {
                 "songDataSourceState changed: ${source.shortLog()}".d()
                 viewModelState.update {
                     it.copy(
-                        isLoading = source.isLoading,
-                        errorMsg = source.errorMsg,
+                        isFetchCompleted = source.isFetchCompleted,
+                        isExtractCompleted = source.isExtractCompleted,
                         datas = source.songs.parseAlbum(),
+                        errorMsg = source.errorMsg,
                         updateTimeMillis = source.updateTimeMillis
                     )
                 }

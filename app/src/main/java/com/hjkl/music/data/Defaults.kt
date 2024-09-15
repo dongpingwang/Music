@@ -22,7 +22,8 @@ object Defaults {
     )
 
     val defaultSongDataSourceState = SongDataSourceState(
-        isLoading = true,
+        isFetchCompleted = false,
+        isExtractCompleted = false,
         songs = emptyList(),
         errorMsg = null,
         updateTimeMillis = null

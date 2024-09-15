@@ -18,13 +18,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class SongDataSourceState(
-    val isLoading: Boolean,
+    val isFetchCompleted: Boolean = false,// 数据获取完成
+    val isExtractCompleted: Boolean = false, // 数据解析完成
     val songs: List<Song>,
     val errorMsg: String?,
     val updateTimeMillis: Long?// 数据获取或者解析完成时间戳
 ) {
     fun shortLog(): String {
-        return "SongDataSourceState(isLoading=$isLoading, songs.size=${songs.size}, errorMsg=$errorMsg, updateTimeMillis=$updateTimeMillis)"
+        return "SongDataSourceState(isFetchCompleted=$isFetchCompleted, isExtractCompleted=$isExtractCompleted, songs.size=${songs.size}, errorMsg=$errorMsg, updateTimeMillis=$updateTimeMillis)"
     }
 }
 
@@ -51,18 +52,24 @@ class SongDataSource {
     fun fetchAllSongs(fromUser: Boolean) {
         "fetchAllSongs: fromUser=$fromUser".d()
         scope.launch(Dispatchers.IO) {
-            _songDataSourceState.update { it.copy(isLoading = true) }
+            _songDataSourceState.update {
+                it.copy(
+                    isFetchCompleted = false,
+                    isExtractCompleted = false
+                )
+            }
             "start fetch data from mediaprovider".d()
             songQuery.getAllSongs()
                 .onSuccess { songs ->
                     "finish fetch data from mediaprovider: songs.size=${songs.size}".d()
+                    _songDataSourceState.update {
+                        it.copy(
+                            songs = songs,
+                            isFetchCompleted = true,
+                            updateTimeMillis = System.currentTimeMillis()
+                        )
+                    }
                     fromUser.onFalse {
-                        _songDataSourceState.update {
-                            it.copy(
-                                songs = songs,
-                                updateTimeMillis = System.currentTimeMillis()
-                            )
-                        }
                         "start extract data from mmr".d()
                         LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
                             songs.onBatchEach(10, 50) { index, item, isBatchFinish ->
@@ -70,7 +77,7 @@ class SongDataSource {
                                 isBatchFinish.onTrue {
                                     _songDataSourceState.update {
                                         it.copy(
-                                            isLoading = (index + 1) != songs.size,
+                                            isExtractCompleted = (index + 1) == songs.size,
                                             songs = songs,
                                             updateTimeMillis = System.currentTimeMillis()
                                         )
@@ -88,7 +95,7 @@ class SongDataSource {
                         }
                         _songDataSourceState.update {
                             it.copy(
-                                isLoading = false,
+                                isExtractCompleted = true,
                                 songs = songs,
                                 updateTimeMillis = System.currentTimeMillis()
                             )

@@ -6,9 +6,10 @@ import com.hjkl.entity.Folder
 import com.hjkl.entity.Song
 
 data class ViewModelState<T>(
-    val isLoading: Boolean = true,
-    val errorMsg: String? = null,
+    val isFetchCompleted: Boolean = false,
+    val isExtractCompleted: Boolean = false,
     val datas: List<T> = emptyList(),
+    val errorMsg: String? = null,
     val updateTimeMillis: Long? = null
 )
 
@@ -18,6 +19,6 @@ typealias ArtistUiState = ViewModelState<Artist>
 typealias FolderUiState = ViewModelState<Folder>
 
 fun <T> ViewModelState<T>.shortLog(): String {
-    return "ViewModelState(isLoading=$isLoading, errorMsg=$errorMsg, datas.size=${datas.size}, updateTimeMillis=$updateTimeMillis)"
+    return "ViewModelState(isFetchFinish=$isFetchCompleted, isExtractFinish=$isExtractCompleted, errorMsg=$errorMsg, datas.size=${datas.size}, updateTimeMillis=$updateTimeMillis)"
 }
 

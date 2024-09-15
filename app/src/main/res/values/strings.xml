@@ -48,4 +48,6 @@
 
     <string name="expand">展开</string>
     <string name="collapse">折叠</string>
+
+    <string name="no_songs">没有扫描到歌曲~</string>
 </resources>

@@ -34,9 +34,10 @@ class ArtistViewModel : CommViewModel<Artist>() {
                 "songDataSourceState changed: ${source.shortLog()}".d()
                 viewModelState.update {
                     it.copy(
-                        isLoading = source.isLoading,
-                        errorMsg = source.errorMsg,
+                        isFetchCompleted = source.isFetchCompleted,
+                        isExtractCompleted = source.isFetchCompleted,
                         datas = source.songs.parseArtist(),
+                        errorMsg = source.errorMsg,
                         updateTimeMillis = source.updateTimeMillis
                     )
                 }
