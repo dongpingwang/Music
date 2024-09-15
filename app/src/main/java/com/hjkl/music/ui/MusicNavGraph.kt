@@ -1,9 +1,7 @@
 package com.hjkl.music.ui
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,8 +10,9 @@ import com.hjkl.comm.d
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.ui.album.AlbumDetailScreens
 import com.hjkl.music.ui.album.AlbumScreen
-import com.hjkl.music.ui.album.AlbumViewModel
+import com.hjkl.music.ui.artist.ArtistDetailScreens
 import com.hjkl.music.ui.artist.ArtistScreen
+import com.hjkl.music.ui.folder.FolderDetailScreen
 import com.hjkl.music.ui.folder.FolderScreen
 import com.hjkl.music.ui.home.Screen
 import com.hjkl.music.ui.player.PlayerPages
@@ -36,16 +35,11 @@ fun MusicNavGraph(
         ) {
             when (drawScreen) {
                 Screen.Home -> {
-                    SongScreen(
-                        onDrawerClicked = onDrawerClicked,
-                        onOpenPlayer = navigationActions.navigateToPlayer
-                    )
+                    SongScreen(onDrawerClicked = onDrawerClicked)
                 }
 
                 Screen.ALBUM -> {
-                    AlbumScreen(onDrawerClicked = onDrawerClicked, onCardClicked = {
-                        navigationActions.navigateToAlbumDetail(it)
-                    })
+                    AlbumScreen(onDrawerClicked = onDrawerClicked)
                 }
 
                 Screen.ARTIST -> {
@@ -62,7 +56,6 @@ fun MusicNavGraph(
             }
         }
 
-
         composable(
             route = "${Destinations.DETAIL_ALBUM_ROUTE}/{albumId}",
             arguments = listOf(navArgument("albumId") {
@@ -71,19 +64,39 @@ fun MusicNavGraph(
         ) { backStackEntry ->
             val albumId = backStackEntry.arguments?.getInt("albumId")
             "albumId: $albumId".d()
-            val albumViewModel: AlbumViewModel = viewModel(
-                factory = AlbumViewModel.provideFactory()
-            )
-            val uiState by albumViewModel.uiState.collectAsStateWithLifecycle()
-            uiState.datas.find { it.id == albumId }?.let {
-                AlbumDetailScreens(it, onBackClicked = navigationActions.popBackStack)
+            albumId?.let {
+                AlbumDetailScreens(albumId = it)
+            }
+        }
+
+        composable(
+            route = "${Destinations.DETAIL_ARTIST_ROUTE}/{artistId}",
+            arguments = listOf(navArgument("artistId") {
+                type = NavType.IntType
+            })
+        ) { backStackEntry ->
+            val artistId = backStackEntry.arguments?.getInt("artistId")
+            "artistId: $artistId".d()
+            artistId?.let {
+                ArtistDetailScreens(artistId = it)
+            }
+        }
+
+        composable(
+            route = "${Destinations.DETAIL_FOLDER_ROUTE}/{folderPath}",
+            arguments = listOf(navArgument("folderPath") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val folderPath = Uri.decode(backStackEntry.arguments?.getString("folderPath"))
+            "folderPath: $folderPath".d()
+            folderPath?.let {
+                FolderDetailScreen(folderPath = it)
             }
         }
 
         composable(Destinations.PLAYER_ROUTE) {
-            PlayerPages(uiState = playerUiState, onBackPress = {
-                navigationActions.popBackStack()
-            })
+            PlayerPages(uiState = playerUiState)
         }
     }
 }

@@ -41,23 +41,23 @@ import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
+import com.hjkl.music.ui.bar.DrawerSearchTopAppBar
 import com.hjkl.music.ui.comm.ActionHandler
-import com.hjkl.music.ui.bar.DrawerTopAppBar
 import com.hjkl.music.ui.comm.SongUiState
 import com.hjkl.music.ui.theme.MusicTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun SongScreen(
-    onDrawerClicked: () -> Unit,
-    onOpenPlayer: () -> Unit
+    onDrawerClicked: () -> Unit
 ) {
     val songViewModel: SongViewModel = viewModel(
         factory = SongViewModel.provideFactory()
     )
     val uiState by songViewModel.uiState.collectAsStateWithLifecycle()
     val playerUiState by songViewModel.playerUiState.collectAsStateWithLifecycle()
-    val itemActions = ActionHandler.get().itemActions
+    val actionHandler = ActionHandler.get()
+    val itemActions = actionHandler.itemActions
     SongScreen(
         uiState = uiState,
         playerUiState = playerUiState,
@@ -66,7 +66,7 @@ fun SongScreen(
         onPlayAll = { itemActions.onPlayAll(uiState.datas) },
         onItemClicked = {
             itemActions.onItemClicked(uiState.datas, it).onTrue {
-                onOpenPlayer()
+                actionHandler.navigationActions.navigateToPlayer()
             }
         },
         onPlayClicked = { itemActions.onPlayClicked(uiState.datas, it) },
@@ -95,10 +95,10 @@ fun SongScreen(
 ) {
 
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerTopAppBar(
+        DrawerSearchTopAppBar(
             title = stringResource(id = R.string.song_title),
-            onDrawerClicked = onDrawerClicked
-        )
+            onDrawerClicked = onDrawerClicked,
+            onSearchClicked = {})
         when {
             (uiState.errorMsg != null) || (!uiState.isLoading && uiState.datas.isEmpty()) -> {
                 ErrorOrEmpty(
@@ -179,7 +179,9 @@ private fun SongList(
         }
     ) {
         Column {
-            HeaderSongItem(count = songs.size, onPlayAll = onPlayAll, onEdit = {})
+            HeaderSongItem(count = songs.size,
+                onPlayAll = onPlayAll,
+                onEdit = {})
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = listState

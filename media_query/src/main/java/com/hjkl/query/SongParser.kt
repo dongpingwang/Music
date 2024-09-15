@@ -20,26 +20,32 @@ fun List<Song>.parseAlbum(): List<Album> = LogTrace.measureTimeMillis("SongParse
 }
 
 
-fun List<Song>.parseArtist(): List<Artist> = LogTrace.measureTimeMillis("SongParser#parseArtist()") {
-    val idToMap = hashMapOf<Int, Artist>()
-    onEach { song ->
-        if (idToMap[song.artistId] == null) {
-            idToMap[song.artistId] = Artist(song.artistId, song.artist)
+fun List<Song>.parseArtist(): List<Artist> =
+    LogTrace.measureTimeMillis("SongParser#parseArtist()") {
+        val idToMap = hashMapOf<Int, Artist>()
+        onEach { song ->
+            if (idToMap[song.artistId] == null) {
+                idToMap[song.artistId] = Artist(song.artistId, song.artist)
+            }
+            idToMap[song.artistId]?.addSong(song)
         }
-        idToMap[song.artistId]?.addSong(song)
+        val artistList = idToMap.values.toList()
+        artistList.onEach {
+            it.setAlbums(it.getSongs().parseAlbum())
+        }
+        artistList
     }
-    idToMap.values.toList()
-}
 
-fun List<Song>.parseFolder(): List<Folder> = LogTrace.measureTimeMillis("SongParser#parseFolder()") {
-    val folderPathToMap = hashMapOf<String, Folder>()
-    onEach { song ->
-        val folderPath = FileUtil.getFolderPath(song.data)
-        val folderName = FileUtil.getFolderName(song.data)
-        if (folderPathToMap[folderPath] == null) {
-            folderPathToMap[folderPath] = Folder(folderName, folderPath)
+fun List<Song>.parseFolder(): List<Folder> =
+    LogTrace.measureTimeMillis("SongParser#parseFolder()") {
+        val folderPathToMap = hashMapOf<String, Folder>()
+        onEach { song ->
+            val folderPath = FileUtil.getFolderPath(song.data)
+            val folderName = FileUtil.getFolderName(song.data)
+            if (folderPathToMap[folderPath] == null) {
+                folderPathToMap[folderPath] = Folder(folderName, folderPath)
+            }
+            folderPathToMap[folderPath]?.addSong(song)
         }
-        folderPathToMap[folderPath]?.addSong(song)
+        folderPathToMap.values.toList()
     }
-    folderPathToMap.values.toList()
-}

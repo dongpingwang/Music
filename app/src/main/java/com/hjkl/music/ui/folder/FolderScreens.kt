@@ -28,7 +28,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Folder
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.DrawerTopAppBar
+import com.hjkl.music.ui.bar.DrawerSearchTopAppBar
+import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.FolderUiState
 
 @Composable
@@ -39,25 +40,29 @@ fun FolderScreen(
         factory = FolderViewModel.provideFactory()
     )
     val uiState by folderViewModel.uiState.collectAsStateWithLifecycle()
+    val actionHandler = ActionHandler.get()
     FolderScreen(
         uiState = uiState,
-        onDrawerClicked = onDrawerClicked
+        onDrawerClicked = onDrawerClicked,
+        onItemClicked= actionHandler.navigationActions.navigateToFolderDetail
     )
 }
 
 @Composable
 fun FolderScreen(
     uiState: FolderUiState,
-    onDrawerClicked: () -> Unit
+    onDrawerClicked: () -> Unit,
+    onItemClicked: (Folder) -> Unit
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerTopAppBar(
+        DrawerSearchTopAppBar(
             title = stringResource(id = R.string.folder_title),
-            onDrawerClicked = onDrawerClicked
+            onDrawerClicked = onDrawerClicked,
+            onSearchClicked = {}
         )
         LazyColumn(modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, folder ->
-                FolderItem(folder = folder, onItemClicked = {})
+                FolderItem(folder = folder, onItemClicked = {onItemClicked(folder)})
             }
         }
     }
@@ -66,9 +71,7 @@ fun FolderScreen(
 @Composable
 private fun FolderItem(
     folder: Folder,
-    onItemClicked: () -> Unit,
-
-    ) {
+    onItemClicked: () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .clickable { onItemClicked() }) {
@@ -113,7 +116,8 @@ private fun FolderItem(
 private fun ArtistScreenPreview() {
     FolderScreen(
         uiState = FakeDatas.folderUiState,
-        onDrawerClicked = {}
+        onDrawerClicked = {},
+        onItemClicked = {}
     )
 }
 

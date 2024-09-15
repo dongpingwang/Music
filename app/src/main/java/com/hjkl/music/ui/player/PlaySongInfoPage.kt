@@ -50,7 +50,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
-import com.hjkl.music.R
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.AlbumImage

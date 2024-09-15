@@ -52,13 +52,6 @@ import com.hjkl.music.ui.comm.dialog.SongItemMoreDialog
 import com.hjkl.music.ui.theme.MusicTheme
 import com.hjkl.player.util.parseMillisTimeToMinutes
 
-data class ItemActions(
-    val onPlayAll: (List<Song>) -> Unit,
-    val onItemClicked: (List<Song>, Int) -> Boolean,
-    val onPlayClicked: (List<Song>, Int) -> Unit,
-    val onAddToQueue: (Song) -> Unit
-)
-
 @Composable
 fun HeaderSongItem(
     count: Int,

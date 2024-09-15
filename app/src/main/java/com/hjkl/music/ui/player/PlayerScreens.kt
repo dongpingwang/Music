@@ -43,11 +43,12 @@ private val pageCount = 3
 
 
 @Composable
-fun PlayerPages(uiState: PlayerUiState, onBackPress: () -> Unit) {
+fun PlayerPages(uiState: PlayerUiState) {
     val playerActions = ActionHandler.get().playerActions
+    val navigationActions = ActionHandler.get().navigationActions
     PlayerPages(
         uiState = uiState,
-        onBackPress = onBackPress,
+        onBackPress = navigationActions.popBackStack,
         onValueChange = playerActions.onSeekBarValueChange,
         onRepeatModeSwitch = playerActions.onRepeatModeSwitch,
         onShuffleModeEnable = playerActions.onShuffleModeEnable,

@@ -18,14 +18,9 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    init {
-        "init".d()
-        playerStateProvider.init()
-    }
 
     override fun onCleared() {
         super.onCleared()
         "onCleared".d()
-        playerStateProvider.destroy()
     }
 }

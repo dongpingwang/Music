@@ -39,7 +39,6 @@ import com.hjkl.music.ui.theme.MusicTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MusicApp(
@@ -47,10 +46,14 @@ fun MusicApp(
     var showBottomPlayer by remember { mutableStateOf(true) }
     var selectedScreen by remember { mutableStateOf(Screen.Home) }
 
+    val actionHandler = ActionHandler.get()
+
     val navController = rememberNavController()
     val navigationActions = remember(navController) {
         NavigationActions(navController)
     }
+    actionHandler.inject(navigationActions)
+
     val scope = rememberCoroutineScope()
     val backStackEntry by navController.currentBackStackEntryAsState()
     LaunchedEffect(key1 = backStackEntry) {
@@ -82,7 +85,7 @@ fun MusicApp(
         factory = PlayerViewModel.provideFactory()
     )
     val playerUiState by playerViewModel.playerStateProvider.playerUiState.collectAsStateWithLifecycle()
-    val actionHandler = ActionHandler.get()
+
 
     MusicTheme {
         Column {
@@ -132,6 +135,9 @@ fun MusicApp(
                     uiState = playerUiState,
                     onTogglePlay = actionHandler.bottomBarActions.onPlayToggle,
                     onClick = {
+                        if (draggableState.currentValue == DrawerState.OPEN) {
+                            scope.launch { draggableState.animateTo(DrawerState.CLOSE) }
+                        }
                         showBottomPlayer = false
                         navigationActions.navigateToPlayer()
                     })

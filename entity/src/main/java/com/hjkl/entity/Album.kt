@@ -23,8 +23,12 @@ data class Album(val id: Int, val name: String) {
         return songs.firstOrNull { it.artist.isNotEmpty() }?.artist
     }
 
-    fun getArtistId(): Int? {
-        return songs.firstOrNull { it.artistId > 0 }?.artistId
+    fun getArtistId(): Int {
+        return songs.first().artistId
+    }
+
+    fun getEmptyArtist(): Artist {
+        return Artist(songs.first().artistId, songs.first().artist)
     }
 
     fun getYear(): Int? {

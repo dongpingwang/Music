@@ -26,23 +26,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Album
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.DrawerTopAppBar
+import com.hjkl.music.ui.bar.DrawerSortTopAppBar
+import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.AlbumUiState
 
 @Composable
 fun AlbumScreen(
     onDrawerClicked: () -> Unit,
-    onCardClicked: (Album) -> Unit
 ) {
     val albumViewModel: AlbumViewModel = viewModel(
         factory = AlbumViewModel.provideFactory()
     )
     val uiState by albumViewModel.uiState.collectAsStateWithLifecycle()
+    val actionHandler = ActionHandler.get()
     AlbumScreen(
         uiState = uiState,
         onDrawerClicked = onDrawerClicked,
-        onCardClicked = onCardClicked
+        onCardClicked = actionHandler.navigationActions.navigateToAlbumDetail
     )
 }
 
@@ -53,9 +54,10 @@ fun AlbumScreen(
     onCardClicked: (Album) -> Unit
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerTopAppBar(
+        DrawerSortTopAppBar(
             title = stringResource(id = R.string.album_title),
-            onDrawerClicked = onDrawerClicked
+            onDrawerClicked = onDrawerClicked,
+            onSortClicked = {}
         )
         LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, album ->

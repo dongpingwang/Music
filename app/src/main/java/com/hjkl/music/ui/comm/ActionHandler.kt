@@ -1,15 +1,25 @@
 package com.hjkl.music.ui.comm
 
+import com.hjkl.comm.d
+import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerStateProvider
+import com.hjkl.music.ui.NavigationActions
 import com.hjkl.music.ui.comm.dialog.PlaylistDialogActions
-import com.hjkl.music.ui.song.ItemActions
 import com.hjkl.player.constant.RepeatMode
 
 data class TopBarActions(val onDrawerClicked: () -> Unit)
+
 data class BottomBarActions(
     val onPlayToggle: () -> Unit,
     val onScrollToNext: () -> Unit,
     val onScrollToPrevious: () -> Unit
+)
+
+data class ItemActions(
+    val onPlayAll: (List<Song>) -> Unit,
+    val onItemClicked: (List<Song>, Int) -> Boolean,
+    val onPlayClicked: (List<Song>, Int) -> Unit,
+    val onAddToQueue: (Song) -> Unit
 )
 
 data class PlayerActions(
@@ -87,4 +97,14 @@ class ActionHandler private constructor(player: PlayerStateProvider) {
             )
         },
         onRemoveIndex = { player.removeItem(it) })
+
+
+    lateinit var navigationActions: NavigationActions
+        private set
+
+    fun inject(navigationActions: NavigationActions) {
+        "inject navigationActions: $navigationActions".d()
+        this.navigationActions = navigationActions
+    }
+
 }

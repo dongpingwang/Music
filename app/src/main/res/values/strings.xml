@@ -38,4 +38,14 @@
 
     <string name="unknown_song">未知歌曲</string>
     <string name="unknown_artist">未知歌手</string>
+
+    <string name="summary_song">歌曲</string>
+    <string name="summary_duration">时长</string>
+    <string name="summary_year">年份</string>
+    <string name="summary_song_count_alum_count">歌曲·%d 专辑·%d</string>
+    <string name="summary_song_count">歌曲·%d</string>
+    <string name="summary_alum_count">专辑·%d</string>
+
+    <string name="expand">展开</string>
+    <string name="collapse">折叠</string>
 </resources>

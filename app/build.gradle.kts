@@ -11,8 +11,8 @@ android {
         applicationId = "com.hjkl.music"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 10001
+        versionName = "1.0.0.20240915"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

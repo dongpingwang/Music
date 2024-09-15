@@ -1,6 +1,5 @@
 package com.hjkl.music.test
 
-import com.hjkl.comm.ResUtil
 import com.hjkl.entity.Album
 import com.hjkl.entity.Artist
 import com.hjkl.entity.Folder
@@ -52,11 +51,22 @@ object FakeDatas {
     val albumUiState = ViewModelState<Album>(datas = albums)
 
 
-    val artist = Artist(111, "歌手1")
+    val artist = Artist(111, "歌手1").apply {
+        setAlbums(albums)
+        addSong(song)
+        addSong(song)
+        addSong(song)
+        addSong(song)
+    }
     val artists = listOf(artist, artist, artist)
     val artistUiState = ViewModelState<Artist>(datas = artists)
 
-    val folder = Folder("文件夹1", "/mnt/sdcard/文件夹1")
+    val folder = Folder("文件夹1", "/mnt/sdcard/文件夹1").apply {
+        addSong(song)
+        addSong(song)
+        addSong(song)
+        addSong(song)
+    }
     val folders = listOf(folder, folder, folder)
     val folderUiState = ViewModelState<Folder>(datas = folders)
 

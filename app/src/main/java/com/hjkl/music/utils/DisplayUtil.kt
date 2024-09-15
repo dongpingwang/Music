@@ -16,4 +16,8 @@ object DisplayUtil {
     fun getDisplayArtist(artist: String?): String {
         return artist.getOrDefault(stringResource(R.string.unknown_artist))
     }
+
+    fun getDisplayYear(year: Int?):String {
+        return year?.toString() ?: "-"
+    }
 }

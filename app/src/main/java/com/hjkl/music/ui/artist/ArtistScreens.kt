@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,35 +27,42 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Artist
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.DrawerTopAppBar
+import com.hjkl.music.ui.bar.DrawerSortTopAppBar
+import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.ArtistUiState
 
 @Composable
 fun ArtistScreen(
-    onDrawerClicked: () -> Unit
+    onDrawerClicked: () -> Unit,
 ) {
     val artistViewModel: ArtistViewModel = viewModel(
         factory = ArtistViewModel.provideFactory()
     )
     val uiState by artistViewModel.uiState.collectAsStateWithLifecycle()
-    ArtistScreen(uiState = uiState, onDrawerClicked = onDrawerClicked)
+    val actionHandler = ActionHandler.get()
+    ArtistScreen(
+        uiState = uiState,
+        onDrawerClicked = onDrawerClicked,
+        onItemClicked = actionHandler.navigationActions.navigateToArtistDetail
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistScreen(
     uiState: ArtistUiState,
-    onDrawerClicked: () -> Unit
+    onDrawerClicked: () -> Unit,
+    onItemClicked: (Artist) -> Unit
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerTopAppBar(
+        DrawerSortTopAppBar(
             title = stringResource(id = R.string.artist_title),
-            onDrawerClicked = onDrawerClicked
+            onDrawerClicked = onDrawerClicked,
+            onSortClicked = {},
         )
         LazyColumn(modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, artist ->
-                ArtistItem(artist = artist, onItemClicked = {})
+                ArtistItem(artist = artist, onItemClicked = { onItemClicked(artist) })
             }
         }
     }
@@ -115,7 +121,8 @@ private fun ArtistItem(
 private fun ArtistScreenPreview() {
     ArtistScreen(
         uiState = FakeDatas.artistUiState,
-        onDrawerClicked = {})
+        onDrawerClicked = {},
+        onItemClicked = {})
 }
 
 @Preview
