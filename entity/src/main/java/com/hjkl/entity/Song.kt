@@ -3,26 +3,41 @@ package com.hjkl.entity
 import android.graphics.Bitmap
 
 data class Song(
-    val id: Int,
-    var title: String,
-    var artist: String,
-    val artistId: Int,
-    var album: String,
-    val albumId: Int,
-    val genre: String?,
-    val genreId: Int?,
-    val data: String,
-    val displayName: String,
-    val duration: Long,
-    val size: Int,
-    val year:Int,
-    var bitmap: Bitmap? = null // 专辑封面
+    val id: Long,// id
+    var title: String,// 歌曲名
+    var artist: String,// 歌手
+    val artistId: Int,// 歌手id
+    var album: String,// 专辑名
+    val albumId: Int,// 专辑id
+    val data: String,// 全路径
+    val displayName: String,// 文件的名称
+    val duration: Long,// 时长
+    val size: Int,// 文件大小
+    var publishDate: String? = null,// 出版年份
+    val bitrate: Int,// 比特率,
+    var sampleRate: Int? = null, // 采样率
+    var bitsPerSample: Int? = null, // 位数
+    var channels: Int? = null,//通道数
+    val composer: String?,// 作曲
+    var writer: String?, // 作词
+    var lyricText: String? = null, // 内嵌歌词
+    var albumCoverPath: String? = null, // 专辑封面路径
+    var artCoverPath: String? = null,// 歌手封面路径
+    var bitmap: Bitmap? = null // 专辑封面，从mmr获取的封面
 ) {
 
     fun shortLog(): String {
         return "$id - $title - $data"
     }
 
-    // 专辑封面原始数据
+    fun getEmptyAlbum(): Album {
+        return Album(albumId, album)
+    }
+
+    fun getEmptyArtist(): Artist {
+        return Artist(artistId, artist)
+    }
+
+    // 专辑封面原始数据，从mmr获取的封面
     var originBitmapBytes: ByteArray? = null
 }

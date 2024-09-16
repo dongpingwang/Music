@@ -33,8 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.hjkl.comm.ResUtil
+import com.hjkl.comm.ToastUtil
 import com.hjkl.comm.d
 import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
@@ -93,7 +94,6 @@ fun SongScreen(
     onScanMusic: () -> Unit,
     onRefresh: () -> Unit,
 ) {
-
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
         DrawerSearchTopAppBar(
             title = stringResource(id = R.string.song_title),
@@ -129,23 +129,31 @@ fun SongScreen(
 @Preview
 @Composable
 fun ErrorOrEmpty(modifier: Modifier = Modifier, onScanMusic: () -> Unit = {}) {
-    val permission = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> android.Manifest.permission.READ_MEDIA_AUDIO
-        else -> android.Manifest.permission.READ_EXTERNAL_STORAGE
+    val permissions = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> listOf(
+            android.Manifest.permission.READ_MEDIA_AUDIO,
+            android.Manifest.permission.READ_MEDIA_IMAGES
+        )
+
+        else -> listOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     }
-    val permissionState = rememberPermissionState(permission = permission) {
-        "onPermissionResult: $permission --> $it".d()
+    val permissionsState = rememberMultiplePermissionsState(permissions = permissions) {
+        "onPermissionsResult: ${it.keys} --> ${it.values}".d()
+        if (it.values.firstOrNull { !it } == false) {
+            ToastUtil.toast(ResUtil.getString(R.string.toast_permission_reject))
+        }
     }
+
     Button(onClick = {
         when {
-            permissionState.status.isGranted -> {
-                "$permission is isGranted".d()
+            permissionsState.allPermissionsGranted -> {
+                "$permissions is isGranted".d()
                 onScanMusic()
             }
 
             else -> {
                 "launchPermissionRequest".d()
-                permissionState.launchPermissionRequest()
+                permissionsState.launchMultiplePermissionRequest()
             }
         }
 

@@ -9,4 +9,8 @@ object ResUtil {
     fun getString(@StringRes id: Int): String {
         return resources.getString(id)
     }
+
+    fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
+        return resources.getString(id, formatArgs)
+    }
 }

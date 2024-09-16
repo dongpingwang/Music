@@ -1,7 +1,5 @@
 package com.hjkl.query
 
-import android.annotation.SuppressLint
-import android.os.Build
 import android.provider.MediaStore.Audio.Media
 import com.hjkl.comm.AppUtil
 import com.hjkl.comm.LogTrace
@@ -12,7 +10,7 @@ import com.hjkl.entity.Song
 
 class SongQuery : ISongQuery {
 
-    @SuppressLint("Range")
+
     override fun getAllSongs(): Result<List<Song>> = LogTrace.measureTimeMillis("SongQuery#getAllSongs()") {
         kotlin.runCatching {
             val cursor = AppUtil.getContext().contentResolver.query(
@@ -27,23 +25,19 @@ class SongQuery : ISongQuery {
                 "cursor is null or null data: $cursor ${cursor?.count}".d()
             } else {
                 while (cursor.moveToNext()) {
-                    val id = cursor.getInt(cursor.getColumnIndex(Media._ID)) // id
-                    val title = cursor.getString(cursor.getColumnIndex(Media.TITLE)) // 歌曲名
-                    val artist = cursor.getString(cursor.getColumnIndex(Media.ARTIST)) // 歌手
-                    val artistId = cursor.getInt(cursor.getColumnIndex(Media.ARTIST_ID)) // 歌手id
-                    val album = cursor.getString(cursor.getColumnIndex(Media.ALBUM)) // 专辑名
-                    val albumId = cursor.getInt(cursor.getColumnIndex(Media.ALBUM_ID)) // 专辑id
-                    var genre: String? = null
-                    var genreId: Int? = null
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        genre = cursor.getString(cursor.getColumnIndex(Media.GENRE)) // 类型
-                        genreId = cursor.getInt(cursor.getColumnIndex(Media.GENRE_ID)) // 类型id
-                    }
-                    val data = cursor.getString(cursor.getColumnIndex(Media.DATA)) // 全路径
-                    val displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME)) // 文件的名称
-                    val duration = cursor.getLong(cursor.getColumnIndex(Media.DURATION)) // 时长
-                    val size = cursor.getInt(cursor.getColumnIndex(Media.SIZE)) // 文件大小
-                    val year = cursor.getInt(cursor.getColumnIndex(Media.YEAR)) // 出版年份
+                    val id = cursor.getLong(cursor.getColumnIndex(Media._ID))
+                    val title = cursor.getString(cursor.getColumnIndex(Media.TITLE))
+                    val artist = cursor.getString(cursor.getColumnIndex(Media.ARTIST))
+                    val artistId = cursor.getInt(cursor.getColumnIndex(Media.ARTIST_ID))
+                    val album = cursor.getString(cursor.getColumnIndex(Media.ALBUM))
+                    val albumId = cursor.getInt(cursor.getColumnIndex(Media.ALBUM_ID))
+                    val data = cursor.getString(cursor.getColumnIndex(Media.DATA))
+                    val displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME))
+                    val duration = cursor.getLong(cursor.getColumnIndex(Media.DURATION))
+                    val size = cursor.getInt(cursor.getColumnIndex(Media.SIZE))
+                    val bitrate = cursor.getInt(cursor.getColumnIndex(Media.BITRATE))
+                    val composer = cursor.getString(cursor.getColumnIndex(Media.COMPOSER))
+                    val writer = cursor.getString(cursor.getColumnIndex(Media.WRITER))
                     val song = Song(
                         id = id,
                         title = title,
@@ -51,15 +45,15 @@ class SongQuery : ISongQuery {
                         artistId = artistId,
                         album = album,
                         albumId = albumId,
-                        genre = genre,
-                        genreId = genreId,
                         data = data,
                         displayName = displayName,
                         duration = duration,
-                        year = year,
                         size = size,
+                        bitrate = bitrate,
+                        composer = composer,
+                        writer = writer
                     )
-                    // "song from cursor: $song".d()
+                    "song from cursor: $song".d()
                     result.add(song)
                 }
             }

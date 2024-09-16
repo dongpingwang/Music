@@ -4,7 +4,8 @@ import android.content.Context
 import com.hjkl.comm.LogTrace
 import com.hjkl.comm.d
 import com.hjkl.music.data.AppConfig
-import com.hjkl.music.data.PlayerStateProvider
+import com.hjkl.music.data.LyricStatePublisher
+import com.hjkl.music.data.PlayerManager
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
 import com.hjkl.player.util.toRepeatMode
@@ -15,12 +16,6 @@ import kotlinx.coroutines.launch
 object Initializers {
 
     fun init(application: Context) {
-        MainScope().launch {
-            LogTrace.measureTimeMillis("Initializers#initOnUiThread()") {
-                PlayerStateProvider.get().init()
-            }
-        }
-
         MainScope().launch(Dispatchers.IO) {
             LogTrace.measureTimeMillis("Initializers#initOnIoThread()") {
                 AppConfig.init()
@@ -30,12 +25,15 @@ object Initializers {
                         restorePlayerState(player)
                     }
                 })
+                PlayerManager.get().init()
+                LyricStatePublisher.init()
             }
         }
     }
 
     fun destroy() {
-        PlayerStateProvider.get().destroy()
+        PlayerManager.get().destroy()
+        LyricStatePublisher.destroy()
     }
 
     private fun restorePlayerState(player: IPlayer) {

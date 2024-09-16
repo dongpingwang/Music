@@ -38,6 +38,8 @@
 
     <string name="unknown_song">未知歌曲</string>
     <string name="unknown_artist">未知歌手</string>
+    <string name="unknown_album">未知专辑</string>
+    <string name="unknown_composer">未知作曲</string>
 
     <string name="summary_song">歌曲</string>
     <string name="summary_duration">时长</string>
@@ -45,9 +47,25 @@
     <string name="summary_song_count_alum_count">歌曲·%d 专辑·%d</string>
     <string name="summary_song_count">歌曲·%d</string>
     <string name="summary_alum_count">专辑·%d</string>
+    <string name="summary_publish">%s发行</string>
+    <string name="summary_publish_unknown">发行时间未知</string>
+    <string name="summary_artist">歌手： %s</string>
+    <string name="summary_album">专辑： %s</string>
+    <string name="summary_production">制作： 作曲： %s</string>
+    <string name="summary_lyric_inner">歌词： 内嵌歌词</string>
+    <string name="summary_lyric_file">歌词： 本地歌词文件</string>
+    <string name="summary_lyric_none">歌词： 无歌词</string>
 
     <string name="expand">展开</string>
     <string name="collapse">折叠</string>
 
-    <string name="no_songs">没有扫描到歌曲~</string>
+    <string name="toast_no_songs">没有扫描到歌曲~</string>
+    <string name="toast_permission_reject">您已拒绝权限申请，为保证程序正常运行，请同意~</string>
+
+    <string name="song_detail">歌曲详情</string>
+    <string name="song_audio_info">歌曲参数</string>
+    <string name="song_audio_track">音轨</string>
+    <string name="song_audio_decoder">解码器</string>
+    <string name="song_audio_decoder_info">Android Media3 ExoPlayer Decoder</string>
+
 </resources>

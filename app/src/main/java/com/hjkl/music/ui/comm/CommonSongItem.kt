@@ -48,7 +48,7 @@ fun CommonSongItem(
     ) {
         if (order == null) {
             AlbumImage(
-                song.bitmap,
+                song.albumCoverPath ?: song.bitmap,
                 contentDescription = null,
                 modifier = Modifier
                     .size(56.dp)

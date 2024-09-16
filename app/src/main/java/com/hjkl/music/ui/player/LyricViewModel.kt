@@ -1,26 +1,19 @@
-package com.hjkl.music.ui.bar
+package com.hjkl.music.ui.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.hjkl.comm.d
-import com.hjkl.music.data.PlayerStateProvider
+import com.hjkl.music.data.LyricStatePublisher
 
-class PlayerViewModel : ViewModel() {
 
-    val playerStateProvider = PlayerStateProvider.get()
+class LyricViewModel : ViewModel() {
+    val curLyricState = LyricStatePublisher.curLyricState
 
     companion object {
         @Suppress("UNCHECKED_CAST")
         fun provideFactory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return PlayerViewModel() as T
+                return LyricViewModel() as T
             }
         }
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        "onCleared".d()
     }
 }

@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hjkl.comm.d
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerUiState
@@ -106,8 +107,9 @@ fun PlayerContentRegular(
 private fun PlayerImage(
     song: Song?,
 ) {
+    "PlayerImage: $song".d()
     AlbumImage(
-        data = song?.bitmap,
+        data = song?.albumCoverPath?:song?.bitmap,
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier

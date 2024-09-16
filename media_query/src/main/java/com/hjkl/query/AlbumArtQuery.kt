@@ -14,7 +14,7 @@ class AlbumArtQuery : IAlbumArtQuery {
         private const val TAG = "AlbumArtQuery"
     }
 
-    override fun getAlbumArtBitmap(songId: Int, albumId: Int): Bitmap? {
+    override fun getAlbumArtBitmap(songId: Long, albumId: Int): Bitmap? {
         if (songId < 0 && albumId < 0) {
             return null
         }

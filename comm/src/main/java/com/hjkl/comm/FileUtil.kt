@@ -14,4 +14,19 @@ object FileUtil {
         val list = filePath.split(File.separator)
         return list[list.lastIndex - 1]
     }
+
+    fun getFileName(filePath: String, isIncludeExtendName: Boolean = true): String {
+        val lastSep = filePath.lastIndexOf(File.separator)
+        if (isIncludeExtendName) {
+            return filePath.substring(lastSep + 1)
+        } else {
+            val lastDot = filePath.lastIndexOf(".")
+            return filePath.substring(lastSep + 1, lastDot)
+        }
+    }
+
+    fun getFileExtendName(filePath: String): String {
+        val lastDot = filePath.lastIndexOf(".")
+        return filePath.substring(lastDot + 1)
+    }
 }

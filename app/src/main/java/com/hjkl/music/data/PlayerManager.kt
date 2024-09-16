@@ -39,11 +39,11 @@ data class PlayerUiState(
     }
 }
 
-class PlayerStateProvider private constructor() {
+class PlayerManager private constructor() {
     companion object {
-        private val provider: PlayerStateProvider by lazy { PlayerStateProvider() }
+        private val provider: PlayerManager by lazy { PlayerManager() }
 
-        fun get(): PlayerStateProvider {
+        fun get(): PlayerManager {
             return provider
         }
     }
@@ -59,9 +59,6 @@ class PlayerStateProvider private constructor() {
     // 播放中，调节进度后，500ms内不更新播放状态，从UI层面避免播放按钮状态切换闪烁
     private var userSeekingMillis = 0L
     private var playingWhenUserSeeking = false
-
-    // 当前页面 0--首页 1--播放器页面
-    private var curPage = 0
 
     private val playSongChangedListener = object : (Song?) -> Unit {
         override fun invoke(song: Song?) {
@@ -264,22 +261,6 @@ class PlayerStateProvider private constructor() {
 
     fun removeItem(index: Int) {
         player.removeItem(index)
-    }
-
-    @Deprecated("")
-    fun setCurPage(curPage: Int) {
-        this.curPage = curPage
-        // 进入播放器界面，才需要监听进度变化，优化性能
-//        when (curPage) {
-//            0 -> {
-//                player.unregisterProgressChangedListener(progressChangedListener)
-//            }
-//
-//            1 -> {
-//                _playerUiState.update { it.copy(progressInMs = player.getPosition()) }
-//                player.registerProgressChangedListener(progressChangedListener)
-//            }
-//        }
     }
 
     fun userInputSeekBar(isUserSeeking: Boolean, progressInMillis: Long) {

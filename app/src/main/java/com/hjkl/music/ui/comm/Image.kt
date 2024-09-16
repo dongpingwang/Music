@@ -7,7 +7,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.request.CachePolicy
 import com.hjkl.music.R
 
 @Composable
@@ -21,8 +20,7 @@ fun AlbumImage(
 ) {
     Box(modifier = modifier) {
         val imageLoaderBuilder = ImageLoader.Builder(LocalContext.current)
-            .crossfade(false)
-            .diskCachePolicy(CachePolicy.DISABLED)
+            .crossfade(true)
 
         if (placeHolderImage != null) {
             imageLoaderBuilder.placeholder(placeHolderImage)

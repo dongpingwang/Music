@@ -19,6 +19,14 @@ data class Album(val id: Int, val name: String) {
         return songs.firstOrNull { it.bitmap != null }?.bitmap
     }
 
+    fun getAlbumCoverPath(): String? {
+        return songs.firstOrNull { it.albumCoverPath != null }?.albumCoverPath
+    }
+
+    fun getArtCoverPath(): String? {
+        return songs.firstOrNull { it.artCoverPath != null }?.artCoverPath
+    }
+
     fun getArtist(): String? {
         return songs.firstOrNull { it.artist.isNotEmpty() }?.artist
     }
@@ -31,8 +39,8 @@ data class Album(val id: Int, val name: String) {
         return Artist(songs.first().artistId, songs.first().artist)
     }
 
-    fun getYear(): Int? {
-        return songs.firstOrNull { it.year > 0 }?.year
+    fun getPublishDate(): String? {
+        return songs.firstOrNull { it.publishDate != null }?.publishDate
     }
 
     fun getSongCount(): Int {

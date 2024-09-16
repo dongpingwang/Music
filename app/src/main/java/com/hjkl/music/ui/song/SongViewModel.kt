@@ -7,7 +7,7 @@ import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
 import com.hjkl.music.data.AppConfig
 import com.hjkl.music.data.Defaults
-import com.hjkl.music.data.PlayerStateProvider
+import com.hjkl.music.data.PlayerManager
 import com.hjkl.music.ui.comm.CommViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,7 +53,7 @@ class SongViewModel : CommViewModel<Song>() {
         }
 
         viewModelScope.launch {
-            PlayerStateProvider.get().playerUiState.collect {
+            PlayerManager.get().playerUiState.collect {
                 _playerUiState.tryEmit(it)
             }
         }

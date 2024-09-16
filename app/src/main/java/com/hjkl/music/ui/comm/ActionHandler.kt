@@ -2,7 +2,7 @@ package com.hjkl.music.ui.comm
 
 import com.hjkl.comm.d
 import com.hjkl.entity.Song
-import com.hjkl.music.data.PlayerStateProvider
+import com.hjkl.music.data.PlayerManager
 import com.hjkl.music.ui.NavigationActions
 import com.hjkl.music.ui.comm.dialog.PlaylistDialogActions
 import com.hjkl.player.constant.RepeatMode
@@ -32,10 +32,10 @@ data class PlayerActions(
     val onPlayNext: () -> Unit,
 )
 
-class ActionHandler private constructor(player: PlayerStateProvider) {
+class ActionHandler private constructor(player: PlayerManager) {
 
     companion object {
-        private val instance by lazy { ActionHandler(PlayerStateProvider.get()) }
+        private val instance by lazy { ActionHandler(PlayerManager.get()) }
 
         fun get(): ActionHandler {
             return instance
@@ -52,7 +52,7 @@ class ActionHandler private constructor(player: PlayerStateProvider) {
 
     val playerActions = PlayerActions(
         // 切换到播放界面事件分发
-        onPlayerPageExpandChanged = { player.setCurPage(if (it) 1 else 0) },
+        onPlayerPageExpandChanged = { },
         // 切换播放状态
         onPlayToggle = { player.togglePlay() },
         // 调节进度

@@ -92,7 +92,7 @@ private fun AlbumCard(
         .padding(top = 8.dp, bottom = 8.dp, start = startPaddingDp, end = endPaddingDp)
         .clickable { onCardClicked(album) }) {
         AlbumImage(
-            data = album.getAlbumArtBitmap(),
+            data = album.getAlbumCoverPath() ?: album.getAlbumArtBitmap(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier

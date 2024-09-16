@@ -146,7 +146,7 @@ private fun ItemHeader(album: Album, onOpenArtist: (Artist) -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Row {
             AlbumImage(
-                data = album.getAlbumArtBitmap(),
+                data = album.getAlbumCoverPath() ?: album.getAlbumArtBitmap(),
                 contentDescription = null,
                 placeHolderImage = R.drawable.default_album_art,
                 errorImage = R.drawable.default_album_art,
@@ -172,7 +172,7 @@ private fun ItemHeader(album: Album, onOpenArtist: (Artist) -> Unit) {
                     onOpenArtist(album.getEmptyArtist())
                 }) {
                     AlbumImage(
-                        data = album.getAlbumArtBitmap(),
+                        data = album.getArtCoverPath() ?: album.getAlbumArtBitmap(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -224,7 +224,7 @@ private fun ItemHeader(album: Album, onOpenArtist: (Artist) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = DisplayUtil.getDisplayYear(album.getYear()),
+                    text = DisplayUtil.getPublishDate(album.getPublishDate()),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(text = "年份", style = MaterialTheme.typography.labelSmall)
@@ -260,7 +260,7 @@ private fun AlbumRow(
                     onOpenOtherAlbum(album)
                 }) {
                 AlbumImage(
-                    data = album.getAlbumArtBitmap(),
+                    data = album.getAlbumCoverPath() ?: album.getAlbumArtBitmap(),
                     contentDescription = null,
                     placeHolderImage = R.drawable.default_album_art,
                     errorImage = R.drawable.default_album_art,

@@ -82,7 +82,7 @@ private fun ArtistItem(
                 .padding(vertical = 8.dp, horizontal = 16.dp)
         ) {
             AlbumImage(
-                data = artist.getAlbumArtBitmap(),
+                data = artist.getArtCoverPath() ?: artist.getAlbumArtBitmap(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

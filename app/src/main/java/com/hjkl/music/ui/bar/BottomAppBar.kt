@@ -64,7 +64,7 @@ fun BottomMiniPlayer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AlbumImage(
-                data = curSong?.bitmap,
+                data = curSong?.albumCoverPath ?: curSong?.bitmap,
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)

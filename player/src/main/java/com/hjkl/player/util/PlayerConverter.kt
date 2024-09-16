@@ -14,7 +14,6 @@ fun Song.toMediaItem(): MediaItem {
                 .setTitle(title)
                 .setArtist(artist)
                 //.setArtworkData(originBitmapBytes)
-                .setGenre(genre)
                 .setAlbumTitle(album)
                 .build()
         )

@@ -11,7 +11,7 @@ import java.util.regex.Pattern
  *     "log".tag("tag").d()
  *     "log".tag("tag").throwable(ex).d()
  */
-private const val sTag = "LogKTX"
+private val sTag: String? = null // 默认tag，如果为null，则获取调用者类名
 private val sTagMap = ThreadLocal<String?>()
 private const val MAX_LOG_LENGTH = 4000
 private const val MAX_TAG_LENGTH = 23
@@ -76,7 +76,7 @@ fun Pair<String, Throwable>.wtf() {
 
 private fun prepareLog(priority: Int, message: String, tr: Throwable?) {
     val currentTag = sTagMap.get()
-    val tag = currentTag ?: tag() ?: sTag
+    val tag = currentTag ?: sTag ?: tag()
     if (currentTag != null) {
         sTagMap.remove()
     }

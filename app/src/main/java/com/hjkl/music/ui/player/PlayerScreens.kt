@@ -32,7 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hjkl.entity.Album
+import com.hjkl.entity.Artist
 import com.hjkl.music.data.PlayerUiState
+import com.hjkl.music.model.Lyric
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.dialog.PlayerPageMoreDialog
@@ -46,15 +51,22 @@ private val pageCount = 3
 fun PlayerPages(uiState: PlayerUiState) {
     val playerActions = ActionHandler.get().playerActions
     val navigationActions = ActionHandler.get().navigationActions
+    val lyricViewModel: LyricViewModel = viewModel(
+        factory = LyricViewModel.provideFactory()
+    )
+    val curLyricState by lyricViewModel.curLyricState.collectAsStateWithLifecycle()
     PlayerPages(
         uiState = uiState,
+        lyricState = curLyricState,
         onBackPress = navigationActions.popBackStack,
         onValueChange = playerActions.onSeekBarValueChange,
         onRepeatModeSwitch = playerActions.onRepeatModeSwitch,
         onShuffleModeEnable = playerActions.onShuffleModeEnable,
         onPlayPrev = playerActions.onPlayPrev,
         onPlayToggle = playerActions.onPlayToggle,
-        onPlayNext = playerActions.onPlayNext
+        onPlayNext = playerActions.onPlayNext,
+        onArtistClicked = navigationActions.navigateToArtistDetail,
+        onAlbumClicked = navigationActions.navigateToAlbumDetail
     )
 }
 
@@ -62,13 +74,16 @@ fun PlayerPages(uiState: PlayerUiState) {
 @Composable
 fun PlayerPages(
     uiState: PlayerUiState,
+    lyricState: Lyric?,
     onBackPress: () -> Unit,
     onValueChange: (Boolean, Long) -> Unit,
     onRepeatModeSwitch: (RepeatMode) -> Unit,
     onShuffleModeEnable: (Boolean) -> Unit,
     onPlayPrev: () -> Unit,
     onPlayToggle: () -> Unit,
-    onPlayNext: () -> Unit
+    onPlayNext: () -> Unit,
+    onArtistClicked: (Artist) -> Unit,
+    onAlbumClicked: (Album) -> Unit
 ) {
     val pagerState = rememberPagerState(initialPage = defaultPageIndex) { pageCount }
 
@@ -85,10 +100,17 @@ fun PlayerPages(
         ) { page ->
             when (page) {
                 0 -> {
-
+                    // 歌曲详情等界面
+                    ExtSongInfoPage(
+                        uiState = uiState,
+                        lyric = lyricState,
+                        onArtistClicked = onArtistClicked,
+                        onAlbumClicked = onAlbumClicked
+                    )
                 }
 
                 1 -> {
+                    // 播放器界面
                     PlayerContentRegular(
                         uiState = uiState,
                         onValueChange = onValueChange,
@@ -101,7 +123,8 @@ fun PlayerPages(
                 }
 
                 2 -> {
-
+                    // 歌词界面
+                    LyricPage(lyricState = lyricState)
                 }
             }
         }
@@ -179,12 +202,15 @@ private fun TopAppBar(
 private fun PlayerPagesPreview() {
     PlayerPages(
         FakeDatas.playerUiState,
+        lyricState = null,
         onBackPress = { },
         onValueChange = { i, f -> },
         onRepeatModeSwitch = {},
         onShuffleModeEnable = {},
         onPlayPrev = {},
         onPlayToggle = {},
-        onPlayNext = {})
+        onPlayNext = {},
+        onArtistClicked = {},
+        onAlbumClicked = {})
 }
 

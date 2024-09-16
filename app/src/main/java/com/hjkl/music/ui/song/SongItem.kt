@@ -169,7 +169,7 @@ private fun SongItemHeader(song: Song) {
             )
         }
         AlbumImage(
-            song.bitmap,
+            data = song.albumCoverPath ?: song.bitmap,
             contentDescription = null,
             modifier = Modifier
                 .size(56.dp)

@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.ui.bar.BottomMiniPlayer
 import com.hjkl.music.ui.bar.PlayerSnackbar
-import com.hjkl.music.ui.bar.PlayerViewModel
+import com.hjkl.music.ui.player.PlayerViewModel
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.home.HomeScreenDrawerContents
 import com.hjkl.music.ui.home.Screen
@@ -84,7 +84,7 @@ fun MusicApp(
     val playerViewModel: PlayerViewModel = viewModel(
         factory = PlayerViewModel.provideFactory()
     )
-    val playerUiState by playerViewModel.playerStateProvider.playerUiState.collectAsStateWithLifecycle()
+    val playerUiState by playerViewModel.playerManager.playerUiState.collectAsStateWithLifecycle()
 
 
     MusicTheme {

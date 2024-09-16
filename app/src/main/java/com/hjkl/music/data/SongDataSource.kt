@@ -7,8 +7,8 @@ import com.hjkl.comm.onFalse
 import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
 import com.hjkl.music.data.Defaults.defaultSongDataSourceState
+import com.hjkl.music.utils.MetadataExtractor
 import com.hjkl.query.SongQuery
-import com.hjkl.query.util.extraMetadataIfNeed
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +73,7 @@ class SongDataSource {
                         "start extract data from mmr".d()
                         LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
                             songs.onBatchEach(10, 50) { index, item, isBatchFinish ->
-                                item.extraMetadataIfNeed()
+                                MetadataExtractor.extractMetadata(item)
                                 isBatchFinish.onTrue {
                                     _songDataSourceState.update {
                                         it.copy(
@@ -90,7 +90,7 @@ class SongDataSource {
                         "start extract data from mmr".d()
                         LogTrace.measureTimeMillis("SongViewModel#extraMetadataIfNeed()") {
                             songs.onEach {
-                                it.extraMetadataIfNeed()
+                                MetadataExtractor.extractMetadata(it)
                             }
                         }
                         _songDataSourceState.update {

@@ -161,7 +161,7 @@ private fun ItemHeader(artist: Artist) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AlbumImage(
-            data = artist.getAlbumArtBitmap(),
+            data = artist.getArtCoverPath() ?: artist.getAlbumArtBitmap(),
             contentDescription = null,
             placeHolderImage = R.drawable.default_artist_art,
             errorImage = R.drawable.default_artist_art,
@@ -235,7 +235,7 @@ private fun AlbumRow(
                             onOpenAlbum(album)
                         }) {
                         AlbumImage(
-                            data = album.getAlbumArtBitmap(),
+                            data = album.getAlbumCoverPath() ?: album.getAlbumArtBitmap(),
                             contentDescription = null,
                             placeHolderImage = R.drawable.default_album_art,
                             errorImage = R.drawable.default_album_art,
