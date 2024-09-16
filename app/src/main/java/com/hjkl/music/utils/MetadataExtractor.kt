@@ -2,7 +2,6 @@ package com.hjkl.music.utils
 
 import android.graphics.BitmapFactory
 import com.hjkl.entity.Song
-import com.hjkl.query.AlbumArtQuery
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.AudioHeader
 import org.jaudiotagger.tag.FieldKey
@@ -10,8 +9,6 @@ import org.jaudiotagger.tag.Tag
 import java.io.File
 
 object MetadataExtractor {
-
-    private val albumArtQuery by lazy { AlbumArtQuery() }
 
     fun extractMetadata(song: Song): Song {
         try {
@@ -28,7 +25,7 @@ object MetadataExtractor {
         return song
     }
 
-    // 解析封面顺序：1、文件夹中预设封面  2、从MediaProvider查询 3.提取封面
+    // 解析封面顺序：1、文件夹中预设封面  2.提取封面
     private fun extractCover(song: Song, tag: Tag): Song {
         val albumCoverPath = SongInfoUtil.getPresetAlbumCoverPath(song.data)
         var artCoverPath = SongInfoUtil.getPresetArtistCoverPath(song.data)
@@ -40,15 +37,6 @@ object MetadataExtractor {
             song.artCoverPath = artCoverPath
             return song
         }
-
-        if (song.bitmap == null) {
-            val bitmap = albumArtQuery.getAlbumArtBitmap(song.id, song.albumId)
-            song.bitmap = bitmap
-            if (bitmap != null) {
-                return song
-            }
-        }
-
         if (tag.firstArtwork != null && tag.firstArtwork.binaryData != null) {
             song.originBitmapBytes = tag.firstArtwork.binaryData
             song.bitmap = BitmapFactory.decodeByteArray(
