@@ -22,9 +22,9 @@ fun AlbumImage(
         val imageLoaderBuilder = ImageLoader.Builder(LocalContext.current)
             .crossfade(true)
 
-        if (placeHolderImage != null) {
-            imageLoaderBuilder.placeholder(placeHolderImage)
-        }
+//        if (placeHolderImage != null) {
+//            imageLoaderBuilder.placeholder(placeHolderImage)
+//        }
         if (errorImage != null) {
             imageLoaderBuilder.error(errorImage)
         }
