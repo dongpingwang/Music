@@ -5,6 +5,8 @@ import com.hjkl.entity.Artist
 import com.hjkl.entity.Folder
 import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerUiState
+import com.hjkl.music.model.Lyric
+import com.hjkl.music.parser.LyricParser
 import com.hjkl.music.ui.comm.ViewModelState
 import com.hjkl.player.constant.RepeatMode
 
@@ -104,4 +106,6 @@ object FakeDatas {
         [04:02.31] 教我如何放得下
         [04:11.47] 
     """.trimIndent()
+
+    val lyric = Lyric(111, "歌名", lyricText, LyricParser.parseLyricLinesFromText(lyricText))
 }

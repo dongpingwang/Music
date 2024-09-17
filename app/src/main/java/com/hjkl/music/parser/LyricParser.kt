@@ -42,7 +42,7 @@ object LyricParser {
         return Lyric(songId, songName, lyricText, parseLyricLinesFromText(lyricText))
     }
 
-    private fun parseLyricLinesFromText(lyricText: String): List<LyricLine> {
+    fun parseLyricLinesFromText(lyricText: String): List<LyricLine> {
         val lineTexts = lyricText.split("\n")
         val result = ArrayList<LyricLine>()
         lineTexts.onEach {
@@ -68,5 +68,14 @@ object LyricParser {
             timeMillis += (content.toLong() * 60.0.pow(i.toDouble()) * 1000).toLong()
         }
         return timeMillis
+    }
+
+    fun getLyricLineIndex(progress: Long, lyric: Lyric): Int {
+        val rightIndex = lyric.lines.indexOfFirst { it.startTimeInMillis > progress }
+        val leftIndex = lyric.lines.indexOfLast { it.startTimeInMillis < progress }
+        if (rightIndex >= 0 && leftIndex >= 0) {
+            return leftIndex
+        }
+        return -1
     }
 }

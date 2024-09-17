@@ -124,7 +124,10 @@ fun PlayerPages(
 
                 2 -> {
                     // 歌词界面
-                    LyricPage(lyricState = lyricState)
+                    LyricPage(
+                        uiState = uiState,
+                        lyricState = lyricState,
+                        onSeekTo = { onValueChange(false, it) })
                 }
             }
         }

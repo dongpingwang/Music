@@ -36,7 +36,7 @@ object DisplayUtil {
 
     @Composable
     fun getLyricType(song: Song?, lyric: Lyric?): String {
-        if (song?.lyricText != null) {
+        if (song?.lyricText != null && song.lyricText?.isNotEmpty() == true) {
             return stringResource(id = R.string.summary_lyric_inner)
         }
         if (lyric?.originLrcText?.isNotEmpty() == true) {

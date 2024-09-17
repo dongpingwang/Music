@@ -40,6 +40,7 @@
     <string name="unknown_artist">未知歌手</string>
     <string name="unknown_album">未知专辑</string>
     <string name="unknown_composer">未知作曲</string>
+    <string name="lyric_not_found">歌词未找到</string>
 
     <string name="summary_song">歌曲</string>
     <string name="summary_duration">时长</string>
