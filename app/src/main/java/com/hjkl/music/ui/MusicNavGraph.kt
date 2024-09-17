@@ -1,7 +1,12 @@
 package com.hjkl.music.ui
 
 import android.net.Uri
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -50,9 +55,15 @@ fun MusicNavGraph(
                     FolderScreen(onDrawerClicked = onDrawerClicked)
                 }
 
-                Screen.FAVORITE -> {}
-                Screen.MYLIST -> {}
-                Screen.SETTING -> {}
+                else -> {
+                    Text(
+                        text = "$drawScreen is under construction.",
+                        modifier = Modifier.systemBarsPadding().padding(64.dp)
+                    )
+                }
+//                Screen.FAVORITE -> {}
+//                Screen.MYLIST -> {}
+//                Screen.SETTING -> {}
             }
         }
 

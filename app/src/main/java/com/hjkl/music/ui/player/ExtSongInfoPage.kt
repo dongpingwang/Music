@@ -167,10 +167,9 @@ private fun SongInfoCard(
             AlbumImage(
                 data = song?.albumCoverPath ?: song?.bitmap,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(24.dp)
-                    .clip(MaterialTheme.shapes.medium),
+                    .clip(MaterialTheme.shapes.extraSmall),
                 placeHolderImage = R.drawable.default_album_art,
                 errorImage = R.drawable.default_album_art
             )

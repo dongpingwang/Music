@@ -107,7 +107,6 @@ fun PlayerContentRegular(
 private fun PlayerImage(
     song: Song?,
 ) {
-    "PlayerImage: $song".d()
     AlbumImage(
         data = song?.albumCoverPath?:song?.bitmap,
         contentDescription = null,
