@@ -1,5 +1,6 @@
 package com.hjkl.music.ui.player
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -7,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -52,12 +54,15 @@ import com.hjkl.comm.d
 import com.hjkl.comm.getOrDefault
 import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerUiState
+import com.hjkl.music.model.CueAudio
+import com.hjkl.music.parser.CueAudioParser
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.AlbumImage
+import com.hjkl.music.ui.comm.dialog.CueAudioTrackDialog
 import com.hjkl.music.ui.comm.dialog.PlaylistDialog
 import com.hjkl.music.utils.DisplayUtil
+import com.hjkl.music.utils.parseMillisTimeToMmSs
 import com.hjkl.player.constant.RepeatMode
-import com.hjkl.player.util.parseMillisTimeToMmSs
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -82,11 +87,12 @@ fun PlayerContentRegular(
             song = uiState.curSong
         )
         Spacer(modifier = Modifier.height(4.dp))
-        SongDescription(uiState = uiState, onToggleCollect = {})
+        SongDescription(uiState = uiState, onToggleCollect = {}, onPlayTrack = {
+            onValueChange(false, it)
+        })
         Spacer(modifier = Modifier.height(148.dp))
         PlayerSlider(
-            progressInMillis = uiState.progressInMs,
-            durationInMillis = uiState.curSong?.duration.getOrDefault(0L),
+            uiState = uiState,
             onValueChange = onValueChange,
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -108,7 +114,7 @@ private fun PlayerImage(
     song: Song?,
 ) {
     AlbumImage(
-        data = song?.albumCoverPath?:song?.bitmap,
+        data = song?.albumCoverPath ?: song?.bitmap,
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
@@ -121,11 +127,34 @@ private fun PlayerImage(
 }
 
 @Composable
-private fun SongDescription(
+private fun ColumnScope.SongDescription(
     uiState: PlayerUiState,
-    onToggleCollect: () -> Unit
+    onToggleCollect: () -> Unit,
+    onPlayTrack: (Long) -> Unit
 ) {
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val cueAudio = uiState.curSong?.cueAudio
+    "SongDescription cueAudio:$cueAudio".d()
+    val title = when {
+        cueAudio != null -> {
+            DisplayUtil.getDisplayTitle(
+                CueAudioParser.getPlayedTrackTitle(
+                    uiState.progressInMs,
+                    (cueAudio as CueAudio)
+                )
+            )
+        }
+
+        else -> DisplayUtil.getDisplayTitle(uiState.curSong?.title)
+    }
+    val artist = when {
+        cueAudio != null -> {
+            (cueAudio as CueAudio).performer
+        }
+
+        else -> DisplayUtil.getDisplayTitle(uiState.curSong?.artist)
+    }
+    var showPlaylistDiaglog by remember { mutableStateOf(false) }
+    var showCueAudioTrackDiaglog by remember { mutableStateOf(false) }
     val sideButtonsModifier = Modifier
         .size(48.dp)
         .background(
@@ -136,14 +165,14 @@ private fun SongDescription(
     Row(modifier = Modifier.padding(horizontal = 16.dp)) {
         Column(modifier = Modifier.weight(1F)) {
             Text(
-                text = DisplayUtil.getDisplayTitle(uiState.curSong?.title),
+                text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.basicMarquee()
             )
             Text(
-                text = DisplayUtil.getDisplayTitle(uiState.curSong?.artist),
+                text = artist,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -175,24 +204,55 @@ private fun SongDescription(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(bounded = false, radius = 48.dp / 2)
                 ) {
-                    showBottomSheet = true
+                    showPlaylistDiaglog = true
                 }
             )
         }
-
     }
-    if (showBottomSheet) {
-        PlaylistDialog(uiState = uiState, onDialogHide = { showBottomSheet = false })
+    AnimatedVisibility(visible = cueAudio != null) {
+        val trackNumber = when {
+            cueAudio != null -> CueAudioParser.getPlayedTrackNumber(
+                uiState.progressInMs,
+                uiState.curSong.duration ?: 0,
+                (cueAudio as CueAudio)
+            )
+
+            else -> ""
+        }
+        Text(
+            text = trackNumber,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            modifier = Modifier
+                .basicMarquee()
+                .padding(top = 8.dp)
+                .padding(horizontal = 16.dp)
+                .clickable {
+                    showCueAudioTrackDiaglog = true
+                }
+        )
+    }
+    if (showPlaylistDiaglog) {
+        PlaylistDialog(uiState = uiState, onDialogHide = { showPlaylistDiaglog = false })
+    }
+    if (showCueAudioTrackDiaglog && cueAudio != null) {
+        CueAudioTrackDialog(
+            playerUiState = uiState,
+            cueAudio = cueAudio as CueAudio,
+            onPlayTrack = onPlayTrack,
+            onDialogHide = { showCueAudioTrackDiaglog = false })
     }
 }
 
 
 @Composable
 private fun PlayerSlider(
-    progressInMillis: Long,
-    durationInMillis: Long,
+    uiState: PlayerUiState,
     onValueChange: (Boolean, Long) -> Unit
 ) {
+    val progressInMillis = uiState.progressInMs
+    val durationInMillis = uiState.curSong?.duration.getOrDefault(0L)
     Column(
         Modifier
             .fillMaxWidth()
@@ -203,6 +263,7 @@ private fun PlayerSlider(
         Slider(
             value = sliderValue.milliseconds.inWholeSeconds.toFloat(),
             valueRange = 0F..maxRange,
+            steps = 0,
             onValueChange = {
                 sliderValue = it.toLong().seconds.inWholeMilliseconds
                 onValueChange(true, sliderValue)

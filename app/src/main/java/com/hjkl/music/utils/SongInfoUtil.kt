@@ -52,4 +52,17 @@ object SongInfoUtil {
         }
         return null
     }
+
+    // Cue默认在歌曲文件目录下，文件名：“歌曲文件名.cue”
+    fun getPresetCuePath(songPath: String): String? {
+        val lyricPath = FileUtil.getFolderPath(songPath) + File.separator + FileUtil.getFileName(
+            songPath,
+            false
+        ) + ".cue"
+        if (File(lyricPath).exists()) {
+            return lyricPath
+        } else {
+            return null
+        }
+    }
 }

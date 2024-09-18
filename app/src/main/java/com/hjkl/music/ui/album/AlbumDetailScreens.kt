@@ -46,7 +46,7 @@ import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.CommonSongItem
 import com.hjkl.music.utils.DisplayUtil
-import com.hjkl.player.util.parseMillisTimeToMmSs
+import com.hjkl.music.utils.parseMillisTimeToMmSs
 
 @Composable
 fun AlbumDetailScreens(

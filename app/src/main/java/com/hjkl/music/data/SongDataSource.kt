@@ -7,7 +7,7 @@ import com.hjkl.comm.onFalse
 import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
 import com.hjkl.music.data.Defaults.defaultSongDataSourceState
-import com.hjkl.music.utils.MetadataExtractor
+import com.hjkl.music.parser.MetadataExtractor
 import com.hjkl.query.SongQuery
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

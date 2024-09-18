@@ -40,4 +40,7 @@ data class Song(
 
     // 专辑封面原始数据，从mmr获取的封面
     var originBitmapBytes: ByteArray? = null
+
+    // 当前歌曲是否为cue整轨
+    var cueAudio: Any? = null
 }

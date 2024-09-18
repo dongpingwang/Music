@@ -50,7 +50,7 @@ import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.dialog.SongItemMoreDialog
 import com.hjkl.music.ui.theme.MusicTheme
-import com.hjkl.player.util.parseMillisTimeToMinutes
+import com.hjkl.music.utils.parseMillisTimeToMinutes
 
 @Composable
 fun HeaderSongItem(
