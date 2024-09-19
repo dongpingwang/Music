@@ -13,6 +13,8 @@ object Destinations {
     const val DETAIL_ARTIST_ROUTE = "artist_detail"
     const val DETAIL_FOLDER_ROUTE = "folder_detail"
     const val PLAYER_ROUTE = "player"
+    const val SETTING_SCAN_AUDIO = "setting_scan_audio"
+    const val SETTING_ABOUT = "setting_about"
 }
 
 class NavigationActions(val navController: NavHostController) {
@@ -41,6 +43,14 @@ class NavigationActions(val navController: NavHostController) {
 
     val navigateToFolderDetail: (Folder) -> Unit = {
         navController.navigate("${Destinations.DETAIL_FOLDER_ROUTE}/${Uri.encode(it.path)}")
+    }
+
+    val navigateToScanAudioSetting: () -> Unit = {
+        navController.navigate(Destinations.SETTING_SCAN_AUDIO)
+    }
+
+    val navigateToAboutSetting: () -> Unit = {
+        navController.navigate(Destinations.SETTING_ABOUT)
     }
 
     val popBackStack: () -> Unit = {

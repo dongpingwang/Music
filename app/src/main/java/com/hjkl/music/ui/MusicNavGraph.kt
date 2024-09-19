@@ -21,6 +21,8 @@ import com.hjkl.music.ui.folder.FolderDetailScreen
 import com.hjkl.music.ui.folder.FolderScreen
 import com.hjkl.music.ui.home.Screen
 import com.hjkl.music.ui.player.PlayerPages
+import com.hjkl.music.ui.setting.ScanAudioSettingScreen
+import com.hjkl.music.ui.setting.SettingScreens
 import com.hjkl.music.ui.song.SongScreen
 
 @Composable
@@ -55,16 +57,27 @@ fun MusicNavGraph(
                     FolderScreen(onDrawerClicked = onDrawerClicked)
                 }
 
+                Screen.SETTING -> {
+                    SettingScreens(onDrawerClicked = onDrawerClicked)
+                }
+
+                // Screen.FAVORITE -> {}
+//                Screen.MYLIST -> {}
+
                 else -> {
                     Text(
                         text = "$drawScreen is under construction.",
-                        modifier = Modifier.systemBarsPadding().padding(64.dp)
+                        modifier = Modifier
+                            .systemBarsPadding()
+                            .padding(64.dp)
                     )
                 }
-//                Screen.FAVORITE -> {}
-//                Screen.MYLIST -> {}
-//                Screen.SETTING -> {}
             }
+        }
+        composable(
+            route = Destinations.SETTING_SCAN_AUDIO
+        ) {
+            ScanAudioSettingScreen()
         }
 
         composable(

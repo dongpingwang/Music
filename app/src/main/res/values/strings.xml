@@ -7,7 +7,22 @@
     <string name="favorite_title">收藏</string>
     <string name="mylist_title">歌单</string>
     <string name="setting_title">设置</string>
-    <string name="about_title">关于</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_scan_audio">扫描音乐</string>
+    <string name="settings_filter_short_duration_audio">不扫描60秒以下的音频</string>
+    <string name="settings_use_local_album_cover">本地专辑图片</string>
+    <string name="settings_use_local_album_cover_desc">使用歌曲文件夹下cover.jpg专辑图片，不解析ID3封面</string>
+    <string name="settings_use_local_art_cover">本地歌手图片</string>
+    <string name="settings_use_local_art_cover_desc">使用歌曲文件夹下art.jpg歌手图片</string>
+    <string name="settings_use_local_lyric">本地歌词文件</string>
+    <string name="settings_use_local_lyric_desc">当歌曲无内嵌歌词时，使用歌曲文件夹下xxx.lrc</string>
+    <string name="settings_use_local_cue">整轨音频</string>
+    <string name="settings_use_local_cue_desc">使用歌曲文件夹下xxx.cue，获取各段音轨</string>
+    <string name="settings_use_media_provider">使用Android媒体库</string>
+    <string name="settings_use_media_provider_desc">关闭后，扫描全盘音频文件</string>
+    <string name="settings_external_storage_permission_status">管理外部存储权限</string>
+    <string name="settings_block">黑名单</string>
+
     <string name="loading_desc">疯狂加载中</string>
     <string name="formatter_play_all_desc">播放全部（%d）</string>
     <string name="toast_format_unsupport">该歌曲格式不支持，换一首歌吧~</string>
