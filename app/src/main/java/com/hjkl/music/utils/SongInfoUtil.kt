@@ -33,6 +33,10 @@ object SongInfoUtil {
         if (File(coverPath).exists()) {
             return coverPath
         }
+        coverPath = FileUtil.getFolderPath(songPath) + File.separator + "cover.jpeg"
+        if (File(coverPath).exists()) {
+            return coverPath
+        }
         coverPath = FileUtil.getFolderPath(songPath) + File.separator + "cover.png"
         if (File(coverPath).exists()) {
             return coverPath
@@ -43,6 +47,10 @@ object SongInfoUtil {
     // 歌手封面默认在歌曲文件目录下，文件名：“art.jpg”/“art.png”
     fun getPresetArtistCoverPath(songPath: String): String? {
         var coverPath = FileUtil.getFolderPath(songPath) + File.separator + "art.jpg"
+        if (File(coverPath).exists()) {
+            return coverPath
+        }
+        coverPath = FileUtil.getFolderPath(songPath) + File.separator + "art.jpeg"
         if (File(coverPath).exists()) {
             return coverPath
         }
