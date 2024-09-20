@@ -1,14 +1,14 @@
 ## 介绍
-	- 使用Android Compose+Media3+MVI开发的本地音乐播放器
-	- 效果：见页面release
-    - https://github.com/dongpingwang/Music/releases/tag/1.0.0
-- ## 已完成（0915）
+- 使用Android Compose+Media3+MVI开发的本地音乐播放器
+- 效果：见页面release
+
+- ## 已完成（0920）
 - DONE 歌曲扫描获取，歌曲/专辑/歌手/文件夹形式展示
 - DONE 接入适配Media3
 - DONE 播放器界面
--
+- DONE 歌词解析，歌词界面
+
 - ## 计划
-- TODO 增加歌词解析，歌词界面
 - TODO 增加Compose版Widget桌面卡片
 - TODO 接入ffmpeg，使用更多格式的播放（如APE），可以的话自己完成实现Player/Playlist，取代ExoPlayer
 - TODO 增加设置模块
