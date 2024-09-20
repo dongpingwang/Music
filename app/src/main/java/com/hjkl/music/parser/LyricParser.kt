@@ -52,8 +52,16 @@ object LyricParser {
                 val endIndex = matcher.end()
                 val timeText = it.substring(startIndex, endIndex)
                 val content = it.substring(endIndex).trim()
-                val line = LyricLine(calcTime(timeText), content)
-                result.add(line)
+                if (content.isEmpty()) {
+                    // 跳过一些空白行
+                } else if (content.uppercase().equals("END")) {
+                    // 有些歌词末行是"End"，需要跳过
+                } else if (content.uppercase().equals("MUSIC")) {
+                    // 有些歌词中间行是"Music"，需要跳过
+                } else {
+                    val line = LyricLine(calcTime(timeText), content)
+                    result.add(line)
+                }
             }
         }
         return result
@@ -75,6 +83,9 @@ object LyricParser {
         val leftIndex = lyric.lines.indexOfLast { it.startTimeInMillis < progress }
         if (rightIndex >= 0 && leftIndex >= 0) {
             return leftIndex
+        }
+        if (progress >= lyric.lines[lyric.lines.size - 1].startTimeInMillis) {
+            return lyric.lines.size - 1
         }
         return -1
     }

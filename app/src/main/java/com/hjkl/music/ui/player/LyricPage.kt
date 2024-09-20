@@ -1,9 +1,9 @@
 package com.hjkl.music.ui.player
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hjkl.comm.d
 import com.hjkl.music.R
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.model.Lyric
@@ -93,16 +94,16 @@ private fun LyricList(
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     var isUserTouching by remember { mutableStateOf(false) }
-    val offset = with(LocalDensity.current) { (56 * 2).dp.toPx() }.toInt()
+    val lineHeight = with(LocalDensity.current) { (56).dp.toPx() }.toInt()
     val curLineIndex = LyricParser.getLyricLineIndex(uiState.progressInMs, lyricState)
-    LaunchedEffect (curLineIndex){
+    var spacerCount by remember { mutableStateOf(0) }
+    LaunchedEffect(curLineIndex) {
         scope.launch {
-            if (curLineIndex >= 0) {
-                if (!isUserTouching) {
-                    listState.animateScrollToItem(
-                        curLineIndex, -offset
-                    )
-                }
+            if (curLineIndex >= 0 && !isUserTouching) {
+                listState.animateScrollToItem(
+                    curLineIndex, -2 * lineHeight
+                )
+                spacerCount = (10 - (lyricState.lines.size - curLineIndex)).coerceAtLeast(0).coerceAtMost(10)
             }
         }
     }
@@ -111,8 +112,6 @@ private fun LyricList(
             isUserTouching = isScrollInProgress
         }
     }
-
-
 
     LazyColumn(
         modifier = Modifier
@@ -138,6 +137,9 @@ private fun LyricList(
                     }
                     .padding(vertical = 16.dp)
             )
+        }
+        items(spacerCount) {
+            Spacer(modifier = Modifier.height(56.dp))
         }
     }
 
