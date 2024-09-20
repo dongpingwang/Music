@@ -12,13 +12,18 @@ import java.io.File
 object MetadataExtractor {
 
     fun extractMetadata(song: Song) {
-        val f = AudioFileIO.read(File(song.data))
-        extractCover(song, f.tag)
-        extraSampleRate(song, f.audioHeader)
-        extraBitsPerSample(song, f.audioHeader)
-        extraChannels(song, f.audioHeader)
-        extraPublishDate(song, f.tag)
-        extraLyric(song, f.tag)
+        kotlin.runCatching {
+            AudioFileIO.read(File(song.data))
+        }.also {
+            it.exceptionOrNull()?.printStackTrace()
+        }.getOrNull()?.run {
+            extractCover(song, this.tag)
+            extraSampleRate(song, this.audioHeader)
+            extraBitsPerSample(song, this.audioHeader)
+            extraChannels(song, this.audioHeader)
+            extraPublishDate(song, this.tag)
+            extraLyric(song, this.tag)
+        }
         extraCueAudio(song)
     }
 

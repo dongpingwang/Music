@@ -1,5 +1,8 @@
 package com.hjkl.music.ui.setting
 
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,10 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.AudioFile
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,9 +35,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hjkl.comm.AppUtil
+import com.hjkl.comm.d
 import com.hjkl.music.R
 import com.hjkl.music.ui.comm.ActionHandler
-
 
 @Composable
 fun ScanAudioSettingScreen() {
@@ -48,7 +49,6 @@ fun ScanAudioSettingScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanAudioSettingScreen(onBackClicked: () -> Unit) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -274,19 +274,7 @@ fun ScanAudioSettingScreen(onBackClicked: () -> Unit) {
             }
 
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {}
-                        .padding(vertical = 8.dp, horizontal = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.settings_external_storage_permission_status),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.weight(1F))
-                    Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
-                }
+                ManagePermission()
             }
 
             item {
@@ -304,6 +292,30 @@ fun ScanAudioSettingScreen(onBackClicked: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ManagePermission() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    AppUtil.getContext().startActivity(intent)
+                }
+            }
+            .padding(vertical = 8.dp, horizontal = 8.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.settings_external_storage_permission_status),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.weight(1F))
+        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
     }
 }
 
