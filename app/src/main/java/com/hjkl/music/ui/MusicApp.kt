@@ -105,9 +105,7 @@ fun MusicApp(
                     )
                 }, selectedScreen) {
                     selectedScreen = it
-                    if (backStackEntry?.destination?.route != Destinations.HOME_ROUTE) {
-                        navigationActions.navigateToHome()
-                    }
+                    navigationActions.navigateToHome()
                     if (draggableState.currentValue == DrawerState.OPEN) {
                         scope.launch { draggableState.animateTo(DrawerState.CLOSE) }
                     }
