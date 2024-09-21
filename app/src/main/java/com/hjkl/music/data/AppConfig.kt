@@ -17,11 +17,25 @@ object AppConfig {
     }
 
     // 重复播放模式
-    var repeatMode: Int by serial(default = RepeatMode.REPEAT_MODE_OFF.getValue(), name = "KEY_REPEAT_MODE")
+    var repeatMode: Int by serial(
+        default = RepeatMode.REPEAT_MODE_OFF.getValue(),
+        name = "KEY_REPEAT_MODE"
+    )
 
     // 随机播放模式
     var shuffleMode: Boolean by serial(default = false, name = "KEY_SHUFFLE_MODE")
 
     // 是否app启动初始化过
     var isAppLaunched: Boolean by serial(default = false, name = "KEY_IS_APP_LAUNCHED")
+
+    // 播放列表中的位置
+    var lastPlayedIndex: Int by serial(
+        default = 0,
+        name = "KEY_LAST_PLAYED_INDEX"
+    )
+    // 播放进度
+    var lastPlayedPosition: Long by serial(
+        default = 0L,
+        name = "KEY_LAST_PLAYED_POSITION"
+    )
 }

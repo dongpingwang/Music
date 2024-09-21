@@ -1,11 +1,13 @@
 package com.hjkl.music.data
 
-
 import com.hjkl.comm.ResUtil
 import com.hjkl.comm.d
+import com.hjkl.db.DatabaseHelper
 import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.data.Defaults.defaultPlayerUiState
+import com.hjkl.music.parser.MetadataExtractor
+import com.hjkl.music.utils.toPlaylists
 import com.hjkl.player.constant.PlayErrorCode
 import com.hjkl.player.constant.PlayMode
 import com.hjkl.player.constant.RepeatMode
@@ -22,32 +24,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
-data class PlayerUiState(
-    val curSong: Song?,
-    val curPlayIndex: Int,
-    val isPlaying: Boolean,
-    val progressInMs: Long,
-    val repeatMode: RepeatMode,
-    val shuffled: Boolean,
-    val playerErrorMsgOnce: String?,
-    val toast: String?,
-    val randomNoPlayContentDesc: String,
-    val playlist: List<Song>
-) {
-    fun shortLog(): String {
-        return "PlayerUiState(curSong=${curSong?.shortLog()}, curPlayIndex=${curPlayIndex}, isPlaying=${isPlaying}, progressInMs=$progressInMs, repeatMode=$repeatMode, shuffled=$shuffled, playerErrorMsgOnce=$playerErrorMsgOnce, playlist.size=${playlist.size})"
-    }
-}
-
 class PlayerManager private constructor() {
     companion object {
         private val provider: PlayerManager by lazy { PlayerManager() }
-
         fun get(): PlayerManager {
             return provider
         }
     }
-
     private val scope = CoroutineScope(CoroutineName("PlayerStateProvider"))
     private val _playerUiState = MutableStateFlow(defaultPlayerUiState)
     val playerUiState = _playerUiState.asStateFlow()
@@ -71,6 +54,13 @@ class PlayerManager private constructor() {
             if (song == null) {
                 _playerUiState.update { it.copy(isPlaying = false) }
             }
+            AppConfig.lastPlayedIndex = player.getCurrentPlayIndex()
+            if (song != null) {
+                scope.launch(Dispatchers.IO) {
+                    MetadataExtractor.extractMetadata(song)
+                    _playerUiState.update { it.copy(curSong = song) }
+                }
+            }
         }
     }
 
@@ -89,6 +79,7 @@ class PlayerManager private constructor() {
             if (!isUserSeeking) {
                 _playerUiState.update { it.copy(progressInMs = postion) }
             }
+            AppConfig.lastPlayedPosition = postion
         }
     }
 
@@ -132,6 +123,7 @@ class PlayerManager private constructor() {
             if (playlist.isEmpty()) {
                 _playerUiState.update { it.copy(randomNoPlayContentDesc = ResUtil.getString(Defaults.randomNoPlayDescRes())) }
             }
+            updateDbPlaylist(playlist)
         }
     }
 
@@ -185,7 +177,7 @@ class PlayerManager private constructor() {
     }
 
     fun playIndex(songs: List<Song>, startIndex: Int, playWhenReady: Boolean) {
-        player.playSong(songs, startIndex, playWhenReady)
+        player.playSong(songs, startIndex, 0, playWhenReady)
     }
 
     fun maybePlayIndex(songs: List<Song>, startIndex: Int): Boolean {
@@ -302,6 +294,13 @@ class PlayerManager private constructor() {
                 delay(50)
                 _playerUiState.update { it.copy(toast = null) }
             }
+        }
+    }
+
+    private fun updateDbPlaylist(songs: List<Song>) {
+        scope.launch(Dispatchers.IO) {
+            DatabaseHelper.playlistDao().deleteAll()
+            DatabaseHelper.playlistDao().insertAll(songs.toPlaylists())
         }
     }
 }

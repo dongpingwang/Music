@@ -43,7 +43,7 @@ class ProgressTracker {
             progressJob = coroutine.launch(Dispatchers.Main) {
                 repeat(Int.MAX_VALUE) {
                     val position = player?.contentPosition ?: 0
-                     // Log.d(TAG, "position: $position")
+                    // Log.d(TAG, "position: $position")
                     if (player?.currentMediaItem?.mediaId != currentMediaItem?.mediaId) {
                         // just ignore
                         Log.e(TAG, "player?.currentMediaItem is not currentMediaItem")
@@ -67,5 +67,10 @@ class ProgressTracker {
         progressJob?.cancel()
         progressJob = null
         onIsPlayingChanged(isPlaying)
+    }
+
+    fun onProgressChanged(progress: Long) {
+        Log.d(TAG, "onProgressChanged: progress=${progress}")
+        progressChangedListeners.onEach { it(progress) }
     }
 }

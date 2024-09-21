@@ -24,7 +24,7 @@ interface IPlayer {
     /**
      * 播放歌曲，从指定的歌曲开始播放
      */
-    fun playSong(songs: List<Song>, startIndex: Int, playWhenReady: Boolean)
+    fun playSong(songs: List<Song>, startIndex: Int, startPositionMs: Long, playWhenReady: Boolean)
 
     /**
      * 获取播放列表

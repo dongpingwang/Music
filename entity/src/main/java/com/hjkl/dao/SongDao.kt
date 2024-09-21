@@ -17,7 +17,7 @@ interface SongDao {
     fun getAllFilterShortDuration(): List<Song>
 
     @Insert
-    fun insertAll(song: List<Song>)
+    fun insertAll(songs: List<Song>)
 
     @Query("DELETE FROM song")
     fun deleteAll()

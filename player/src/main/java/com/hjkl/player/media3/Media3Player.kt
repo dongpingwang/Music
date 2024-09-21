@@ -49,15 +49,23 @@ open class Media3Player : IPlayer {
     }
 
     override fun playSong(songs: List<Song>) {
-        playSong(songs, 0, true)
+        playSong(songs, 0, 0, true)
     }
 
-    override fun playSong(songs: List<Song>, startIndex: Int, playWhenReady: Boolean) {
-        "playSong: songs.size=${songs.size} startIndex=$startIndex playWhenReady=$playWhenReady".d()
+    override fun playSong(
+        songs: List<Song>,
+        startIndex: Int,
+        startPositionMs: Long,
+        playWhenReady: Boolean
+    ) {
+        "playSong: songs.size=${songs.size} startIndex=$startIndex  startPositionMs=$startPositionMs playWhenReady=$playWhenReady".d()
         playlistManager.setPlaylist(songs)
-        player.setMediaItems(songs.toMediaItem(), startIndex, 0L)
+        player.setMediaItems(songs.toMediaItem(), startIndex, startPositionMs)
         player.playWhenReady = playWhenReady
         player.prepare()
+        if (startPositionMs > 0 && !playWhenReady) {
+            progressTracker.onProgressChanged(startPositionMs)
+        }
     }
 
     override fun getPlaylist(): List<Song> {
@@ -105,7 +113,7 @@ open class Media3Player : IPlayer {
             "hasn't PreviousMediaItem, playSongs".d()
             val playlist = ArrayList<Song>().apply { addAll(getPlaylist()) }
             if (playlist.isNotEmpty()) {
-                playSong(playlist, playlist.size - 1, true)
+                playSong(playlist, playlist.size - 1, 0, true)
             }
         }
     }
@@ -123,7 +131,7 @@ open class Media3Player : IPlayer {
         } else {
             if (startPlay) {
                 val playlist = ArrayList<Song>().apply { addAll(getPlaylist()) }
-                playSong(playlist, currentPlayIndex + 1, true)
+                playSong(playlist, currentPlayIndex + 1, 0, true)
             }
         }
     }
