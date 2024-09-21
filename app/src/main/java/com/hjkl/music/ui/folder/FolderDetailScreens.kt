@@ -34,7 +34,7 @@ fun FolderDetailScreen(folderPath: String) {
     )
     val uiState by folderViewModel.uiState.collectAsStateWithLifecycle()
 
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
 
     val curFolder = uiState.datas.find { it.path == folderPath }
 

@@ -6,7 +6,7 @@ import com.hjkl.music.data.PlayerManager
 
 class PlayerViewModel : ViewModel() {
 
-    val playerManager = PlayerManager.get()
+    val playerManager = PlayerManager
 
     companion object {
         @Suppress("UNCHECKED_CAST")

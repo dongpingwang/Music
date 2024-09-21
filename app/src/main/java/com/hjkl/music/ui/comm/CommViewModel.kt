@@ -1,6 +1,7 @@
 package com.hjkl.music.ui.comm
 
 import androidx.lifecycle.ViewModel
+import com.hjkl.music.data.PlayerManager
 import com.hjkl.music.data.SongDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,5 +12,7 @@ abstract class CommViewModel<T> : ViewModel() {
 
     val uiState = viewModelState.asStateFlow()
 
-    fun source() = SongDataSource.get()
+    fun source() = SongDataSource
+
+    val playerUiState = PlayerManager.playerUiState
 }

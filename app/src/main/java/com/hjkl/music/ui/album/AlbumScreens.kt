@@ -39,7 +39,7 @@ fun AlbumScreen(
         factory = AlbumViewModel.provideFactory()
     )
     val uiState by albumViewModel.uiState.collectAsStateWithLifecycle()
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     AlbumScreen(
         uiState = uiState,
         onDrawerClicked = onDrawerClicked,

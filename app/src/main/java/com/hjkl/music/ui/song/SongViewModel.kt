@@ -6,11 +6,7 @@ import com.hjkl.comm.onFalse
 import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
 import com.hjkl.music.data.AppConfig
-import com.hjkl.music.data.Defaults
-import com.hjkl.music.data.PlayerManager
 import com.hjkl.music.ui.comm.CommViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,9 +20,6 @@ class SongViewModel : CommViewModel<Song>() {
             }
         }
     }
-
-    private val _playerUiState = MutableStateFlow(Defaults.defaultPlayerUiState)
-    val playerUiState = _playerUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -50,12 +43,6 @@ class SongViewModel : CommViewModel<Song>() {
         }.onFalse {
             "还没启动初始化过，不需要获取数据".d()
             viewModelState.update { it.copy(isFetchCompleted = true, isExtractCompleted = true) }
-        }
-
-        viewModelScope.launch {
-            PlayerManager.get().playerUiState.collect {
-                _playerUiState.tryEmit(it)
-            }
         }
     }
 

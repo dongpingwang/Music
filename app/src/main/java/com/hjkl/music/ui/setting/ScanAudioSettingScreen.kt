@@ -42,7 +42,7 @@ import com.hjkl.music.ui.comm.ActionHandler
 
 @Composable
 fun ScanAudioSettingScreen() {
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     ScanAudioSettingScreen(onBackClicked = actionHandler.navigationActions.popBackStack)
 }
 

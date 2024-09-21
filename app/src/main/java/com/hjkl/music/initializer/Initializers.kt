@@ -29,14 +29,14 @@ object Initializers {
                         restorePlayerState(player)
                     }
                 })
-                PlayerManager.get().init()
+                PlayerManager.init()
                 LyricStatePublisher.init()
             }
         }
     }
 
     fun destroy() {
-        PlayerManager.get().destroy()
+        PlayerManager.destroy()
         LyricStatePublisher.destroy()
     }
 

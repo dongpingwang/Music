@@ -57,7 +57,7 @@ fun SongScreen(
     )
     val uiState by songViewModel.uiState.collectAsStateWithLifecycle()
     val playerUiState by songViewModel.playerUiState.collectAsStateWithLifecycle()
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     val itemActions = actionHandler.itemActions
     SongScreen(
         uiState = uiState,

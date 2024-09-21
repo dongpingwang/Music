@@ -53,7 +53,7 @@ fun ArtistDetailScreens(artistId: Int) {
         factory = ArtistViewModel.provideFactory()
     )
     val uiState by artistViewModel.uiState.collectAsStateWithLifecycle()
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     val curArtist = uiState.datas.find { it.id == artistId }
     curArtist?.let {
         ArtistDetailScreens(

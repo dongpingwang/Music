@@ -49,8 +49,8 @@ private val pageCount = 3
 
 @Composable
 fun PlayerPages(uiState: PlayerUiState) {
-    val playerActions = ActionHandler.get().playerActions
-    val navigationActions = ActionHandler.get().navigationActions
+    val playerActions = ActionHandler.playerActions
+    val navigationActions = ActionHandler.navigationActions
     val lyricViewModel: LyricViewModel = viewModel(
         factory = LyricViewModel.provideFactory()
     )

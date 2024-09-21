@@ -24,13 +24,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
-class PlayerManager private constructor() {
-    companion object {
-        private val provider: PlayerManager by lazy { PlayerManager() }
-        fun get(): PlayerManager {
-            return provider
-        }
-    }
+object PlayerManager {
     private val scope = CoroutineScope(CoroutineName("PlayerStateProvider"))
     private val _playerUiState = MutableStateFlow(defaultPlayerUiState)
     val playerUiState = _playerUiState.asStateFlow()

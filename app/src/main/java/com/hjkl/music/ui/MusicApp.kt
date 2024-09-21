@@ -46,7 +46,7 @@ fun MusicApp(
     var showBottomPlayer by remember { mutableStateOf(true) }
     var selectedScreen by remember { mutableStateOf(Screen.Home) }
 
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
 
     val navController = rememberNavController()
     val navigationActions = remember(navController) {
@@ -85,7 +85,6 @@ fun MusicApp(
         factory = PlayerViewModel.provideFactory()
     )
     val playerUiState by playerViewModel.playerManager.playerUiState.collectAsStateWithLifecycle()
-
 
     MusicTheme {
         Column {

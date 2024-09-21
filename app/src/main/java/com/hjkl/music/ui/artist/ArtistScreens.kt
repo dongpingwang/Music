@@ -40,7 +40,7 @@ fun ArtistScreen(
         factory = ArtistViewModel.provideFactory()
     )
     val uiState by artistViewModel.uiState.collectAsStateWithLifecycle()
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     ArtistScreen(
         uiState = uiState,
         onDrawerClicked = onDrawerClicked,

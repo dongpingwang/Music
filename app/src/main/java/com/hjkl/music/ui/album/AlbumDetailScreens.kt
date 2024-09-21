@@ -57,7 +57,7 @@ fun AlbumDetailScreens(
     )
     val uiState by albumViewModel.uiState.collectAsStateWithLifecycle()
 
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
 
     val curAlbum = uiState.datas.find { it.id == albumId }
     val otherAlbums =

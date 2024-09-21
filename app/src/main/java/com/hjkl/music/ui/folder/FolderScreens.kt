@@ -40,7 +40,7 @@ fun FolderScreen(
         factory = FolderViewModel.provideFactory()
     )
     val uiState by folderViewModel.uiState.collectAsStateWithLifecycle()
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     FolderScreen(
         uiState = uiState,
         onDrawerClicked = onDrawerClicked,

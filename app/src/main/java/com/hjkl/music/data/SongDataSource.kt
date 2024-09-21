@@ -18,25 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class SongDataSourceState(
-    val isFetchCompleted: Boolean = false,// 数据获取完成
-    val isExtractCompleted: Boolean = false, // 数据解析完成
-    val songs: List<Song>,
-    val errorMsg: String?,
-    val updateTimeMillis: Long?// 数据获取或者解析完成时间戳
-) {
-    fun shortLog(): String {
-        return "SongDataSourceState(isFetchCompleted=$isFetchCompleted, isExtractCompleted=$isExtractCompleted, songs.size=${songs.size}, errorMsg=$errorMsg, updateTimeMillis=$updateTimeMillis)"
-    }
-}
 
-class SongDataSource {
-    companion object {
-        private val dataSource by lazy { SongDataSource() }
-        fun get(): SongDataSource {
-            return dataSource
-        }
-    }
+
+object SongDataSource {
 
     private val scope = CoroutineScope(CoroutineName("SongDataSource"))
     private val _songDataSourceState = MutableStateFlow(defaultSongDataSourceState)

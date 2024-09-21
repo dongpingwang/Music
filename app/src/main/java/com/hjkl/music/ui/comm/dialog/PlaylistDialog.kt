@@ -64,7 +64,7 @@ data class PlaylistDialogActions(
 @Composable
 fun PlaylistDialog(
     uiState: PlayerUiState,
-    playlistDialogActions: PlaylistDialogActions = ActionHandler.get().playlistDialogAction,
+    playlistDialogActions: PlaylistDialogActions = ActionHandler.playlistDialogAction,
     onDialogHide: () -> Unit = {}
 ) {
     var showClearQueueDialog by remember { mutableStateOf(false) }

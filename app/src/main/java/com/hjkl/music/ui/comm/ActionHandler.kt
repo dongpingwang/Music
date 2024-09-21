@@ -32,15 +32,9 @@ data class PlayerActions(
     val onPlayNext: () -> Unit,
 )
 
-class ActionHandler private constructor(player: PlayerManager) {
+object ActionHandler {
 
-    companion object {
-        private val instance by lazy { ActionHandler(PlayerManager.get()) }
-
-        fun get(): ActionHandler {
-            return instance
-        }
-    }
+    private val player = PlayerManager
 
     val bottomBarActions = BottomBarActions(
         // 点击BottomBar中播放按钮，切换播放状态

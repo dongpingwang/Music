@@ -33,7 +33,7 @@ import com.hjkl.music.ui.comm.ActionHandler
 
 @Composable
 fun SettingScreens(onDrawerClicked: () -> Unit) {
-    val actionHandler = ActionHandler.get()
+    val actionHandler = ActionHandler
     SettingScreens2(
         onDrawerClicked = onDrawerClicked,
         onScanAudioItemClick = actionHandler.navigationActions.navigateToScanAudioSetting
