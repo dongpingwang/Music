@@ -5,12 +5,16 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * 播放列表
+ * 歌单
  */
 @Entity
-data class Playlist(
+data class SongList(
     @PrimaryKey
     val id: Long? = null,// 数据库中主键id
+    @ColumnInfo(name = "song_list_id")
+    val songListId: Int,// 歌单id
+    @ColumnInfo(name = "name")
+    val name: String,// 歌单名字
     @ColumnInfo(name = "song_id")
     val songId: Long,// 歌曲id
     @ColumnInfo(name = "title")

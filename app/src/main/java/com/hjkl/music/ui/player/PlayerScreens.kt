@@ -41,6 +41,7 @@ import com.hjkl.music.model.Lyric
 import com.hjkl.music.test.FakeDatas
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.dialog.PlayerPageMoreDialog
+import com.hjkl.music.ui.favorite.FavoriteViewModel
 import com.hjkl.player.constant.RepeatMode
 
 private val defaultPageIndex = 1
@@ -54,10 +55,16 @@ fun PlayerPages(uiState: PlayerUiState) {
     val lyricViewModel: LyricViewModel = viewModel(
         factory = LyricViewModel.provideFactory()
     )
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModel.provideFactory()
+    )
+
     val curLyricState by lyricViewModel.curLyricState.collectAsStateWithLifecycle()
+    val curSongFavoriteState by favoriteViewModel.curSongFavoriteState.collectAsStateWithLifecycle()
     PlayerPages(
         uiState = uiState,
         lyricState = curLyricState,
+        collectState = curSongFavoriteState,
         onBackPress = navigationActions.popBackStack,
         onValueChange = playerActions.onSeekBarValueChange,
         onRepeatModeSwitch = playerActions.onRepeatModeSwitch,
@@ -65,6 +72,7 @@ fun PlayerPages(uiState: PlayerUiState) {
         onPlayPrev = playerActions.onPlayPrev,
         onPlayToggle = playerActions.onPlayToggle,
         onPlayNext = playerActions.onPlayNext,
+        onCollectChanged = { favoriteViewModel.favoriteManager().setCurSongCollect(it) },
         onArtistClicked = navigationActions.navigateToArtistDetail,
         onAlbumClicked = navigationActions.navigateToAlbumDetail
     )
@@ -75,6 +83,7 @@ fun PlayerPages(uiState: PlayerUiState) {
 fun PlayerPages(
     uiState: PlayerUiState,
     lyricState: Lyric?,
+    collectState: Boolean,
     onBackPress: () -> Unit,
     onValueChange: (Boolean, Long) -> Unit,
     onRepeatModeSwitch: (RepeatMode) -> Unit,
@@ -82,6 +91,7 @@ fun PlayerPages(
     onPlayPrev: () -> Unit,
     onPlayToggle: () -> Unit,
     onPlayNext: () -> Unit,
+    onCollectChanged: (Boolean) -> Unit,
     onArtistClicked: (Artist) -> Unit,
     onAlbumClicked: (Album) -> Unit
 ) {
@@ -113,12 +123,14 @@ fun PlayerPages(
                     // 播放器界面
                     PlayerContentRegular(
                         uiState = uiState,
+                        collectState = collectState,
                         onValueChange = onValueChange,
                         onRepeatModeSwitch = onRepeatModeSwitch,
                         onShuffleModeEnable = onShuffleModeEnable,
                         onPlayPrev = onPlayPrev,
                         onPlayToggle = onPlayToggle,
-                        onPlayNext = onPlayNext
+                        onPlayNext = onPlayNext,
+                        onCollectChanged = onCollectChanged
                     )
                 }
 
@@ -206,6 +218,7 @@ private fun PlayerPagesPreview() {
     PlayerPages(
         FakeDatas.playerUiState,
         lyricState = null,
+        collectState = false,
         onBackPress = { },
         onValueChange = { i, f -> },
         onRepeatModeSwitch = {},
@@ -213,6 +226,7 @@ private fun PlayerPagesPreview() {
         onPlayPrev = {},
         onPlayToggle = {},
         onPlayNext = {},
+        onCollectChanged = {},
         onArtistClicked = {},
         onAlbumClicked = {})
 }

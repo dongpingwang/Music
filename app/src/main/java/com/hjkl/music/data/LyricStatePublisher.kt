@@ -13,9 +13,8 @@ import kotlinx.coroutines.launch
 
 object LyricStatePublisher {
 
-    private const val tag = "LyricStateProvider"
-
-    private val scope = CoroutineScope(CoroutineName(tag))
+    private const val TAG = "LyricStateProvider"
+    private val scope = CoroutineScope(CoroutineName(TAG))
     private val _curLyricState = MutableStateFlow<Lyric?>(null)
 
     val curLyricState = _curLyricState

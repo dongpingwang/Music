@@ -5,14 +5,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * 播放列表
+ * 我的收藏
  */
 @Entity
-data class Playlist(
+data class Favorite(
     @PrimaryKey
     val id: Long? = null,// 数据库中主键id
     @ColumnInfo(name = "song_id")
-    val songId: Long,// 歌曲id
+    val songId: Long,// id
     @ColumnInfo(name = "title")
     var title: String,// 歌曲名
     @ColumnInfo(name = "artist")

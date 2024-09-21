@@ -5,6 +5,7 @@ import com.hjkl.comm.LogTrace
 import com.hjkl.comm.d
 import com.hjkl.db.DatabaseHelper
 import com.hjkl.music.data.AppConfig
+import com.hjkl.music.data.FavoriteManager
 import com.hjkl.music.data.LyricStatePublisher
 import com.hjkl.music.data.PlayerManager
 import com.hjkl.music.utils.toSongs
@@ -14,7 +15,6 @@ import com.hjkl.player.util.toRepeatMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 object Initializers {
 
@@ -31,6 +31,7 @@ object Initializers {
                 })
                 PlayerManager.init()
                 LyricStatePublisher.init()
+                FavoriteManager.init()
             }
         }
     }
@@ -38,6 +39,7 @@ object Initializers {
     fun destroy() {
         PlayerManager.destroy()
         LyricStatePublisher.destroy()
+        FavoriteManager.destroy()
     }
 
     private fun restorePlayerState(player: IPlayer) {

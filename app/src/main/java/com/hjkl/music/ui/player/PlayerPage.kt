@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Repeat
@@ -69,12 +70,14 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun PlayerContentRegular(
     uiState: PlayerUiState,
+    collectState: Boolean,
     onValueChange: (Boolean, Long) -> Unit,
     onRepeatModeSwitch: (RepeatMode) -> Unit,
     onShuffleModeEnable: (Boolean) -> Unit,
     onPlayPrev: () -> Unit,
     onPlayToggle: () -> Unit,
-    onPlayNext: () -> Unit
+    onPlayNext: () -> Unit,
+    onCollectChanged: (Boolean) -> Unit
 ) {
 
     Column(
@@ -87,9 +90,13 @@ fun PlayerContentRegular(
             song = uiState.curSong
         )
         Spacer(modifier = Modifier.height(4.dp))
-        SongDescription(uiState = uiState, onToggleCollect = {}, onPlayTrack = {
-            onValueChange(false, it)
-        })
+        SongDescription(
+            uiState = uiState,
+            collectState = collectState,
+            onCollectChanged = onCollectChanged,
+            onPlayTrack = {
+                onValueChange(false, it)
+            })
         Spacer(modifier = Modifier.height(148.dp))
         PlayerSlider(
             uiState = uiState,
@@ -129,7 +136,8 @@ private fun PlayerImage(
 @Composable
 private fun ColumnScope.SongDescription(
     uiState: PlayerUiState,
-    onToggleCollect: () -> Unit,
+    collectState: Boolean,
+    onCollectChanged: (Boolean) -> Unit,
     onPlayTrack: (Long) -> Unit
 ) {
     val cueAudio = uiState.curSong?.cueAudio
@@ -183,7 +191,7 @@ private fun ColumnScope.SongDescription(
         }
         Row(modifier = Modifier.padding(start = 8.dp)) {
             Image(
-                imageVector = Icons.Filled.FavoriteBorder,
+                imageVector = if (collectState) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                 contentDescription = null,
                 contentScale = ContentScale.Inside,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
@@ -191,7 +199,7 @@ private fun ColumnScope.SongDescription(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(bounded = false, radius = 48.dp / 2)
                 ) {
-                    onToggleCollect()
+                    onCollectChanged(!collectState)
                 }
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -405,12 +413,14 @@ private fun PlayerButtons(
 fun PlayerContentRegularPreview() {
     PlayerContentRegular(
         uiState = FakeDatas.playerUiState,
+        collectState = false,
         onValueChange = { isUserSeeking, progressInMillis -> },
         onRepeatModeSwitch = { },
         onShuffleModeEnable = {},
         onPlayPrev = {},
         onPlayToggle = {},
-        onPlayNext = {}
+        onPlayNext = {},
+        onCollectChanged = {}
     )
 }
 
