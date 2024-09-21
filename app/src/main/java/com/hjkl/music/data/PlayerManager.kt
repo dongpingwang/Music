@@ -189,7 +189,7 @@ class PlayerManager private constructor() {
     }
 
     fun maybePlayIndex(songs: List<Song>, startIndex: Int): Boolean {
-        if (player.getCurrentSong()?.id == songs[startIndex].id) {
+        if (player.getCurrentSong()?.songId == songs[startIndex].songId) {
             // 播放是这首歌，进到播放器界面
             return true
         }
@@ -209,7 +209,7 @@ class PlayerManager private constructor() {
     }
 
     fun maybeTogglePlay(songs: List<Song>, startIndex: Int) {
-        if (player.getCurrentSong()?.id == songs[startIndex].id) {
+        if (player.getCurrentSong()?.songId == songs[startIndex].songId) {
             // 播放是这首歌，切换暂停或者播放
             togglePlay()
             return

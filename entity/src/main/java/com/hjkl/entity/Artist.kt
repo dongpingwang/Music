@@ -24,6 +24,10 @@ data class Artist(val id: Int, val name: String) {
         return songs.firstOrNull { it.bitmap != null }?.bitmap
     }
 
+    fun getBitmapBytes(): ByteArray? {
+        return songs.firstOrNull { it.originBitmapBytes != null }?.originBitmapBytes
+    }
+
     fun getAlbumCoverPath(): String? {
         return songs.firstOrNull { it.albumCoverPath != null }?.albumCoverPath
     }

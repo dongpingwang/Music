@@ -28,20 +28,18 @@ object FakeDatas {
     )
 
     val song = Song(
-        id = 1,
+        songId = 1,
         title = "稻香",
         artist = "周杰伦",
         artistId = 1,
         album = "",
         albumId = 1,
         data = "",
-        displayName = "",
         duration = 1,
         size = 1,
         publishDate = "1999-01-01",
         bitrate = 128,
-        composer = "",
-        writer = ""
+        composer = ""
     )
     val songs = listOf(song, song, song)
     val songUiState = ViewModelState<Song>(datas = songs)

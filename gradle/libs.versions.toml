@@ -1,6 +1,10 @@
 [versions]
 accompanistPermissions = "0.36.1-SNAPSHOT"
 agp = "8.4.1"
+androidxRoomRoomRuntime4 = "2.6.1"
+androidxRoomRoomCompiler5 = "2.6.1"
+androidxRoomRoomKtx4 = "2.6.1"
+androidxRoomRoomTesting4 = "2.6.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -21,9 +25,14 @@ androidx-compose-material3 = "1.3.0-beta01"
 serialize = "3.0.1"
 media3Session = "1.4.1"
 coil = "2.6.0"
+ksp = "1.8.10-1.0.9"
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-room-room-testing6 = { module = "androidx.room:room-testing", version.ref = "androidxRoomRoomTesting4" }
+androidx-room-room-ktx6 = { module = "androidx.room:room-ktx", version.ref = "androidxRoomRoomKtx4" }
+androidx-room-room-compiler7 = { module = "androidx.room:room-compiler", version.ref = "androidxRoomRoomCompiler5" }
+androidx-room-room-runtime6 = { module = "androidx.room:room-runtime", version.ref = "androidxRoomRoomRuntime4" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -56,4 +65,7 @@ coil-kt-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
 

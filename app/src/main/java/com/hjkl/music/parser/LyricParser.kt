@@ -20,7 +20,7 @@ object LyricParser {
     fun parseLyric(song: Song): Lyric? {
         if (song.lyricText != null && song.lyricText?.isNotEmpty() == true) {
             "使用内置歌词文本进行解析".d()
-            return parseLyric(song.id, song.title, song.lyricText!!)
+            return parseLyric(song.songId, song.title, song.lyricText!!)
         }
         val lyricPath = SongInfoUtil.getPresetLyricPath(song.data)
         "lyricPath: $lyricPath".d()
@@ -35,7 +35,7 @@ object LyricParser {
             return null
         }
         fileReader.closeSafely()
-        return parseLyric(song.id, song.title, lyricText)
+        return parseLyric(song.songId, song.title, lyricText)
     }
 
     private fun parseLyric(songId: Long, songName: String, lyricText: String): Lyric {

@@ -196,7 +196,7 @@ private fun SongList(
             ) {
 
                 itemsIndexed(songs) { index, song ->
-                    val curSongPlaying = uiState.isPlaying && uiState.curSong?.id == song.id
+                    val curSongPlaying = uiState.isPlaying && uiState.curSong?.songId == song.songId
                     SongItem(
                         isSongPlaying = curSongPlaying,
                         song = song,
@@ -210,7 +210,7 @@ private fun SongList(
             onClick = {
                 if (uiState.curSong != null) {
                     val curSongPosition =
-                        songs.indexOfLast { it.id == uiState.curSong.id }
+                        songs.indexOfLast { it.songId == uiState.curSong.songId }
                     scope.launch { listState.scrollToItem(curSongPosition) }
                 } else {
                     scope.launch { listState.scrollToItem(0) }

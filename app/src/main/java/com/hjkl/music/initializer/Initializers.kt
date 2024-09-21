@@ -3,6 +3,7 @@ package com.hjkl.music.initializer
 import android.content.Context
 import com.hjkl.comm.LogTrace
 import com.hjkl.comm.d
+import com.hjkl.db.DatabaseHelper
 import com.hjkl.music.data.AppConfig
 import com.hjkl.music.data.LyricStatePublisher
 import com.hjkl.music.data.PlayerManager
@@ -27,6 +28,7 @@ object Initializers {
                 })
                 PlayerManager.get().init()
                 LyricStatePublisher.init()
+                DatabaseHelper.init(application)
             }
         }
     }

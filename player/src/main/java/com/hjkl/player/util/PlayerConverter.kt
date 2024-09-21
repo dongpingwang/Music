@@ -8,7 +8,7 @@ import com.hjkl.player.constant.RepeatMode
 
 fun Song.toMediaItem(): MediaItem {
     return MediaItem.Builder()
-        .setMediaId(id.toString())
+        .setMediaId(songId.toString())
         .setMediaMetadata(
             MediaMetadata.Builder()
                 .setTitle(title)
@@ -27,7 +27,7 @@ fun List<Song>.toMediaItem(): List<MediaItem> {
 }
 
 fun List<Song>.findSong(mediaItem: MediaItem?): Song? {
-    return find { it.id.toString() == mediaItem?.mediaId }
+    return find { it.songId.toString() == mediaItem?.mediaId }
 }
 
 fun Int.toPlayMode(): PlayMode {

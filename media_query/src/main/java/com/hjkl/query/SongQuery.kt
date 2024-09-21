@@ -32,26 +32,22 @@ class SongQuery : ISongQuery {
                     val album = cursor.getString(cursor.getColumnIndex(Media.ALBUM))
                     val albumId = cursor.getInt(cursor.getColumnIndex(Media.ALBUM_ID))
                     val data = cursor.getString(cursor.getColumnIndex(Media.DATA))
-                    val displayName = cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME))
                     val duration = cursor.getLong(cursor.getColumnIndex(Media.DURATION))
                     val size = cursor.getInt(cursor.getColumnIndex(Media.SIZE))
                     val bitrate = cursor.getInt(cursor.getColumnIndex(Media.BITRATE))
                     val composer = cursor.getString(cursor.getColumnIndex(Media.COMPOSER))
-                    val writer = cursor.getString(cursor.getColumnIndex(Media.WRITER))
                     val song = Song(
-                        id = id,
+                        songId = id,
                         title = title,
                         artist = artist,
                         artistId = artistId,
                         album = album,
                         albumId = albumId,
                         data = data,
-                        displayName = displayName,
                         duration = duration,
                         size = size,
                         bitrate = bitrate,
-                        composer = composer,
-                        writer = writer
+                        composer = composer
                     )
                     "song from cursor: $song".d()
                     result.add(song)

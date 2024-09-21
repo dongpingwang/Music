@@ -43,7 +43,7 @@ object LyricStatePublisher {
             _curLyricState.tryEmit(null)
             return
         }
-        if (song.id == _curLyricState.value?.songId && _curLyricState.value?.originLrcText?.isNotEmpty() == true) {
+        if (song.songId == _curLyricState.value?.songId && _curLyricState.value?.originLrcText?.isNotEmpty() == true) {
             "song is previous, return saved lyric".d()
             _curLyricState.tryEmit(_curLyricState.value)
             return
