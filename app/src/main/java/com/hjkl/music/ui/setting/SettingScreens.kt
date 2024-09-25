@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.AudioFile
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,7 +32,7 @@ import com.hjkl.music.ui.comm.ActionHandler
 @Composable
 fun SettingScreens(onDrawerClicked: () -> Unit) {
     val actionHandler = ActionHandler
-    SettingScreens2(
+    SettingScreens(
         onDrawerClicked = onDrawerClicked,
         onScanAudioItemClick = actionHandler.navigationActions.navigateToScanAudioSetting
     )
@@ -42,7 +40,7 @@ fun SettingScreens(onDrawerClicked: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingScreens2(
+fun SettingScreens(
     onDrawerClicked: () -> Unit,
     onScanAudioItemClick: () -> Unit
 ) {
@@ -106,5 +104,5 @@ fun SettingScreens2(
 @Preview
 @Composable
 private fun SettingScreensPreview() {
-    SettingScreens2(onDrawerClicked = {}, onScanAudioItemClick = {})
+    SettingScreens(onDrawerClicked = {}, onScanAudioItemClick = {})
 }
