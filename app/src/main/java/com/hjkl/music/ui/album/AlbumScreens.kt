@@ -9,6 +9,13 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +33,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Album
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.DrawerSortTopAppBar
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.AlbumUiState
@@ -47,6 +53,7 @@ fun AlbumScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumScreen(
     uiState: AlbumUiState,
@@ -54,10 +61,24 @@ fun AlbumScreen(
     onCardClicked: (Album) -> Unit
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerSortTopAppBar(
-            title = stringResource(id = R.string.album_title),
-            onDrawerClicked = onDrawerClicked,
-            onSortClicked = {}
+        CenterAlignedTopAppBar(
+            title = { Text(text = stringResource(id = R.string.album_title)) },
+            navigationIcon = {
+                IconButton(onClick = onDrawerClicked) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick =  {}) {
+                    Icon(
+                        imageVector = Icons.Default.Sort,
+                        contentDescription = null
+                    )
+                }
+            }
         )
         LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, album ->

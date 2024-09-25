@@ -13,11 +13,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,7 +46,6 @@ import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.data.PlayerUiState
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.DrawerSearchTopAppBar
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.SongUiState
 import com.hjkl.music.ui.theme.MusicTheme
@@ -81,6 +84,7 @@ fun SongScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SongScreen(
@@ -95,10 +99,25 @@ fun SongScreen(
     onRefresh: () -> Unit,
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerSearchTopAppBar(
-            title = stringResource(id = R.string.song_title),
-            onDrawerClicked = onDrawerClicked,
-            onSearchClicked = {})
+        CenterAlignedTopAppBar(
+            title = { Text(text = stringResource(id = R.string.song_title)) },
+            navigationIcon = {
+                IconButton(onClick = onDrawerClicked) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null
+                    )
+                }
+            }
+        )
         when {
             (uiState.errorMsg != null) || (uiState.isFetchCompleted && uiState.datas.isEmpty()) -> {
                 ErrorOrEmpty(

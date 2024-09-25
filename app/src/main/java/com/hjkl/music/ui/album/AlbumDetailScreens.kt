@@ -1,5 +1,6 @@
 package com.hjkl.music.ui.album
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBackIosNew
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +48,6 @@ import com.hjkl.entity.Artist
 import com.hjkl.entity.Song
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.TitleAnimatedVisibleTopBar
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.CommonSongItem
@@ -80,6 +86,7 @@ fun AlbumDetailScreens(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumDetailScreens(
     album: Album,
@@ -101,11 +108,15 @@ fun AlbumDetailScreens(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TitleAnimatedVisibleTopBar(
-            title = album.name,
-            visible = showTopBarTitle,
-            onBackClicked = onBackClicked
-        )
+        CenterAlignedTopAppBar(title = {
+            AnimatedVisibility(visible = showTopBarTitle) {
+                Text(text = album.name)
+            }
+        }, navigationIcon = {
+            IconButton(onClick = onBackClicked) {
+                Icon(imageVector = Icons.Outlined.ArrowBackIosNew, contentDescription = null)
+            }
+        })
         LazyColumn(
             state = listState,
             modifier = Modifier

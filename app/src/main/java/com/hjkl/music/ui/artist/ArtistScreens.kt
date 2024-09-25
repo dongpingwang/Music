@@ -11,6 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +34,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hjkl.entity.Artist
 import com.hjkl.music.R
 import com.hjkl.music.test.FakeDatas
-import com.hjkl.music.ui.bar.DrawerSortTopAppBar
 import com.hjkl.music.ui.comm.ActionHandler
 import com.hjkl.music.ui.comm.AlbumImage
 import com.hjkl.music.ui.comm.ArtistUiState
@@ -48,6 +54,7 @@ fun ArtistScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistScreen(
     uiState: ArtistUiState,
@@ -55,10 +62,24 @@ fun ArtistScreen(
     onItemClicked: (Artist) -> Unit
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        DrawerSortTopAppBar(
-            title = stringResource(id = R.string.artist_title),
-            onDrawerClicked = onDrawerClicked,
-            onSortClicked = {},
+        CenterAlignedTopAppBar(
+            title = { Text(text = stringResource(id = R.string.artist_title)) },
+            navigationIcon = {
+                IconButton(onClick = onDrawerClicked) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Sort,
+                        contentDescription = null
+                    )
+                }
+            }
         )
         LazyColumn(modifier = Modifier.weight(1F)) {
             itemsIndexed(uiState.datas) { index, artist ->
