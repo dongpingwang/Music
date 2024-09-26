@@ -1,6 +1,7 @@
 package com.hjkl.music.ui.comm
 
 import com.hjkl.comm.d
+import com.hjkl.comm.onTrue
 import com.hjkl.entity.Song
 import com.hjkl.music.data.PlayerManager
 import com.hjkl.music.ui.NavigationActions
@@ -68,7 +69,11 @@ object ActionHandler {
         onPlayAll = { player.playAll(it) },
         // 点击列表条目，进到播放界面
         onItemClicked = { songs, index ->
-            player.maybePlayIndex(songs, index)
+            player.maybePlayIndex(songs, index).also {
+                if (it) {
+                    navigationActions.navigateToPlayer()
+                }
+            }
         },
         // 点击列表条目中的播放按钮
         onPlayClicked = { songs, index ->

@@ -68,11 +68,7 @@ fun SongScreen(
         // 点击Toolbar菜单按钮，切换侧边栏
         onDrawerClicked = onDrawerClicked,
         onPlayAll = { itemActions.onPlayAll(uiState.datas) },
-        onItemClicked = {
-            itemActions.onItemClicked(uiState.datas, it).onTrue {
-                actionHandler.navigationActions.navigateToPlayer()
-            }
-        },
+        onItemClicked = { itemActions.onItemClicked(uiState.datas, it) },
         onPlayClicked = { itemActions.onPlayClicked(uiState.datas, it) },
         onAddToQueue = itemActions.onAddToQueue,
         // 点击扫描音乐按钮，进行扫描

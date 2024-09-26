@@ -8,7 +8,7 @@ import com.hjkl.music.data.AppConfig
 import com.hjkl.music.data.FavoriteManager
 import com.hjkl.music.data.LyricStatePublisher
 import com.hjkl.music.data.PlayerManager
-import com.hjkl.music.utils.toSongs
+import com.hjkl.music.utils.toSongsFromPlaylist
 import com.hjkl.player.interfaces.IPlayer
 import com.hjkl.player.media3.PlayerProxy
 import com.hjkl.player.util.toRepeatMode
@@ -54,7 +54,7 @@ object Initializers {
         MainScope().launch(Dispatchers.IO) {
             val lastPlayedIndex = AppConfig.lastPlayedIndex
             val lastPlayedPosition = AppConfig.lastPlayedPosition
-            val playlist = DatabaseHelper.playlistDao().getAll().toSongs()
+            val playlist = DatabaseHelper.playlistDao().getAll().toSongsFromPlaylist()
             "恢复上次的播放列表: playlistSize:${playlist.size} playedIndex=$lastPlayedIndex playedPosition=$lastPlayedPosition".d()
             launch(Dispatchers.Main) {
                 player.playSong(

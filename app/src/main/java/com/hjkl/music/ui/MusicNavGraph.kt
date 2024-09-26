@@ -17,6 +17,7 @@ import com.hjkl.music.ui.album.AlbumDetailScreens
 import com.hjkl.music.ui.album.AlbumScreen
 import com.hjkl.music.ui.artist.ArtistDetailScreens
 import com.hjkl.music.ui.artist.ArtistScreen
+import com.hjkl.music.ui.favorite.FavoriteScreens
 import com.hjkl.music.ui.folder.FolderDetailScreen
 import com.hjkl.music.ui.folder.FolderScreen
 import com.hjkl.music.ui.home.Screen
@@ -61,7 +62,9 @@ fun MusicNavGraph(
                     SettingScreens(onDrawerClicked = onDrawerClicked)
                 }
 
-                // Screen.FAVORITE -> {}
+                Screen.FAVORITE -> {
+                    FavoriteScreens(onDrawerClicked = onDrawerClicked)
+                }
 //                Screen.MYLIST -> {}
 
                 else -> {

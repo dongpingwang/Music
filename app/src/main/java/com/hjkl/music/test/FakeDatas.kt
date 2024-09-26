@@ -10,6 +10,8 @@ import com.hjkl.music.model.CueTrack
 import com.hjkl.music.model.Lyric
 import com.hjkl.music.parser.LyricParser
 import com.hjkl.music.ui.comm.ViewModelState
+import com.hjkl.music.ui.favorite.FavoriteUiState
+import com.hjkl.music.utils.toFavorites
 import com.hjkl.player.constant.RepeatMode
 
 object FakeDatas {
@@ -181,4 +183,6 @@ object FakeDatas {
             CueTrack(1, "ルージユ(王菲 容易受伤的女人)", "", 0)
         )
     )
+
+    val favoriteUiState = FavoriteUiState(songs = songs.toFavorites())
 }
